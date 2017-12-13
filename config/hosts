@@ -1,4 +1,4 @@
 [Device]
-ts ansible_ssh_host=127.0.0.1 ansible_ssh_user=root ansible_ssh_pass="123" ansible_sudo_pass="123"
+127.0.0.1 ansible_ssh_user=root ansible_ssh_pass="123" ansible_sudo_pass="123"
 [TestNode]
-ts ansible_ssh_host=127.0.0.1 ansible_ssh_user=root ansible_ssh_pass="123" ansible_sudo_pass="123"
+127.0.0.1 ansible_ssh_user=root ansible_ssh_pass="123" ansible_sudo_pass="123"
