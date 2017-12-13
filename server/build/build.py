@@ -36,7 +36,6 @@ BUILD_MAPPING_DIR = os.path.join(GEN_DIR,'build_mapping')
 BUILD_MAPPING_FILE = BUILD_MAPPING_DIR
 # SPV A unique folder name based on the date and time is created in /tmp so
 # that multiple instance of caliper can run.
-TMP_DIR = caliper_path.TMP_DIR
 currentProcess = [0,os.getpid()]
 
 signal_ingored = [signal.SIGINT,signal.SIGTERM,signal.SIGALRM,signal.SIGHUP]
@@ -214,8 +213,6 @@ def build_caliper(target_arch, flag=0,clear=0):
         except:
             pass
     source_build_file = caliper_path.SOURCE_BUILD_FILE
-    des_build_file = os.path.join(TMP_DIR, caliper_path.BUILD_FILE)
-    logging.info("destination file of building is %s" % des_build_file)
     set_signals()
 
     # {"dimension":[{"tool":[{"case1":["enable","1"]}, {"case2":["enable","1"]},]}]}
@@ -291,10 +288,6 @@ def build_caliper(target_arch, flag=0,clear=0):
 
         BUILD = 1
         if BUILD == 1:
-            if os.path.exists(des_build_file):
-                os.remove(des_build_file)
-            shutil.copyfile(os.path.abspath(source_build_file), des_build_file)
-
             logging.info("=" * 55)
             logging.info("Building %s" % section)
             build_dir = os.path.join(caliper_path.BENCHS_DIR, section, 'tests')
@@ -370,18 +363,18 @@ def build_for_target(target,f_option,clear):
     GEN_DIR = caliper_path.GEN_DIR
     WS_GEN_DIR = os.path.join(FOLDER.workspace, 'binary')
 
-    benchs_dir = os.path.join(TMP_DIR, 'benchmarks')
-    if not os.path.exists(benchs_dir):
-        try:
-            os.makedirs(benchs_dir, 0755)
-        except Exception:
-            os.mkdir(benchs_dir, 0755)
+    # benchs_dir = os.path.join(TMP_DIR, 'benchmarks')
+    # if not os.path.exists(benchs_dir):
+    #     try:
+    #         os.makedirs(benchs_dir, 0755)
+    #     except Exception:
+    #         os.mkdir(benchs_dir, 0755)
 
     # Improvement Point: Right now all the benchmarks are copied, we can only
     # copy the selected benchmarks to save the time.
-    if os.path.exists(benchs_dir):
-        shutil.rmtree(benchs_dir)
-    shutil.copytree(caliper_path.BENCHS_DIR, benchs_dir)
+    # if os.path.exists(benchs_dir):
+    #     shutil.rmtree(benchs_dir)
+    # shutil.copytree(caliper_path.BENCHS_DIR, benchs_dir)
 
     if not os.path.exists(caliper_path.FRONT_END_DIR):
         shutil.copytree(caliper_path.FRONT_TMP_DIR,
@@ -434,7 +427,6 @@ def build_for_target(target,f_option,clear):
     logging.info(" Local Host Arch : %s" % host_arch)
     logging.info(" Target Arch : %s" % target_arch)
     logging.info(" Caliper reports and logs are stored : %s" % FOLDER.workspace)
-    logging.info(" Caliper build directory : %s" % TMP_DIR)
     logging.info(" ")
 
     try:
@@ -448,8 +440,6 @@ def build_for_target(target,f_option,clear):
 
     # Copy generated binaries to target machine
     result = copy_gen_to_target(target, target_arch)
-    if os.path.exists(TMP_DIR):
-        shutil.rmtree(TMP_DIR)
     return result
 
 
