@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 TOPDIR=${0%/*}
 cd $TOPDIR
