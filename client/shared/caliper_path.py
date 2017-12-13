@@ -58,7 +58,7 @@ except:
 try:
     platForm_name = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='Platform_name',action='get')
 except:
-    platForm_name = None
+    platForm_name = getpass.getuser()
 
 if not platForm_name:
     # Redirecting the ssh warning to the standard "stderr" File

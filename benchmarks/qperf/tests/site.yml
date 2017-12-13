@@ -1,4 +1,4 @@
-- hosts: Device
+- hosts: '{{ hosts }}'
   roles:
   - ../../qperf
 - hosts: TestNode

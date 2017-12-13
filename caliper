@@ -27,7 +27,9 @@ except ImportError:
     import common
 
 from caliper.server.build import build
-from caliper.server.run import test_run
+from caliper.server.run import run
+from caliper.server.run import parser_log
+from caliper.server.run import score
 from caliper.server.run import write_results
 from caliper.server.shared.settings import settings
 from caliper.server.shared import error
@@ -99,7 +101,7 @@ def populate_excels():
 def run_caliper(f_option):
     try:
         logging.debug("begining to run Caliper")
-        result = test_run.run_caliper_tests(f_option)
+        result = run.run_caliper_tests(f_option)
     except Exception, e:
         print e
         logging.info("There is wrong when running Caliper")
@@ -110,7 +112,7 @@ def run_caliper(f_option):
 def parser_caliper_logs(f_option):
     try:
         logging.debug("begining to Parse Caliper Logs")
-        result = test_run.parser_caliper_tests(f_option)
+        result = parser_log.parser_caliper_tests(f_option)
     except Exception, e:
         print e
         logging.info("There is wrong when parsing Caliper")
@@ -382,12 +384,12 @@ if __name__=="__main__":
             result2 = parser_caliper_logs(f_option)
             if result2:
                sys.exit()
-            result2 = test_run.compute_caliper_logs(remote_host,1)
+            result2 = score.compute_caliper_logs(remote_host,1)
         except Exception:
             raise
     if args.score:
         try:
-            result2 = test_run.compute_caliper_logs(remote_host,2)
+            result2 = score.compute_caliper_logs(remote_host,2)
             if intermediate:
                 parser_caliper(remote_host)
             # copy yaml to corresponding dirs under caliper_out

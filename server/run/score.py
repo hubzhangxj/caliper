@@ -8,9 +8,9 @@ import logging
 
 import yaml
 try:
-    import caliper.common as common
-except ImportError:
     import common
+except ImportError:
+    import caliper.common as common
 from caliper.server import utils as server_utils
 from caliper.server.shared import caliper_path
 from caliper.server.run import write_results

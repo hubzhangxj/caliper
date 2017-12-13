@@ -291,19 +291,20 @@ def build_caliper(target_arch, flag=0,clear=0):
             logging.info("=" * 55)
             logging.info("Building %s" % section)
             build_dir = os.path.join(caliper_path.BENCHS_DIR, section, 'tests')
+            build_config = os.path.join(TEST_CASE_DIR, 'hosts')
             log_name = "%s.log" % section
             log_file = os.path.join('/tmp', log_name)
             os.chdir(build_dir)
             try:
-                # result = os.popen('ansible-playbook -i %s/hosts site.yml -u root>> %s 2>&1' % (TEST_CASE_DIR, log_file))
-                result = subprocess.call('ansible-playbook -i %s/hosts site.yml -u root>> %s 2>&1' %(TEST_CASE_DIR, log_file), stdout=subprocess.PIPE, shell=True)
+                result = subprocess.call('ansible-playbook -i %s site.yml --extra-vars "hosts=Device" -u root>> %s 2>&1'
+                                         %(build_config, log_file), stdout=subprocess.PIPE, shell=True)
             except Exception as e:
                 result = e
             for k in range(len(case_list['network'])):
                 if section in case_list['network'][k]:
                     try:
                         subprocess.Popen(
-                            'ansible-playbook -i %s/hosts runserver.yml -u root' % (TEST_CASE_DIR), stdout=subprocess.PIPE, shell=True)
+                            'ansible-playbook -i %s runserver.yml -u root' % (build_config), stdout=subprocess.PIPE, shell=True)
                     except Exception as e:
                         pass
             if result:
@@ -362,19 +363,6 @@ def build_for_target(target,f_option,clear):
     # Create the temperory build folders
     GEN_DIR = caliper_path.GEN_DIR
     WS_GEN_DIR = os.path.join(FOLDER.workspace, 'binary')
-
-    # benchs_dir = os.path.join(TMP_DIR, 'benchmarks')
-    # if not os.path.exists(benchs_dir):
-    #     try:
-    #         os.makedirs(benchs_dir, 0755)
-    #     except Exception:
-    #         os.mkdir(benchs_dir, 0755)
-
-    # Improvement Point: Right now all the benchmarks are copied, we can only
-    # copy the selected benchmarks to save the time.
-    # if os.path.exists(benchs_dir):
-    #     shutil.rmtree(benchs_dir)
-    # shutil.copytree(caliper_path.BENCHS_DIR, benchs_dir)
 
     if not os.path.exists(caliper_path.FRONT_END_DIR):
         shutil.copytree(caliper_path.FRONT_TMP_DIR,
