@@ -34,7 +34,6 @@ SERVER_SYNC_FILE_SRC=os.path.join(CALIPER_DIR,'client','server.py')
 
 caliper_output = os.path.join(os.environ['HOME'], 'caliper_output', 'configuration')
 caliper_config_file = os.path.join(caliper_output,'config')
-caliper_test_def = os.path.join(caliper_output,'test_cases_cfg')
 TIMP_STAMP = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
 
 
@@ -118,7 +117,6 @@ def create_dir():
         create_folder(EXCEL_DATA_DIR_OUTPUT)
     if not os.path.exists(TEMPLATE_DATA_DIR):
         create_folder(TEMPLATE_DATA_DIR)
-
 
 if not judge_caliper_installed():
     # This means caliper is not installed and execution will be local.
@@ -208,13 +206,13 @@ class Folder(Singleton):
                                             'results')
         self.caliper_log_file = os.path.join(self.workspace, self.name,
                                             'caliper_exe.log')
+        self.caliper_run_log_file = os.path.join(self.workspace, self.name,
+                                             'caliper_run.log')
         self.summary_file = os.path.join(self.workspace, self.name,
                                             'results_summary.log')
         self.final_parser = os.path.join(self.workspace, self.name,'final_parsing_logs.yaml')
         self.yaml_dir = os.path.join(self.results_dir, 'yaml')
         self.html_dir = os.path.join(self.results_dir, 'html')
-
-
 
 folder_ope = Folder()
 folder_ope.set_up_path()
@@ -235,7 +233,6 @@ class ConfigFile(Singleton):
                 self.name = CALIPER_DIR
 
     def setup_path(self):
-        self.tests_cfg_dir = os.path.join(self.name, 'test_cases_cfg')
         self.config_dir = os.path.join(self.name, 'config')
 
 config_files = ConfigFile()

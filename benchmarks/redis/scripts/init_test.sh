@@ -11,6 +11,6 @@ if [ $# -lt 2 ] ; then
 fi
 
 #Include common setup utility functions
-sh start_client.sh $@
+./start_client.sh $@
 
 
