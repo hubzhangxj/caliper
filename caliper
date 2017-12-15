@@ -44,7 +44,7 @@ from caliper.server.parser_process import openssl
 from caliper.server.parser_process import hardware
 from caliper.server.parser_process import performance_functional
 from caliper.server.shared.caliper_path import intermediate
-
+from caliper.server.shared.caliper_path import folder_ope as Folder
 from caliper.upload import upload
 
 
@@ -140,16 +140,40 @@ def copy_yaml(remote_host):
     except Exception, e:
         logging.info("There is wrong when copy the caliper result")
 
-def get_remote_url():
+def upload_url():
+    logging.info("remote upload start")
+    remote_host = get_remote_host()
     try:
         server_num = settings.get_value('Caliperweb', 'server_num', type=int)
     except Exception, e:
         server_num = 0
-    try:
-        server_ip1 = settings.get_value('Caliperweb', 'server_ip1', type=str)
-    except Exception, e:
-        server_ip1 = ""
-    return server_ip1
+    print server_num
+    for i in range(server_num):
+        try:
+            server_ip = settings.get_value('Caliperweb', 'server_ip%s' % int(i+1), type=str)
+            print server_ip
+        except Exception, e:
+            server_ip = None
+        try:
+            server_user = settings.get_value('Caliperweb', 'server_user%s' % int(i+1), type=str)
+        except Exception, e:
+            server_user = ""
+
+        try:
+            server_password = settings.get_value('Caliperweb', 'server_password%s' % int(i+1), type=str)
+        except Exception, e:
+            server_password = ""
+        if server_ip:
+            try:
+                server_ip += ":8000"
+                logging.info("remote upload start")
+                logging.info(server_ip)
+                upload.upload_result(remote_host, server_ip)
+                logging.info("remote upload end")
+            except Exception as e:
+                logging.info(e)
+
+        return server_ip
 
 def get_remote_host():
     client_ip = '127.0.0.1'
@@ -283,6 +307,7 @@ if __name__=="__main__":
     parser.add_argument("-l", "--benchmarklist", action="store_true", dest="benchmarklist", default=False,
                         help="display support benchmark list")
     parser.add_argument("-d", "--debug", action="store_true", dest="debug", default=False,help="debug mode")
+    parser.add_argument("-m", "--message", action="store", dest="message",default="", help="add a message for test")
 
     args = parser.parse_args()
     start_time = datetime.datetime.now()
@@ -378,6 +403,10 @@ if __name__=="__main__":
                 summary.output_summary_info(remote_host, interval.seconds)
             except Exception, e:
                 raise e
+        if args.message:
+            message_file = Folder.caliper_message_file
+            mp = open(message_file, 'a+')
+            mp.write(args.message)
 
     if args.parse:
         try:
@@ -413,26 +442,14 @@ if __name__=="__main__":
         except Exception as e:
             print e
             # sys.exit()
-        # flag = generate_web_tar()
         try:
-            local_url = "127.0.0.1:8000"
-            logging.info("local upload start")
-            upload.upload_result(remote_host,local_url)
-            logging.info("local upload end")
-        except:
-            pass
-        try:
-            remote_url = get_remote_url()
-            if remote_url:
-                remote_url += ":8000"
-                logging.info("remote upload start")
-                upload.upload_result(remote_host,remote_url)
-                logging.info("remote upload end")
+            flag = generate_web_tar()
+            upload_url()
         except:
             pass
 
     if args.webpage and args.send_email:
-        # flag = generate_web_tar()
+        flag = generate_web_tar()
         result_path = os.path.join(caliper_path.folder_ope.results_dir,
                 'test_results.tar.gz')
         if os.path.exists(result_path):

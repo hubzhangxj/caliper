@@ -20,7 +20,7 @@ def upload_result(target,server_url):
     :return: None
     '''
     #workspace dir path for the test, for example: /home/fanxh/caliper_output/hansanyang-OptiPlex-3020_WS_17-05-03_11-29-29
-    dirpath = caliper_path.WORKSPACE;
+    dirpath = caliper_path.WORKSPACE
 
     #dir path for score, for example: /home/fanxh/caliper_output/frontend/frontend/data_files/Normalised_Logs
     dir_score_path = caliper_path.HTML_DATA_DIR_OUTPUT

@@ -188,9 +188,8 @@ def build_caliper(target_arch, flag=0,clear=0):
         1: means for the server
     """
     copy = 0
-    global GEN_DIR, WS_GEN_DIR,BUILD_MAPPING_FILE,BUILD_MAPPING_DIR
+    global GEN_DIR,BUILD_MAPPING_FILE,BUILD_MAPPING_DIR
     GEN_DIR = caliper_path.GEN_DIR
-    WS_GEN_DIR = os.path.join(FOLDER.workspace, 'binary')
 
     prev_build_files = []
     current_build_files = []
@@ -223,6 +222,7 @@ def build_caliper(target_arch, flag=0,clear=0):
                     if case_list[dimension][i][tool][case][0] == 'enable':
                         build_list.append(tool)
     build_list = list(set(build_list))
+    # build_list.append('hardware_info')
 
     # check and delete those binaries if it is already built if -c is used
     if clear:
@@ -362,7 +362,6 @@ def build_for_target(target,f_option,clear):
     #f_option is set if -f is used
     # Create the temperory build folders
     GEN_DIR = caliper_path.GEN_DIR
-    WS_GEN_DIR = os.path.join(FOLDER.workspace, 'binary')
 
     if not os.path.exists(caliper_path.FRONT_END_DIR):
         shutil.copytree(caliper_path.FRONT_TMP_DIR,

@@ -35,4 +35,6 @@ def read_config():
                         tool_list.append(tool)
                         run_case_list.append(case)
     sections = list(set(tool_list))
+    # sections.append('hardware_info')
+    # run_case_list.append('hardware_info')
     return sections, run_case_list

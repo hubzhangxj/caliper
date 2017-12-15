@@ -3,6 +3,8 @@
 
 import re
 import string
+import json
+from caliper.server.run import parser_log
 
 tcp_bw_lat_label = ['qperf_tcp_bw_1B', 'qperf_tcp_bw_2B', 'qperf_tcp_bw_4B', 'qperf_tcp_bw_8B', 'qperf_tcp_bw_16B', 'qperf_tcp_bw_32B', 'qperf_tcp_bw_64B', 'qperf_tcp_bw_128B', 'qperf_tcp_bw_256B', 'qperf_tcp_bw_512B', 'qperf_tcp_bw_1K', 'qperf_tcp_bw_2K', 'qperf_tcp_bw_4K', 'qperf_tcp_bw_8K', 'qperf_tcp_bw_16K', 'qperf_tcp_bw_32K', 'qperf_tcp_bw_64K',
 'qperf_tcp_lat_1B', 'qperf_tcp_lat_2B', 'qperf_tcp_lat_4B', 'qperf_tcp_lat_8B', 'qperf_tcp_lat_16B', 'qperf_tcp_lat_32B', 'qperf_tcp_lat_64B', 'qperf_tcp_lat_128B', 'qperf_tcp_lat_256B', 'qperf_tcp_lat_512B', 'qperf_tcp_lat_1K', 'qperf_tcp_lat_2K', 'qperf_tcp_lat_4K', 'qperf_tcp_lat_8K', 'qperf_tcp_lat_16K', 'qperf_tcp_lat_32K', 'qperf_tcp_lat_64K']
@@ -136,3 +138,42 @@ def qperf_parser(content, outfp):
         count += 1
 
     return dic
+
+def qperf(filePath, outfp):
+    file = open(filePath)
+    filecontent = file.read()
+    file.close()
+    cases = re.findall('<<<BEGIN TEST>>>([\s\S]+?)<<<END>>>', filecontent)
+
+    result = []
+    for case in cases:
+        caseDict = {}
+        caseDict[parser_log.BOTTOM] = parser_log.getBottom(case)
+        titleGroup = re.search('\[([\S\ ]+)\]\n', case)
+        if titleGroup != None:
+            caseDict[parser_log.TOP] = titleGroup.group(0)
+            caseDict[parser_log.BOTTOM] = parser_log.getBottom(case)
+        tables = []
+        tableContent = {}
+        centerTopGroup = re.search("(log\:[\S\ ]+[tcp_lat|tcp_bw]\n)", case)
+        tableContent[parser_log.CENTER_TOP] = centerTopGroup.groups()[0]
+        tableGroup = re.search("[tcp_lat|tcp_bw]\n([\s\S]+)\[status\]", case)
+        if tableGroup is not None:
+            tableGroupContent_temp = tableGroup.groups()[0].strip()
+            tableGroupContent = re.sub('\:\s+', ':', tableGroupContent_temp)
+            table = parser_log.parseTable(tableGroupContent, ":{1,}")
+            tableContent[parser_log.I_TABLE] = table
+        tables.append(tableContent)
+        caseDict[parser_log.TABLES] = tables
+        result.append(caseDict)
+    result = json.dumps(result)
+    outfp.write(result)
+    return result
+
+if __name__ == "__main__":
+    infile = "qperf_output.log"
+    outfile = "qperf_json.txt"
+    outfp = open(outfile, "a+")
+    qperf(infile, outfp)
+    # parser1(content, outfp)
+    outfp.close()

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import os
 import sys
@@ -16,6 +17,13 @@ from caliper.server.shared import error
 from caliper.server import utils as server_utils
 from caliper.server.shared import caliper_path
 from caliper.server.shared.caliper_path import folder_ope as Folder
+
+TOP = "top"
+BOTTOM = "bottom"
+CENTER_TOP = "centerTop"
+TABLES = "tables"
+TABLE = "table"
+I_TABLE = "i_table"
 
 def parser_caliper_tests(flag):
     # f_option =1 if -f is used
@@ -73,6 +81,16 @@ def parsing_run():
         else:
             logging.info("Parsing %s Finished" % sections[i])
             common.print_format()
+        try:
+            logging.info("Parsing json %s" % sections[i])
+            log_bench = os.path.join(Folder.exec_dir, sections[i])
+            logfile = log_bench + "_output.log"
+            parser_json(sections[i],  parser, logfile)
+        except Exception as e:
+            logging.info(e)
+        else:
+            logging.info("Parsing json %s Finished" % sections[i])
+
     outfp = open(os.path.join(caliper_path.folder_ope.workspace,
                               caliper_path.folder_ope.name.strip()
                               + "/final_parsing_logs.yaml"), 'w')
@@ -177,6 +195,7 @@ def parser_case(bench_name, parser_file, parser, infile, outfile):
         try:
             # import the parser module import_module
             parser_module = importlib.import_module(parser_name)
+            print parser_module
         except ImportError, e:
             logging.info(e)
             return -3
@@ -202,3 +221,201 @@ def parser_case(bench_name, parser_file, parser, infile, outfile):
             infp.close()
     fp.close()
     return result
+
+def parser_json(bench_name, parser_file, infile):
+    if not os.path.exists(Folder.json_dir):
+        os.mkdir(Folder.json_dir)
+    outfile_name = bench_name +'_json.txt'
+    outfile = os.path.join(Folder.json_dir, outfile_name)
+    if not parser_file:
+        pwd_file = bench_name + "_parser.py"
+        parser_file = os.path.join(caliper_path.BENCHS_DIR, bench_name, 'handlers', pwd_file)
+    else:
+        parser_file = os.path.join(caliper_path.BENCHS_DIR, bench_name, 'handlers', parser_file)
+    rel_path = bench_name + "_parser.py"
+    parser_name = rel_path.replace('.py', '')
+    handlers_path = os.path.join(caliper_path.BENCHS_DIR, bench_name, 'handlers')
+    sys.path.append(handlers_path)
+
+    result = 0
+    if os.path.isfile(parser_file):
+        try:
+            # import the parser module import_module
+            parser_module = importlib.import_module(parser_name)
+        except ImportError, e:
+            logging.info(e)
+            return -3
+        try:
+            methodToCall = getattr(parser_module, bench_name)
+        except Exception, e:
+            logging.info(e)
+            return -4
+        else:
+            outfp = open(outfile, 'a+')
+            try:
+                # call the parser function to filter the output
+                logging.debug("Begining to parser the result of the case")
+                result = methodToCall(infile, outfp)
+            except Exception, e:
+                logging.info(e)
+                return -5
+            outfp.close()
+    return result
+
+def parseData(filePath):
+    file = open(filePath)
+    filecontent = file.read()
+    file.close()
+    cases = re.findall('<<<BEGIN TEST>>>([\s\S]+?)<<<END>>>', filecontent)
+    return cases
+
+def getBottom(case):
+    endGroup = re.search('\[status\]([\s\S]+)Time in Seconds([\s\S]+)s', case)
+    if endGroup != None:
+        return endGroup.group(0)
+    return None
+
+def parseTable(content, spiltStr, maxsplit=0):
+    table = []
+    for line in content.splitlines():
+        cells = re.split(spiltStr, line, maxsplit)
+        td = []
+        for cell in cells:
+            if cell.strip() != "":
+                td.append(cell.strip())
+        if len(td) > 0:
+            table.append(td)
+    return table
+
+def parseMergeTable(content, spiltStr, merges, excludes=[], adds=[], maxsplit=0, ):
+    '''
+    按行分割内容,每行进行split,最终放回一个table 数组
+    支持对split后的数据进行部分合并
+    :param content:  内容
+    :param spiltStr: 正则表达式
+    :param merges:  需要合并的列 结构[[1,2]](从1开始)
+    :param excludes: 排除第几行 (从1开始)
+    :param adds: 在某行的某个位置添加一个td [[第几行,第几列]]
+    :param maxsplit: 最大分割数
+    :return: [[td][td]]
+    '''
+    table = []
+    for i, line in enumerate(content.splitlines()):
+        cells = re.split(spiltStr, line.strip(), maxsplit)
+        td = []
+        for index, cell in enumerate(cells):
+            if cell.strip() != "":
+                td.append(cell.strip())
+
+        if len(td) > 0:
+            if i + 1 not in excludes:
+                newTd = []
+                for id, t in enumerate(td):
+                    newString = ""
+                    begin = -1
+                    end = -1
+                    for merge in merges:
+                        begin = merge[0] - 1
+                        end = merge[1] - 1
+                        if id == begin:
+                            newString = td[begin] + " " + td[end]
+                            break
+                        if id == end:
+                            break
+                    if id == begin:
+                        newTd.append(newString)
+                    elif id == end:
+                        continue
+                    else:
+                        newTd.append(t)
+                    for addCellId in adds:
+                        addLine = addCellId[0]
+                        addCell = addCellId[1]
+                        if i == addLine - 1 and len(newTd) == addCell - 1:
+                            newTd.append("")
+                table.append(newTd)
+            else:
+                for addCellId in adds:
+                    addLine = addCellId[0]
+                    addCell = addCellId[1]
+                    if i == addLine - 1 and len(td) == addCell - 1:
+                        td.append("")
+                table.append(td)
+    return table
+
+def parseMergeTitleTable(content, spiltStr, merges, title_merges, excludes=[], adds=[], maxsplit=0, ):
+    '''
+    按行分割内容,每行进行split,最终放回一个table 数组
+    支持对split后的数据进行部分合并
+    :param content:  内容
+    :param spiltStr: 正则表达式
+    :param merges:  需要合并的列 结构[[1,2]](从1开始)
+    :param excludes: 排除第几行 (从1开始)
+    :param adds: 在某行的某个位置添加一个td [[第几行,第几列]]
+    :param maxsplit: 最大分割数
+    :return: [[td][td]]
+    '''
+    table = []
+    for i, line in enumerate(content.splitlines()):
+        cells = re.split(spiltStr, line.strip(), maxsplit)
+        td = []
+        for index, cell in enumerate(cells):
+            if cell.strip() != "":
+                td.append(cell.strip())
+
+        if len(td) > 0:
+            if i + 1 not in excludes:
+                newTd = []
+                for id, t in enumerate(td):
+                    if i == 0:
+                        newString = ""
+                        begin = -1
+                        end = -1
+                        for merge in title_merges:
+                            begin = merge[0] - 1
+                            end = merge[1] - 1
+                            if id == begin:
+                                newString = td[begin] + " " + td[end]
+                                break
+                            if id == end:
+                                break
+                        if id == begin:
+                            newTd.append(newString)
+                        elif id == end:
+                            continue
+                        else:
+                            newTd.append(t)
+                    else:
+                        newString = ""
+                        begin = -1
+                        end = -1
+                        for merge in merges:
+                            begin = merge[0] - 1
+                            end = merge[1] - 1
+                            if begin >= len(td) or end >= len(td):
+                                break
+                            if id == begin:
+                                newString = td[begin] + " " + td[end]
+                                break
+                            if id == end:
+                                break
+                        if id == begin:
+                            newTd.append(newString)
+                        elif id == end:
+                            continue
+                        else:
+                            newTd.append(t)
+                    for addCellId in adds:
+                        addLine = addCellId[0]
+                        addCell = addCellId[1]
+                        if i == addLine - 1 and len(newTd) == addCell - 1:
+                            newTd.append("")
+                table.append(newTd)
+            else:
+                for addCellId in adds:
+                    addLine = addCellId[0]
+                    addCell = addCellId[1]
+                    if i == addLine - 1 and len(td) == addCell - 1:
+                        td.append("")
+                table.append(td)
+    return table

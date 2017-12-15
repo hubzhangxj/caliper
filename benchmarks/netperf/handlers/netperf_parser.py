@@ -2,7 +2,8 @@
 
 import re
 import pdb
-
+import json
+from caliper.server.run import parser_log
 
 def common_parser(content, outfp, unit):
     score = -1
@@ -35,12 +36,35 @@ def throughput_parser(content, outfp):
 def frequent_parser(content, outfp):
     return common_parser(content, outfp, 'Rate')
 
+def netperf(filePath, outfp):
+    cases = parser_log.parseData(filePath)
+    result = []
+    for case in cases:
+        caseDict = {}
+        caseDict[parser_log.BOTTOM] = parser_log.getBottom(case)
+        titleGroup = re.search('\[test:([\s\S]+?)\]', case)
+        if titleGroup != None:
+            caseDict[parser_log.TOP] = titleGroup.group(0)
+            caseDict[parser_log.BOTTOM] = parser_log.getBottom(case)
+        tables = []
+        tableContent = {}
+        centerTopGroup = re.search("(MIGRATED[\S\ ]+)\n", case)
+        tableContent[parser_log.CENTER_TOP] = centerTopGroup.groups()[0]
+        tableGroup = re.search("MIGRATED[\S\ ]+\n?([\s\S]+)\[status\]", case)
+        if tableGroup is not None:
+            tableGroupContent = tableGroup.groups()[0].strip()
+            tableGroupContent_temp1 = re.sub('per sec', 'per/sec', tableGroupContent)
+            table = parser_log.parseTable(tableGroupContent_temp1, "\ {1,}")
+            tableContent[parser_log.I_TABLE] = table
+        tables.append(tableContent)
+        caseDict[parser_log.TABLES] = tables
+        result.append(caseDict)
+    outfp.write(json.dumps(result))
+    return result
+
 if __name__ == "__main__":
-    infp = open("output.log", "r")
-    content = infp.read()
-    outfp = open("2.txt", "a+")
-    pdb.set_trace()
-    throughput_parser(content, outfp)
-    frequent_parser(content, outfp)
+    infile = "netperf_output.log"
+    outfile = "netperf_json.txt"
+    outfp = open(outfile, "a+")
+    netperf(infile, outfp)
     outfp.close()
-    infp.close()

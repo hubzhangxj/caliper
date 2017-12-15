@@ -1,7 +1,8 @@
 import re
 import string
 import pdb
-
+import json
+from caliper.server.run import parser_log
 
 def openblas_parser(content, outfp):
     score = -1
@@ -288,3 +289,34 @@ def openblas_parser_64(content, outfp):
         outfp.write("4000x4000 efficiency is %s \n" % efficiency)
             
     return dic
+
+def openblas(filePath, outfp):
+    cases = parser_log.parseData(filePath)
+    result = []
+    for case in cases:
+        caseDict = {}
+        caseDict[parser_log.BOTTOM] = parser_log.getBottom(case)
+        titleGroup = re.search("\[test:([\s\S]+?)\]", case)
+        if titleGroup != None:
+            caseDict[parser_log.TOP] = titleGroup.group(0)
+
+        tables = []
+        tableContent = {}
+        tc = re.search("From[\s\S]+?[\n\r]([\s\S]+?)\[status\]", case)
+        if tc is not None:
+            content = tc.groups()[0]
+            subContent = re.sub(":", "", content)
+            tableContent[parser_log.CENTER_TOP] = ""
+            tableContent[parser_log.I_TABLE] = parser_log.parseTable(subContent, "\\s{2,}")
+            tables.append(tableContent)
+        caseDict[parser_log.TABLES] = tables
+        result.append(caseDict)
+    outfp.write(json.dumps(result))
+    return result
+
+if __name__ == "__main__":
+    infile = "openblas_output.log"
+    outfile = "openblas_json.txt"
+    outfp = open(outfile, "a+")
+    openblas(infile, outfp)
+    outfp.close()

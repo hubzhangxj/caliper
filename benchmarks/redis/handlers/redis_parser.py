@@ -1,6 +1,8 @@
 import re
 import string
 import pdb
+import json
+from caliper.server.run import parser_log
 
 def redis_parser(content , outfp ):
 #[test: Instance_2]
@@ -84,12 +86,40 @@ def redis_parser(content , outfp ):
 
     return dic
 
+
+def redis(filePath, outfp):
+    cases = parser_log.parseData(filePath)
+    result = []
+    for case in cases:
+        caseDict = {}
+        caseDict[parser_log.BOTTOM] = parser_log.getBottom(case)
+        titleGroup = re.search('\[([\S\ ]+)\]\n', case)
+        if titleGroup != None:
+            caseDict[parser_log.TOP] = titleGroup.group(0)
+            caseDict[parser_log.BOTTOM] = parser_log.getBottom(case)
+        tables = []
+        tableContent = {}
+        #            centerTopGroup = re.search("(log\:[\S\ ]+\n)", case)
+        #            tableContent[parser_log.CENTER_TOP] = centerTopGroup.groups()[0]
+        tableGroup = re.search("(\=\=\=[\s\S]+)\[st", case)
+        if tableGroup is not None:
+            tableGroupContent_temp1 = tableGroup.groups()[0].strip()
+            tableGroupContent_temp2 = re.sub(
+                'Finish generate dump data[\s\S]+call redis-benchmark to test redis-0', '',
+                tableGroupContent_temp1)
+            tableGroupContent_temp3 = re.sub('[PIPELINE|SHORT][\S\ ]+', '', tableGroupContent_temp2)
+        tableGroupContent = re.sub('\=\=\=+', '', tableGroupContent_temp3)
+        table = parser_log.parseTable(tableGroupContent, "''{1,}")
+        tableContent[parser_log.I_TABLE] = table
+    tables.append(tableContent)
+    caseDict[parser_log.TABLES] = tables
+    result.append(caseDict)
+    outfp.write(json.dumps(result))
+    return result
+
 if __name__ == "__main__":
-    infp = open("redis_output.log", "r")
-    content = infp.read()
-    content = re.findall(r'<<<BEGIN TEST>>>(.*?)<<<END>>>',content,re.DOTALL)
-    outfp = open("2.txt", "a+")
-    for data in content:
-        a = redis_parser(data, outfp)
+    infile = "redis_output.log"
+    outfile = "redis_json.txt"
+    outfp = open(outfile, "a+")
+    redis(infile, outfp)
     outfp.close()
-    infp.close()

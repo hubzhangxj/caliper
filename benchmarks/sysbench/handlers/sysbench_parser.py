@@ -3,6 +3,8 @@
 
 import pdb
 import re
+import json
+from caliper.server.run import parser_log
 
 SYSBENCH_RESULT_NAME_LATENCY = 'sysbench latency'
 NA_UNIT = 'NA'
@@ -73,13 +75,36 @@ def sysbench_parser(content,outfp):
     else:
        result = sysbench_oltp_parser(content, outfp)
     return result
+
+def sysbench(filePath, outfp):
+    cases = parser_log.parseData(filePath)
+    result = []
+    for case in cases:
+        caseDict = {}
+        caseDict[parser_log.BOTTOM] = parser_log.getBottom(case)
+        titleGroup = re.search('\[([\S\ ]+)\]\n', case)
+        if titleGroup != None:
+            caseDict[parser_log.TOP] = titleGroup.group(0)
+            caseDict[parser_log.BOTTOM] = parser_log.getBottom(case)
+        tables = []
+        tableContent = {}
+        centerTopGroup = re.search("(sysbench\s\d[\S\ ]+\n)", case)
+        tableContent[parser_log.CENTER_TOP] = centerTopGroup.groups()[0]
+        tableGroup = re.search("Threads started\!([\s\S]+)\/\d+\.\d+\n", case)
+        if tableGroup is not None:
+            tableGroupContent_temp = tableGroup.groups()[0].strip()
+            tableGroupContent = re.sub('\+?sysbench[\-\ ]?0.5[\S\ ]+\n', '', tableGroupContent_temp)
+            tableGroupContent_temp2 = re.sub('\+', '', tableGroupContent)
+            table = parser_log.parseTable(tableGroupContent_temp2, ":{1,}")
+            tableContent[parser_log.I_TABLE] = table
+        tables.append(tableContent)
+        caseDict[parser_log.TABLES] = tables
+        result.append(caseDict)
+    outfp.write(json.dumps(result))
+    return result
 if __name__ == "__main__":
-    infp = open("sysbench_output.log", "r")
-    content = infp.read()
-    content = re.findall(r'<<<BEGIN TEST>>>(.*?)<<<END>>>',content,re.DOTALL)
-    outfp = open("2.txt", "a+")
-    for data in content:
-    	a = sysbench_parser(data, outfp)
-    	print a
+    infile = "sysbench_output.log"
+    outfile = "sysbench_json.txt"
+    outfp = open(outfile, "a+")
+    sysbench(infile, outfp)
     outfp.close()
-    infp.close()

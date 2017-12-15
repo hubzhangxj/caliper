@@ -2,6 +2,9 @@
 
 import re
 import yaml
+import copy
+import json
+from caliper.server.run import parser_log
 
 def parser(content, option, outfp):
     score = 0
@@ -72,13 +75,69 @@ def get_value(line, flag, list_tables):
             dic[flag][label] = value
             break
 
+def nbench(filePath, outfp):
+    cases = parser_log.parseData(filePath)
+    result = []
+    for case in cases:
+        caseDict = {}
+        caseDict[parser_log.BOTTOM] = parser_log.getBottom(case)
+        titleGroup = re.search("\[test:([\s\S]+?)\]", case)
+        if titleGroup != None:
+            caseDict[parser_log.TOP] = titleGroup.group(0)
+
+        tables = []
+        tableContent = {}
+        tc = re.search("(TEST[\s\S]+?)===", case)
+        if tc is not None:
+            table = []
+            content = re.sub(":|-", "", tc.groups()[0])
+            lines = content.splitlines()
+            appendCells = []
+            for appendCell in re.split("\\s{2,}", lines[1]):
+                if appendCell.strip() != "":
+                    appendCells.append(appendCell)
+            for index, line in enumerate(lines):
+                td = []
+                cells = re.split("\\s{2,}", line)
+                if index == 0:
+                    for cellIndex, topCell in enumerate(cells):
+                        if topCell.strip() != "":
+                            if cellIndex >= 2:
+                                td.append(topCell + " " + appendCells[cellIndex - 2])
+                            else:
+                                td.append(topCell)
+
+                elif index != 1:
+                    for cell in cells:
+                        if cell.strip() != "":
+                            td.append(cell.strip())
+                if len(td) > 0:
+                    table.append(td)
+
+            tableContent[parser_log.CENTER_TOP] = ""
+            tableContent[parser_log.TABLE] = table
+            tables.append(copy.deepcopy(tableContent))
+
+        original_group = re.search("(={4,}[\s\S]+?\n)([\s\S]+\n)={4,}", case)
+        if original_group is not None:
+            tableContent[parser_log.CENTER_TOP] = original_group.groups()[0]
+            tableContent[parser_log.TABLE] = []
+            tableContent[parser_log.I_TABLE] = parser_log.parseTable(original_group.groups()[1], ":")
+            tables.append(copy.deepcopy(tableContent))
+        linux_data_group = re.search("(={4,}[\s\S]+?\n){2}([\s\S]+Baseline[\s\S]+?\n)", case)
+        if linux_data_group is not None:
+            tableContent[parser_log.CENTER_TOP] = linux_data_group.groups()[0]
+            tableContent[parser_log.TABLE] = []
+            tableContent[parser_log.I_TABLE] = parser_log.parseTable(linux_data_group.groups()[1], ":")
+            tables.append(copy.deepcopy(tableContent))
+        caseDict[parser_log.TABLES] = tables
+        result.append(caseDict)
+    outfp.write(json.dumps(result))
+    return result
+
 if __name__ == "__main__":
-    infp = open("nbench_output.log", "r")
-    outfp = open("2.txt", "a+")
-    content = infp.read()
-    # pdb.set_trace()
-    nbench_parser(content, outfp)
-    outfp.close()
-    outfp = open("3.txt", "a+")
-    # nbench__parser(content, outfp)
+    infile = "nbench_output.log"
+    outfile = "nbench_json.txt"
+    outfp = open(outfile, "a+")
+    nbench(infile, outfp)
     outfp.close()
