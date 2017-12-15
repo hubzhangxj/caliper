@@ -17,10 +17,9 @@ from caliper.server.run import write_results
 from caliper.server.shared.caliper_path import folder_ope as Folder
 
 
-def compute_caliper_logs(target_exec_dir, flag=1):
+def compute_caliper_logs(target_exec_dir, sections, run_case_list, flag=1):
     # according the method in the config file, compute the score
     dic = yaml.load(open(caliper_path.folder_ope.final_parser, 'r'))
-    sections, run_case_list = common.read_config()
     for j in range(0, len(sections)):
         common.print_format()
         if flag == 1:

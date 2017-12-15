@@ -61,7 +61,7 @@ class run_case_thread(threading.Thread):
         os.chdir(pwd)
         return [output, returncode]
 
-def run_caliper_tests(f_option):
+def run_caliper_tests(f_option, sections, run_case_list):
     # f_option =1 if -f is used
     if f_option == 1:
         if not os.path.exists(Folder.exec_dir):
@@ -80,7 +80,7 @@ def run_caliper_tests(f_option):
     flag = 0
     try:
         logging.debug("beginnig to run the test cases")
-        test_result = caliper_run()
+        test_result = caliper_run(sections, run_case_list)
     except error.CmdError:
         logging.info("There is wrong in running benchmarks")
         flag = 1
@@ -91,9 +91,8 @@ def run_caliper_tests(f_option):
 
 
 
-def caliper_run():
+def caliper_run(sections, run_case_list):
     # get the test cases defined files
-    sections, run_case_list = common.read_config()
     for i in range(0, len(sections)):
         # try to resolve the configuration of the configuration file
         try:

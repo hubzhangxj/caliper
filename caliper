@@ -48,10 +48,10 @@ from caliper.server.shared.caliper_path import folder_ope as Folder
 from caliper.upload import upload
 
 
-def build_all_tests(remote_host,f_option,clear):
+def build_all_tests(remote_host,f_option,clear, sections):
     try:
         logging.info("Begining to build Caliper for the remote host")
-        result1 = build.build_for_target(remote_host,f_option,clear)
+        result1 = build.build_for_target(remote_host, f_option, clear, sections)
     except Exception, e:
         logging.info(e)
         raise
@@ -98,10 +98,10 @@ def populate_excels():
     except Exception as e:
        logging.info(e)
 
-def run_caliper(f_option):
+def run_caliper(f_option, sections, run_case_list):
     try:
         logging.debug("begining to run Caliper")
-        result = run.run_caliper_tests(f_option)
+        result = run.run_caliper_tests(f_option, sections, run_case_list)
     except Exception, e:
         print e
         logging.info("There is wrong when running Caliper")
@@ -109,10 +109,10 @@ def run_caliper(f_option):
     else:
         return result
 
-def parser_caliper_logs(f_option):
+def parser_caliper_logs(f_option, sections, run_case_list):
     try:
         logging.debug("begining to Parse Caliper Logs")
-        result = parser_log.parser_caliper_tests(f_option)
+        result = parser_log.parser_caliper_tests(f_option, sections, run_case_list)
     except Exception, e:
         print e
         logging.info("There is wrong when parsing Caliper")
@@ -141,17 +141,14 @@ def copy_yaml(remote_host):
         logging.info("There is wrong when copy the caliper result")
 
 def upload_url():
-    logging.info("remote upload start")
     remote_host = get_remote_host()
     try:
         server_num = settings.get_value('Caliperweb', 'server_num', type=int)
     except Exception, e:
         server_num = 0
-    print server_num
     for i in range(server_num):
         try:
             server_ip = settings.get_value('Caliperweb', 'server_ip%s' % int(i+1), type=str)
-            print server_ip
         except Exception, e:
             server_ip = None
         try:
@@ -165,10 +162,9 @@ def upload_url():
             server_password = ""
         if server_ip:
             try:
-                server_ip += ":8000"
-                logging.info("remote upload start")
-                logging.info(server_ip)
-                upload.upload_result(remote_host, server_ip)
+                server_ip += ':8000'
+                logging.info("remote server %s upload start" % server_ip)
+                upload.upload_result(remote_host, server_ip, server_user, server_password)
                 logging.info("remote upload end")
             except Exception as e:
                 logging.info(e)
@@ -308,6 +304,7 @@ if __name__=="__main__":
                         help="display support benchmark list")
     parser.add_argument("-d", "--debug", action="store_true", dest="debug", default=False,help="debug mode")
     parser.add_argument("-m", "--message", action="store", dest="message",default="", help="add a message for test")
+    parser.add_argument("-D", "--dimension", action="store", dest="dimension", default="", help="add a message for test")
 
     args = parser.parse_args()
     start_time = datetime.datetime.now()
@@ -344,7 +341,6 @@ if __name__=="__main__":
             fp = open(FOLDER.caliper_log_file,'a+')
             fp.write("re-execution with -f .It may be execution of all the tools or some specific tools as specified in the config file \n")
             fp.close()
-
     if not os.path.exists(caliper_path.folder_ope.workspace):
         try:
             os.makedirs(caliper_path.folder_ope.workspace)
@@ -375,6 +371,20 @@ if __name__=="__main__":
     # if args.webpage != True:
     remote_host = get_remote_host()
 
+    tool_list = []
+    run_case_list = []
+    if args.dimension:
+        config_files = os.path.join(caliper_path.config_files.config_dir, 'cases_config.json')
+        fp = open(config_files, 'r')
+        case_list = yaml.load(fp.read())
+        for i in range(len(case_list[args.dimension])):
+            for tool in case_list[args.dimension][i]:
+                for case in case_list[args.dimension][i][tool]:
+                    tool_list.append(tool)
+                    run_case_list.append(case)
+        sections = list(set(tool_list))
+    else:
+        sections, run_case_list= read_config()
     if args.build or args.run:
         push_ssh_key()
         if args.build:
@@ -382,7 +392,7 @@ if __name__=="__main__":
                 clear = 0
                 if args.cleanbuild:
                     clear = 1
-                result1 = build_all_tests(remote_host,f_option,clear)
+                result1 = build_all_tests(remote_host,f_option,clear, sections)
                 if result1:
                     sys.exit()
             except Exception, e:
@@ -390,7 +400,7 @@ if __name__=="__main__":
 
         if args.run:
             try:
-                result2 = run_caliper(f_option)
+                result2 = run_caliper(f_option, sections, run_case_list)
                 if result2:
                     sys.exit()
 
@@ -400,7 +410,8 @@ if __name__=="__main__":
             end_time = datetime.datetime.now()
             interval = end_time - start_time
             try:
-                summary.output_summary_info(remote_host, interval.seconds)
+                summary_path = os.path.join(caliper_path.folder_ope.workspace, 'output', 'results_summary.log')
+                summary.output_summary_info(remote_host, summary_path, interval.seconds)
             except Exception, e:
                 raise e
         if args.message:
@@ -410,15 +421,15 @@ if __name__=="__main__":
 
     if args.parse:
         try:
-            result2 = parser_caliper_logs(f_option)
+            result2 = parser_caliper_logs(f_option, sections, run_case_list)
             if result2:
                sys.exit()
-            result2 = score.compute_caliper_logs(remote_host,1)
+            result2 = score.compute_caliper_logs(remote_host, sections, run_case_list,1)
         except Exception:
             raise
     if args.score:
         try:
-            result2 = score.compute_caliper_logs(remote_host,2)
+            result2 = score.compute_caliper_logs(remote_host, sections, run_case_list,2)
             if intermediate:
                 parser_caliper(remote_host)
             # copy yaml to corresponding dirs under caliper_out
@@ -443,13 +454,13 @@ if __name__=="__main__":
             print e
             # sys.exit()
         try:
-            flag = generate_web_tar()
+            # flag = generate_web_tar()
             upload_url()
         except:
             pass
 
     if args.webpage and args.send_email:
-        flag = generate_web_tar()
+        # flag = generate_web_tar()
         result_path = os.path.join(caliper_path.folder_ope.results_dir,
                 'test_results.tar.gz')
         if os.path.exists(result_path):

@@ -25,7 +25,7 @@ TABLES = "tables"
 TABLE = "table"
 I_TABLE = "i_table"
 
-def parser_caliper_tests(flag):
+def parser_caliper_tests(flag, sections, run_case_list):
     # f_option =1 if -f is used
     if not os.path.exists(Folder.exec_dir):
         print "Invalid Parser input Folder"
@@ -40,7 +40,7 @@ def parser_caliper_tests(flag):
     flag = 0
     try:
         logging.debug("beginnig to parse the test cases")
-        test_result = parsing_run()
+        test_result = parsing_run(sections, run_case_list)
     except error.CmdError:
         logging.info("There is wrong in parsing test cases")
         flag = 1
@@ -49,9 +49,7 @@ def parser_caliper_tests(flag):
             flag = test_result
     return flag
 
-def parsing_run():
-    # get the test cases defined files
-    sections, run_case_list = common.read_config()
+def parsing_run(sections, run_case_list):
     dic = {}
     for i in range(0, len(sections)):
         dic[sections[i]] = {}
@@ -195,7 +193,6 @@ def parser_case(bench_name, parser_file, parser, infile, outfile):
         try:
             # import the parser module import_module
             parser_module = importlib.import_module(parser_name)
-            print parser_module
         except ImportError, e:
             logging.info(e)
             return -3

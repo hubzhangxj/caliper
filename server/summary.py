@@ -105,8 +105,8 @@ def get_exec_tools(selected_tools):
                 except Exception:
                     continue
     else:
-        return (0, 0, 0)
-    return (pass_tools, partial_tools, failed_tools)
+        return ([], [], [])
+    return pass_tools, partial_tools, failed_tools
 
 
 def write_summary_tools(summary_file, target):
@@ -122,8 +122,7 @@ def write_summary_tools(summary_file, target):
     if len(fail_tools):
         build_failed_num = "Num of tools build failed: %s" % len(fail_tools)
         write_file(summary_file, build_failed_num)
-
-    (suc_tools, partial_tools, failed_tools) = get_exec_tools(selected_tools)
+    suc_tools, partial_tools, failed_tools = get_exec_tools(selected_tools)
     if len(suc_tools):
         exec_suc_num = "Num of tools run successfully: %s" % len(suc_tools)
         write_file(summary_file, exec_suc_num)
@@ -169,17 +168,13 @@ def write_info_for_tools(filename, target):
         write_file(filename, exec_info)
 
 
-def output_summary_info(target, interval):
-    summary_file = caliper_path.folder_ope.summary_file
+def output_summary_info(target, summary_file, interval):
     if os.path.exists(summary_file):
         os.remove(summary_file)
-
     hardware_info = server_utils.get_host_hardware_info(target)
     write_yaml_file(hardware_info, summary_file)
-
     used_time = "Total used time: %.4s minutes" % (interval/60.0)
     write_file(summary_file, used_time)
-
     write_summary_tools(summary_file, target)
     write_info_for_tools(summary_file, target)
 
