@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
+
 from poster.encode import multipart_encode
 from poster.streaminghttp import register_openers
 
+import hashlib
 import urllib
 import urllib2
 import shutil
@@ -74,7 +77,18 @@ def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_p
     db_response = urllib2.urlopen(db_request)
     print db_response.read()
 
-
+def calcHash(filepath):
+    '''
+    计算文件的hash 值
+    :param filepath:
+    :return:
+    '''
+    with open(filepath, 'rb') as f:
+        sha1obj = hashlib.sha1()
+        sha1obj.update(f.read())
+        hash = sha1obj.hexdigest()
+    print(hash)
+    return hash
 # example
 #dirpath = "C:\\Users\\yangtt\\Desktop\\fanxh-OptiPlex-3020_WS_17-08-07_11-03-46"
 # dirpath = caliper_path.workspace;

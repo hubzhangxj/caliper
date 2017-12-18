@@ -2,20 +2,15 @@
 
 import os
 import subprocess
-import ConfigParser
 import re
-import stat
 import shutil
 import logging
-import datetime
 import yaml
 import sys
 import signal
-import time
-import glob
 from pwd import getpwnam
-import datetime
 import json
+import getpass
 
 try:
     import caliper.common as common
@@ -283,15 +278,15 @@ def build_caliper(target_arch, sections, flag=0,clear=0):
             log_file = os.path.join('/tmp', log_name)
             os.chdir(build_dir)
             try:
-                result = subprocess.call('ansible-playbook -i %s site.yml --extra-vars "hosts=Device" -u root>> %s 2>&1'
-                                         %(build_config, log_file), stdout=subprocess.PIPE, shell=True)
+                result = subprocess.call('ansible-playbook -i %s site.yml --extra-vars "hosts=Device" -u %s>> %s 2>&1'
+                                         %(build_config, getpass.getuser(),log_file), stdout=subprocess.PIPE, shell=True)
             except Exception as e:
                 result = e
             for k in range(len(case_list['network'])):
                 if section in case_list['network'][k]:
                     try:
                         subprocess.Popen(
-                            'ansible-playbook -i %s runserver.yml -u root' % (build_config), stdout=subprocess.PIPE, shell=True)
+                            'ansible-playbook -i %s runserver.yml -u %s' % (build_config, getpass.getuser()), stdout=subprocess.PIPE, shell=True)
                     except Exception as e:
                         pass
             if result:

@@ -265,12 +265,10 @@ def push_ssh_key():
     try:
         logging.info('Begining to push ssh key for the remote host')
         os.chdir(TEST_CASE_DIR)
-        subprocess.call('ansible-playbook -i hosts push_sshkey.yml', stdout=subprocess.PIPE, shell=True)
-        # os.popen('ansible-playbook -i hosts push_sshkey.yml')
+        subprocess.call('ansible-playbook -i hosts push_sshkey.yml -u %s' % getpass.getuser(), stdout=subprocess.PIPE, shell=True)
     except Exception as e:
         logging.debug(e)
         pass
-
 
 if __name__=="__main__":
     parser = ArgumentParser(version=common.VERSION)
@@ -304,7 +302,9 @@ if __name__=="__main__":
                         help="display support benchmark list")
     parser.add_argument("-d", "--debug", action="store_true", dest="debug", default=False,help="debug mode")
     parser.add_argument("-m", "--message", action="store", dest="message",default="", help="add a message for test")
-    parser.add_argument("-D", "--dimension", action="store", dest="dimension", default="", help="add a message for test")
+    parser.add_argument("-D", "--dimension", action="store", dest="dimension", default="", help="command line for dimension test")
+    parser.add_argument("-T", "--tool", action="store", dest="tool", default="", help="command line for tool test")
+    parser.add_argument("-E", "--case", action="store", dest="case", default="", help="command line for case test")
 
     args = parser.parse_args()
     start_time = datetime.datetime.now()
@@ -367,24 +367,32 @@ if __name__=="__main__":
         ))
 
     caliper_path.create_dir()
-
-    # if args.webpage != True:
     remote_host = get_remote_host()
 
     tool_list = []
     run_case_list = []
     if args.dimension:
-        config_files = os.path.join(caliper_path.config_files.config_dir, 'cases_config.json')
-        fp = open(config_files, 'r')
-        case_list = yaml.load(fp.read())
-        for i in range(len(case_list[args.dimension])):
-            for tool in case_list[args.dimension][i]:
-                for case in case_list[args.dimension][i][tool]:
-                    tool_list.append(tool)
-                    run_case_list.append(case)
+        if args.tool:
+            if args.case:
+                run_case_list = [args.case]
+            else:
+                for i in range(len(case_list[args.dimension])):
+                    try:
+                        for case in case_list[args.dimension][i][args.tool]:
+                            run_case_list.append(case)
+                    except:
+                        pass
+            tool_list = [args.tool]
+        else:
+            for i in range(len(case_list[args.dimension])):
+                for tool in case_list[args.dimension][i]:
+                    for case in case_list[args.dimension][i][tool]:
+                        tool_list.append(tool)
+                        run_case_list.append(case)
         sections = list(set(tool_list))
     else:
-        sections, run_case_list= read_config()
+        sections, run_case_list = read_config()
+
     if args.build or args.run:
         push_ssh_key()
         if args.build:

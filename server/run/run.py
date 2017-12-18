@@ -11,7 +11,7 @@ import subprocess
 import ConfigParser
 import yaml
 import threading
-
+import getpass
 try:
     import common
 except ImportError:
@@ -324,12 +324,9 @@ def run_commands(bench_name, commands):
             test_case_dir = os.path.join(caliper_path.BENCHS_DIR, bench_name, 'tests')
             os.chdir(test_case_dir)
             result = subprocess.call(
-                'ansible-playbook -i %s %s.yml --extra-vars "hosts=Device" -u root>> %s 2>&1' %
-                (TEST_CASE_CONFIG, actual_commands,Folder.caliper_run_log_file), stdout=subprocess.PIPE,
+                'ansible-playbook -i %s %s.yml --extra-vars "hosts=Device" -u %s>> %s 2>&1' %
+                (TEST_CASE_CONFIG, actual_commands,getpass.getuser(), Folder.caliper_run_log_file), stdout=subprocess.PIPE,
                 shell=True)
-            # result = subprocess.call(
-            #     'ansible-playbook -i %s/hosts %s.yml -u root>> %s 2>&1' % (
-            #         TEST_CASE_DIR, actual_commands, Folder.caliper_run_log_file), stdout=subprocess.PIPE, shell=True)
         except error.CmdError, e:
             raise error.ServRunError(e.args[0], e.args[1])
     except Exception, e:
