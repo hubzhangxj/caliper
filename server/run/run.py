@@ -8,14 +8,14 @@ import re
 import logging
 import datetime
 import subprocess
-
+import ConfigParser
 import yaml
 import threading
 
 try:
-    import caliper.common as common
-except ImportError:
     import common
+except ImportError:
+    import caliper.common as common
 from caliper.server import crash_handle
 from caliper.server.shared import error
 from caliper.server import utils as server_utils
@@ -43,8 +43,8 @@ class run_case_thread(threading.Thread):
                 test_case_dir = os.path.join(caliper_path.BENCHS_DIR, self.bench_name, 'tests')
                 os.chdir(test_case_dir)
                 result = subprocess.call(
-                    'ansible-playbook %s.yml --extra-vars "hosts=%s" -u root>> %s 2>&1' %
-                    (actual_commands, self.host, Folder.caliper_run_log_file), stdout=subprocess.PIPE, shell=True)
+                    'ansible-playbook -i %s/hosts %s.yml --extra-vars "hosts=%s" -u root>> %s 2>&1' %
+                    (test_case_dir, actual_commands, self.host, Folder.caliper_run_log_file), stdout=subprocess.PIPE, shell=True)
             except error.CmdError, e:
                 raise error.ServRunError(e.args[0], e.args[1])
         except Exception, e:
@@ -310,6 +310,12 @@ def run_commands(bench_name, commands):
 
     pwd = os.getcwd()
     TEST_CASE_DIR = caliper_path.config_files.config_dir
+    TEST_CASE_CONFIG = os.path.join(TEST_CASE_DIR, 'hosts')
+    config = ConfigParser.ConfigParser()
+    config.read(TEST_CASE_CONFIG)
+    section = config.sections()
+    keys = config.items('TestNode')
+
     try:
         # the commands is multiple lines, and was included by Quotation
         actual_commands = get_actual_commands(commands)
@@ -319,8 +325,12 @@ def run_commands(bench_name, commands):
             test_case_dir = os.path.join(caliper_path.BENCHS_DIR, bench_name, 'tests')
             os.chdir(test_case_dir)
             result = subprocess.call(
-                'ansible-playbook -i %s/hosts %s.yml -u root>> %s 2>&1' % (
-                    TEST_CASE_DIR, actual_commands, Folder.caliper_run_log_file), stdout=subprocess.PIPE, shell=True)
+                'ansible-playbook -i %s %s.yml --extra-vars "hosts=Device" -u root>> %s 2>&1' %
+                (TEST_CASE_CONFIG, actual_commands,Folder.caliper_run_log_file), stdout=subprocess.PIPE,
+                shell=True)
+            # result = subprocess.call(
+            #     'ansible-playbook -i %s/hosts %s.yml -u root>> %s 2>&1' % (
+            #         TEST_CASE_DIR, actual_commands, Folder.caliper_run_log_file), stdout=subprocess.PIPE, shell=True)
         except error.CmdError, e:
             raise error.ServRunError(e.args[0], e.args[1])
     except Exception, e:

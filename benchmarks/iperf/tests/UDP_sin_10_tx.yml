@@ -1,13 +1,12 @@
 
-- hosts: Device
+- hosts: '{{ hosts }}'
   tasks:
     - name: remove latest data
       file:
         path: /tmp/iperf_output.log
         state: absent
 
-    - name: run iperf3 UDP_sin_10_tx
-      shell: iperf3 -c {{ groups['TestNode'][0] }} -f M -ub 0 -i 1 -t 100 -P 10 -O 5 -w 256k
+    - name: run iperf3 {{ groups['TestNode'][0] }} -f M -ub 0 -i 1 -t 100 -P 10 -O 5 -w 256k
       register: logdata
       ignore_errors: yes
 
