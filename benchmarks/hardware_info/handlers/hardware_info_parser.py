@@ -380,3 +380,12 @@ def hardware_info_parser(content,outfp):
     with open(yaml_path_hw,'w') as outfp:
         outfp.write(yaml.dump(dic,default_flow_style = False))
     return dic
+
+
+if __name__ == "__main__":
+    infp = open("hardware_info_output.log", "r")
+    content = infp.read()
+    outfp = open("hardware_info_parser.log", "a+")
+    hardware_info_parser(content, outfp)
+    outfp.close()
+    infp.close()

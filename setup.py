@@ -155,8 +155,7 @@ def run():
             url='http://github.com/open-estuary/caliper',
             maintainer="open-estuary",
             install_requires=[
-                'pyYAML',
-                'django >= 1.6.1', ]
+                'pyYAML' ]
             )
     create_dir()
     os.chown(caliper_output,getpwnam(os.environ['HOME'].split('/')[-1]).pw_uid,-1)

@@ -11,7 +11,7 @@ import subprocess
 import ConfigParser
 import yaml
 import threading
-
+import getpass
 try:
     import common
 except ImportError:
@@ -61,7 +61,7 @@ class run_case_thread(threading.Thread):
         os.chdir(pwd)
         return [output, returncode]
 
-def run_caliper_tests(f_option):
+def run_caliper_tests(f_option, sections, run_case_list):
     # f_option =1 if -f is used
     if f_option == 1:
         if not os.path.exists(Folder.exec_dir):
@@ -80,7 +80,7 @@ def run_caliper_tests(f_option):
     flag = 0
     try:
         logging.debug("beginnig to run the test cases")
-        test_result = caliper_run()
+        test_result = caliper_run(sections, run_case_list)
     except error.CmdError:
         logging.info("There is wrong in running benchmarks")
         flag = 1
@@ -91,9 +91,8 @@ def run_caliper_tests(f_option):
 
 
 
-def caliper_run():
+def caliper_run(sections, run_case_list):
     # get the test cases defined files
-    sections, run_case_list = common.read_config()
     for i in range(0, len(sections)):
         # try to resolve the configuration of the configuration file
         try:
@@ -325,12 +324,9 @@ def run_commands(bench_name, commands):
             test_case_dir = os.path.join(caliper_path.BENCHS_DIR, bench_name, 'tests')
             os.chdir(test_case_dir)
             result = subprocess.call(
-                'ansible-playbook -i %s %s.yml --extra-vars "hosts=Device" -u root>> %s 2>&1' %
-                (TEST_CASE_CONFIG, actual_commands,Folder.caliper_run_log_file), stdout=subprocess.PIPE,
+                'ansible-playbook -i %s %s.yml --extra-vars "hosts=Device" -u %s>> %s 2>&1' %
+                (TEST_CASE_CONFIG, actual_commands,getpass.getuser(), Folder.caliper_run_log_file), stdout=subprocess.PIPE,
                 shell=True)
-            # result = subprocess.call(
-            #     'ansible-playbook -i %s/hosts %s.yml -u root>> %s 2>&1' % (
-            #         TEST_CASE_DIR, actual_commands, Folder.caliper_run_log_file), stdout=subprocess.PIPE, shell=True)
         except error.CmdError, e:
             raise error.ServRunError(e.args[0], e.args[1])
     except Exception, e:

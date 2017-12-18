@@ -2,20 +2,15 @@
 
 import os
 import subprocess
-import ConfigParser
 import re
-import stat
 import shutil
 import logging
-import datetime
 import yaml
 import sys
 import signal
-import time
-import glob
 from pwd import getpwnam
-import datetime
 import json
+import getpass
 
 try:
     import caliper.common as common
@@ -23,10 +18,10 @@ except ImportError:
     import common
 
 import caliper.server.utils as server_utils
-import caliper.client.shared.utils as client_utils
-from caliper.client.shared import error
-from caliper.client.shared import caliper_path
-from caliper.client.shared.caliper_path import folder_ope as FOLDER
+import caliper.server.shared.utils as client_utils
+from caliper.server.shared import error
+from caliper.server.shared import caliper_path
+from caliper.server.shared.caliper_path import folder_ope as FOLDER
 
 CALIPER_DIR = caliper_path.CALIPER_DIR
 GEN_DIR = caliper_path.GEN_DIR
@@ -50,7 +45,6 @@ def copy_dic(src,dest,skip):
         pass
 
 def reset_binary_mapping():
-    global BUILD_MAPPING_FILE
     global currentProcess
 
     with client_utils.SimpleFlock(BUILD_MAPPING_FILE, 60):
@@ -180,7 +174,7 @@ def getAllFilesRecursive(root):
                 files.append(os.path.join(root, f))
     return files
 
-def build_caliper(target_arch, flag=0,clear=0):
+def build_caliper(target_arch, sections, flag=0,clear=0):
     """
     target_arch means to build the caliper for the special arch
     flag mean build for the target or local machine (namely server)
@@ -188,9 +182,8 @@ def build_caliper(target_arch, flag=0,clear=0):
         1: means for the server
     """
     copy = 0
-    global GEN_DIR, WS_GEN_DIR,BUILD_MAPPING_FILE,BUILD_MAPPING_DIR
+    global GEN_DIR,BUILD_MAPPING_FILE,BUILD_MAPPING_DIR
     GEN_DIR = caliper_path.GEN_DIR
-    WS_GEN_DIR = os.path.join(FOLDER.workspace, 'binary')
 
     prev_build_files = []
     current_build_files = []
@@ -204,7 +197,6 @@ def build_caliper(target_arch, flag=0,clear=0):
     # get the files list of 'cfg'
     case_file = os.path.join(TEST_CASE_DIR, 'cases_config.json')
     fp = open(case_file, 'r')
-    build_list = []
     case_list = json.load(fp)
     BUILD_MAPPING_DIR = os.path.join(BUILD_MAPPING_DIR,arch)
     if not os.path.exists(BUILD_MAPPING_DIR):
@@ -214,21 +206,11 @@ def build_caliper(target_arch, flag=0,clear=0):
             pass
     source_build_file = caliper_path.SOURCE_BUILD_FILE
     set_signals()
-
-    # {"dimension":[{"tool":[{"case1":["enable","1"]}, {"case2":["enable","1"]},]}]}
-    for dimension in case_list:
-        for i in range(len(case_list[dimension])):
-            for tool in case_list[dimension][i]:
-                for case in case_list[dimension][i][tool]:
-                    if case_list[dimension][i][tool][case][0] == 'enable':
-                        build_list.append(tool)
-    build_list = list(set(build_list))
-
     # check and delete those binaries if it is already built if -c is used
     if clear:
         logging.info("=" * 55)
         logging.info("WARNING: Please wait, dont run any other instance of caliper")
-        for section in build_list:
+        for section in sections:
             BUILD_MAPPING_FILE = os.path.join(BUILD_MAPPING_DIR, section + '.yaml')
             with client_utils.SimpleFlock(BUILD_MAPPING_FILE, 60):
                 fp = open(BUILD_MAPPING_FILE)
@@ -250,7 +232,7 @@ def build_caliper(target_arch, flag=0,clear=0):
         logging.info("It is safe to run caliper now")
         logging.info("=" * 55)
 
-    for section in build_list:
+    for section in sections:
         BUILD = 0
         BUILD_MAPPING_FILE = os.path.join(BUILD_MAPPING_DIR, section + '.yaml')
         reset_binary_mapping()
@@ -296,15 +278,15 @@ def build_caliper(target_arch, flag=0,clear=0):
             log_file = os.path.join('/tmp', log_name)
             os.chdir(build_dir)
             try:
-                result = subprocess.call('ansible-playbook -i %s site.yml --extra-vars "hosts=Device" -u root>> %s 2>&1'
-                                         %(build_config, log_file), stdout=subprocess.PIPE, shell=True)
+                result = subprocess.call('ansible-playbook -i %s site.yml --extra-vars "hosts=Device" -u %s>> %s 2>&1'
+                                         %(build_config, getpass.getuser(),log_file), stdout=subprocess.PIPE, shell=True)
             except Exception as e:
                 result = e
             for k in range(len(case_list['network'])):
                 if section in case_list['network'][k]:
                     try:
                         subprocess.Popen(
-                            'ansible-playbook -i %s runserver.yml -u root' % (build_config), stdout=subprocess.PIPE, shell=True)
+                            'ansible-playbook -i %s runserver.yml -u %s' % (build_config, getpass.getuser()), stdout=subprocess.PIPE, shell=True)
                     except Exception as e:
                         pass
             if result:
@@ -358,11 +340,9 @@ def create_folder(folder, mode=0755):
     except OSError:
         os.makedirs(folder, mode)
 
-def build_for_target(target,f_option,clear):
+def build_for_target(target, f_option, clear, sections):
     #f_option is set if -f is used
     # Create the temperory build folders
-    GEN_DIR = caliper_path.GEN_DIR
-    WS_GEN_DIR = os.path.join(FOLDER.workspace, 'binary')
 
     if not os.path.exists(caliper_path.FRONT_END_DIR):
         shutil.copytree(caliper_path.FRONT_TMP_DIR,
@@ -370,7 +350,6 @@ def build_for_target(target,f_option,clear):
     if f_option == 0:
         if os.path.exists(FOLDER.caliper_log_file):
             os.remove(FOLDER.caliper_log_file)
-
         if os.path.exists(FOLDER.summary_file):
             os.remove(FOLDER.summary_file)
     if not os.path.exists(FOLDER.build_dir):
@@ -391,17 +370,6 @@ def build_for_target(target,f_option,clear):
     # This call assign target_arch with target architecture. Call
     # "get_host_arch" looks to be confusing :(
     target_arch = server_utils.get_host_arch(target)
-    target_arch_dir = os.path.join(GEN_DIR, target_arch)
-    if not os.path.exists(target_arch_dir):
-        create_folder(target_arch_dir, 0755)
-    WS_target_arch_dir = os.path.join(WS_GEN_DIR, target_arch)
-    create_folder(WS_target_arch_dir, 0755)
-
-    # Why should we check and remove local architecture folder???
-    # host_arch_dir = os.path.join(GEN_DIR, host_arch)
-    # if os.path.exists(host_arch_dir):
-    #    shutil.rmtree(host_arch_dir)
-
     if server_utils.get_target_ip(target) in server_utils.get_local_ip():
         return build_for_local()
 
@@ -419,7 +387,7 @@ def build_for_target(target,f_option,clear):
 
     try:
         # Build all caliper benchmarks for the target architecture
-        result = build_caliper(target_arch, flag=0,clear=clear)
+        result = build_caliper(target_arch, sections, flag=0,clear=clear)
     except Exception:
         raise
     else:

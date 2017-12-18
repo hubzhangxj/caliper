@@ -1,6 +1,7 @@
 import re
 import pdb
-
+import json
+from caliper.server.run import parser_log
 
 def parser(content, outfp):
     score = 0
@@ -39,15 +40,57 @@ def parser(content, outfp):
 def iozone_parser(content, outfp):
     return parser(content, outfp)
 
+def iozone(filePath, outfp):
+    cases = parser_log.parseData(filePath)
+    result = []
+    for case in cases:
+        caseDict = {}
+        caseDict[parser_log.BOTTOM] = parser_log.getBottom(case)
+        titleGroup = re.search("\[test:([\s\S]+?)\]", case)
+        if titleGroup != None:
+            caseDict[parser_log.TOP] = titleGroup.group(0)
+
+        tables = []
+        tableContent = {}
+        centerTopGroup = re.search("\\\t{1,}Run began:[\s\S]+?File stride[\s\S]+?[\n\r]", case)
+        if centerTopGroup is not None:
+            tableContent[parser_log.CENTER_TOP] = centerTopGroup.group(0)
+        tableGroup = re.search("ecord size.([\s\S]+)iozone", case)
+        if tableGroup is not None:
+            tableGroupContent = tableGroup.groups()[0].strip()
+            lines = tableGroupContent.splitlines()
+            table = []
+            cellTop = []
+            for lineIndex, line in enumerate(lines):
+                if line.strip() != "":
+                    td = []
+                    cells = re.split("\\s{1,}", line.strip())
+
+                    if lineIndex == 0:
+                        for index, cell in enumerate(cells):
+                            cellTop.append(cell.strip())
+                    elif lineIndex == 1:
+                        for index, cell in enumerate(cells):
+                            if index >= 6 and index <= 10: 
+                                td.append(cellTop[index - 6] + " " + cell.strip())
+                            else:
+                                td.append(cell.strip())
+                        table.append(td)
+                    else:
+                        for index, cell in enumerate(cells):
+                            td.append(cell.strip())
+                        table.append(td)
+            tableContent[parser_log.TABLE] = table
+        tables.append(tableContent)
+        caseDict[parser_log.TABLES] = tables
+        result.append(caseDict)
+    outfp.write(json.dumps(result))
+    return result
+
 
 if __name__ == "__main__":
-    infp = open("iozone_output.log", "r")
-    content = infp.read()
-    outfp = open("2.txt", "a+")
-    pdb.set_trace()
-    # iozone_read_parser(content, outfp)
-    # iozone_write_parser(content, outfp)
-    # iozone_rw_parser(content, outfp)
-    iozone_parser(content, outfp)
+    infile = "iozone_output.log"
+    outfile = "iozone_json.txt"
+    outfp = open(outfile, "a+")
+    iozone(infile, outfp)
     outfp.close()
-    infp.close()

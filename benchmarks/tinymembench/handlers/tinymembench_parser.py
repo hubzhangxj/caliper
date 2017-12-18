@@ -2,6 +2,10 @@ import re
 import sys
 import math
 import yaml
+import json
+import copy
+from caliper.server.run import parser_log
+
 def tinyResult(content, outfp):
 	score = 0
 	sum = 1.0
@@ -84,10 +88,51 @@ def tinymembench_parser(content, outfp):
 	return score
 
 
+def tinymembench(filePath, outfp):
+	cases = parser_log.parseData(filePath)
+	result = []
+	for case in cases:
+		caseDict = {}
+		caseDict[parser_log.BOTTOM] = parser_log.getBottom(case)
+		titleGroup = re.search("\[test:([\s\S]+?)\]", case)
+		if titleGroup != None:
+			caseDict[parser_log.TOP] = titleGroup.group(0)
+
+		tables = []
+		tableContent = {}
+
+		tableContent2 = re.findall("={4,}\n==[\s\S]+?[\n\r]{3,}", case)
+		for centerTop2 in tableContent2:
+			top = re.search("={4,}\n[\s\S]+?={4,}", centerTop2)
+			if top is not None:
+				tableContent[parser_log.CENTER_TOP] = top.group(0)
+			table2 = re.search("={4,}[\n\r]{2,}([\s\S]+?)[\n\r]{3,}", centerTop2)
+			if table2 is not None:
+				table2Content = re.sub("---", "", table2.groups()[0])
+				tableContent[parser_log.I_TABLE] = parser_log.parseTable(table2Content, ":")
+			tables.append(copy.deepcopy(tableContent))
+
+		leftStr = re.sub("={4,}\n==[\s\S]+?[\n\r]{3,}", "", case)
+
+		tableContent1 = re.findall("={4,}\n[\s\S]+?\[status\]", leftStr)
+		for centerTop1 in tableContent1:
+			top = re.search("={4,}\n[\s\S]+?={4,}", centerTop1)
+			if top is not None:
+				tableContent[parser_log.CENTER_TOP] = top.group(0)
+			table1 = re.search("={4,}[\n\r]{2,}([\s\S]+?)[\n\r]{3,}", centerTop1)
+			if table1 is not None:
+				table1Content = re.sub("---", "", table1.groups()[0])
+				tableContent[parser_log.I_TABLE] = parser_log.parseTable(table1Content, ":")
+			tables.append(copy.deepcopy(tableContent))
+		caseDict[parser_log.TABLES] = tables
+		result.append(caseDict)
+	outfp.write(json.dumps(result))
+	return result
+
+
 if __name__ == "__main__":
-    fp = open(sys.argv[1], "r")
-    text = fp.read()
-    outfp = open("2.txt", "a+")
-    tinymembench_parser(text, outfp)
-    fp.close()
-    outfp.close()
+	infile = "tinymembench_output.log"
+	outfile = "tinymembench_json.txt"
+	outfp = open(outfile, "a+")
+	tinymembench(infile, outfp)
+	outfp.close()

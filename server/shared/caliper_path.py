@@ -58,7 +58,7 @@ except:
 try:
     platForm_name = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='Platform_name',action='get')
 except:
-    platForm_name = getpass.getuser()
+    platForm_name = None
 
 if not platForm_name:
     # Redirecting the ssh warning to the standard "stderr" File
@@ -213,6 +213,9 @@ class Folder(Singleton):
         self.final_parser = os.path.join(self.workspace, self.name,'final_parsing_logs.yaml')
         self.yaml_dir = os.path.join(self.results_dir, 'yaml')
         self.html_dir = os.path.join(self.results_dir, 'html')
+        self.json_dir = os.path.join(self.results_dir, 'json')
+        self.caliper_message_file = os.path.join(self.workspace, self.name,
+                                                 'test_message.txt')
 
 folder_ope = Folder()
 folder_ope.set_up_path()
