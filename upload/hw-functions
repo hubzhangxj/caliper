@@ -1,0 +1,342 @@
+#!/bin/sh
+
+#get basic info of config from ansible -m setup
+parse_baseconfig() {
+    config_hostname=`jq .ansible_facts.ansible_hostname $1`
+    config_kernel=`jq .ansible_facts.ansible_kernel $1`
+    config_os=`jq .ansible_facts.ansible_lsb.description $1`
+    
+    echo \"hostName\" : $config_hostname, >> $2
+    echo \"kernel\" : $config_kernel, >> $2
+    echo \"os\" : $config_os, >> $2
+}
+
+#get system info from ansible -m setup
+parse_system() {
+    system_name=`jq .ansible_facts.ansible_product_name $1`
+    system_manufactor=`jq .ansible_facts.ansible_system_vendor $1`
+    system_version=`jq .ansible_facts.ansible_product_version $1`
+
+    echo \"system\": \{ >> $2
+    echo "    \"name\" :" $system_name, >> $2
+    echo "    \"manufacturer\" :" $system_manufactor, >> $2
+    echo "    \"version\" :" $system_version >> $2
+    echo \}, >> $2
+}
+
+parse_baseboard() {
+    inBase=0
+    cat $1 | while read line
+    do
+      if [ "x$line" = "xBase Board Information" ]; then
+         inBase=1
+      fi
+    
+      if [ $inBase -eq 1 ]; then
+        key=`echo $line | awk -F ':' '{gsub(/^[ \t]+/,"",$2);print $1}'`
+        value=`echo $line | awk -F ':' '{gsub(/^[ \t]+/,"",$2);print $2}'`
+        case "$key" in
+          "Manufacturer")
+            baseboard_manufacturer=$value
+          ;;
+          "Product Name")
+            baseboard_name=$value
+          ;;
+          "Version")
+            baseboard_version=$value
+          ;;
+        esac
+
+        if [ "x$line" = "x" ]; then
+            echo \"baseboard\" : \{ >> $2
+            echo "    \"name\" :" \"$baseboard_name\", >> $2
+            echo "    \"manufacturer\" :" \"$baseboard_manufacturer\", >> $2
+            echo "    \"version\" :" \"$baseboard_version\" >> $2
+            echo \}, >> $2
+
+            break
+        fi
+      fi
+    done
+}
+
+parse_cpu() {
+    echo \"cpuInfo\": \[ >> $2
+    cpuCount=0
+    inCpu=0
+    cat $1 | while read line
+    do
+      if [ "x$line" = "xProcessor Information" ]; then
+         inCpu=1
+      fi
+    
+      if [ $inCpu -eq 1 ]; then
+          key=`echo $line | awk -F ':' '{gsub(/^[ \t]+/,"",$2);print $1}'`
+          value=`echo $line | awk -F ':' '{gsub(/^[ \t]+/,"",$2);print $2}'`
+          case "$key" in
+          "Socket Designation")
+              cpu_socketDes=$value
+          ;;
+          "Manufacturer")
+              cpu_Manufacturer=$value
+          ;;
+          "Version")
+              cpu_version=$value
+          ;;
+          "Max Speed")
+              cpu_maxSpeed=$value
+          ;;
+          "Current Speed")
+              cpu_currentSpeed=$value
+          ;;
+          "Status")
+              cpu_status=$value
+          ;;
+          "Core Count")
+              cpu_coreCount=$value
+          ;;
+          "Core Enabled")
+              cpu_coreEnabledCount=$value
+          ;;
+          "Thread Count")
+              cpu_threadCount=$value
+          ;;
+          esac
+      
+          if [ "x$line" = "x" ]; then
+            if [ $cpuCount -gt 0 ]; then
+	        echo "," >> $2
+            fi
+            echo \{ >> $2
+            echo \"socketdes\" : \"$cpu_socketDes\", >> $2
+            echo \"manufacturer\" : \"$cpu_Manufacturer\", >> $2
+            echo \"version\" : \"$cpu_version\", >> $2
+            echo \"maxSpeed\" : \"$cpu_maxSpeed\", >> $2
+            echo \"currentSpeed\" : \"$cpu_currentSpeed\", >> $2
+            echo \"status\" : \"$cpu_status\", >> $2
+            echo \"coreCount\" : \"$cpu_coreCount\", >> $2
+            echo \"coreEnabledCount\" : \"$cpu_coreEnabledCount\", >> $2
+            echo \"threadCount\" : \"$cpu_threadCount\" >> $2
+            echo -n \} >> $2
+
+            inCpu=0
+            cpuCount=$((cpuCount + 1 ))
+          fi
+      fi
+    done
+    echo \], >> $2
+}
+
+parse_memory() {
+    echo \"memInfo\": \[ >> $2
+
+    memCount=0
+    inMem=0
+    cat $1 | while read line
+    do
+      if [ "x$line" = "xMemory Device" ]; then
+        inMem=1
+        memory_size=""
+      fi
+    
+      if [ $inMem -eq 1 ]; then
+          key=`echo $line | awk -F ':' '{gsub(/^[ \t]+/,"",$2);print $1}'`
+          value=`echo $line | awk -F ':' '{gsub(/^[ \t]+/,"",$2);print $2}'`
+          case "$key" in
+          "Manufacturer")
+              memory_manufacturer=$value
+          ;;
+          "Speed")
+              memory_speed=$value
+          ;;
+          "Type")
+              memory_type=$value
+          ;;
+          "Size")
+              memory_size=$value
+          ;;
+	  "Configured Clock Speed")
+              memory_clockSpeed=$value
+          ;;
+          "Bank Locator")
+              memory_bankLocator=$value
+          ;;
+          esac
+      
+          if [ "x$line" = "x" ]; then
+
+	    #echo "x$memory_size"
+	    if [ ! "x$memory_size" = "xNo Module Installed" ]; then
+                if [ $memCount -gt 0 ]; then
+                    echo "," >> $2
+                fi
+
+                echo \{ >> $2
+                echo \"manufacturer\" : \"$memory_manufacturer\", >> $2
+                echo \"size\" : \"$memory_size\", >> $2
+                echo \"type\" : \"$memory_type\", >> $2
+                echo \"speed\" : \"$memory_speed\", >> $2
+                echo \"clockSpeed\" : \"$memory_clockSpeed\", >> $2
+                echo \"bankLocator\" : \"$memory_bankLocator\", >> $2
+                echo -n \} >> $2
+                memCount=$((memCount + 1 ))
+	    fi
+
+            inMem=0
+          fi
+      fi
+    done
+    echo \], >> $2
+}
+    
+
+parse_cache() {
+    echo \"cacheInfo\": \[ >> $2
+
+    cacheCount=0
+    inCache=0
+    cat $1 | while read line
+    do
+      if [ "x$line" = "xCache Information" ]; then
+         inCache=1
+      fi
+    
+      if [ $inCache -eq 1 ]; then
+          key=`echo $line | awk -F ':' '{gsub(/^[ \t]+/,"",$2);print $1}'`
+          value=`echo $line | awk -F ':' '{gsub(/^[ \t]+/,"",$2);print $2}'`
+          case "$key" in
+          "Socket Designation")
+              cache_socketDes=$value
+          ;;
+          "Installed Size")
+              cache_size=$value
+          ;;
+          "Operational Mode")
+              cache_operational=$value
+          ;;
+          "Size")
+          esac
+      
+          if [ "x$line" = "x" ] ; then
+	    if [ ! "x$cache_size" = "x0 kB" ]; then
+            
+                if [ $cacheCount -gt 0 ]; then
+                    echo "," >> $2
+                fi
+    
+                echo \{ >> $2
+                echo \"socketdes\" : \"$cache_socketDes\", >> $2
+                echo \"size\" : \"$cache_size\", >> $2
+                echo \"operational\" : \"$cache_operational\" >> $2
+                echo -n \} >> $2
+                cacheCount=$((cacheCount + 1 ))
+	    fi
+
+            inCache=0
+          fi
+      fi
+    done
+    echo \], >> $2
+    
+}
+
+
+parse_storage() {
+    echo \"storageInfo\": \[ >> $2
+
+    storageInfo_count=`jq .blockdevices[].name $1 | wc -l`
+    idx=0
+    while [ $idx -lt $storageInfo_count ]; do
+        storageInfo_device=`jq -r .blockdevices[$idx].name $1`
+        storageInfo_type=`jq -r .blockdevices[$idx].type $1`
+        storageInfo_capability=`jq -r .blockdevices[$idx].size $1`
+        storageInfo_sectorsize=`jq -r .blockdevices[$idx].logsec $1`
+        storageInfo_model=`jq -r .blockdevices[$idx].model $1`
+
+	if [ ! "x$storageInfo_type" = "xdisk" ]; then 
+	    idx=$((idx + 1 ))
+	    continue
+	fi
+
+        echo "{" >> $2
+        echo \"deviceName\" : \"$storageInfo_device\", >> $2
+        echo \"model\" : \"$storageInfo_model\", >> $2
+        echo \"capacity\" : \"$storageInfo_capability\", >> $2
+        echo \"sectorsize\" : \"$storageInfo_sectorsize\", >> $2
+
+        parts_count=`jq -r .blockdevices[$idx].children[].name $1 | wc -l`
+	if [ $parts_count -gt 0 ]; then
+	    echo \"partitons\" : \[ >> $2
+	fi
+
+        part_idx=0
+        while [ $part_idx -lt $parts_count ]; do
+            part_name=`jq -r .blockdevices[$idx].children[$part_idx].name $1`
+            part_size=`jq -r .blockdevices[$idx].children[$part_idx].size $1`
+	    if [ $part_idx -gt 0 ]; then echo "," >> $2; fi
+	    echo \{ >> $2
+	    echo \"name\" : \"$part_name\", >> $2
+	    echo \"size\" : \"$part_size\" >> $2
+	    echo -n \} >> $2
+
+            part_idx=$((part_idx + 1 ))
+	done
+	echo \] >> $2
+
+	echo \} >> $2
+        idx=$((idx + 1 ))
+    done
+
+    echo \], >> $2
+}
+
+parse_network() {
+    echo \"netInfo\": \[ >> $2
+
+    idx=0
+    network_interfaces=`jq -r .ansible_facts.ansible_interfaces[] $1`
+    for interface in $network_interfaces; do
+        netinfo_interface=`jq -r .ansible_facts.ansible_$interface.device $1`
+        if [ $netinfo_interface = "lo" ]; then continue; fi
+        netinfo_bandWidth=`ethtool $interface | grep "Speed:" |  awk '{print $2}'`
+        netinfo_driver=`jq -r .ansible_facts.ansible_$interface.module $1`
+        netinfo_driverVersion=`modinfo $netinfo_driver|grep ^version| awk '{print $2}'`
+        netinfo_address=`jq -r .ansible_facts.ansible_$interface.ipv4.address $1`
+        netinfo_broadcast=`jq -r .ansible_facts.ansible_$interface.ipv4.broadcast $1`
+        netinfo_netmask=`jq -r .ansible_facts.ansible_$interface.ipv4.netmask $1`
+        netinfo_network=`jq -r .ansible_facts.ansible_$interface.ipv4.network $1`
+        netinfo_ip6address=`jq -r .ansible_facts.ansible_$interface.ipv6[0].address $1`
+        netinfo_mac=`jq -r .ansible_facts.ansible_$interface.macaddress $1`
+
+	if [ $idx -gt 0 ]; then
+	    echo "," >> $2
+        fi
+	echo \{ >> $2
+	echo "  \"interface\" : \"$netinfo_interface\"," >> $2
+	echo "  \"bankWidth\" : \"$netinfo_bandWidth\"," >> $2
+	echo "  \"driver\" : \"$netinfo_driver\"," >> $2
+	echo "  \"driverVersion\" : \"$netinfo_driverVersion\"," >> $2
+	echo "  \"protocolType\" : \"ipv4\"," >> $2
+	echo "  \"address\" : \"$netinfo_address\"," >> $2
+	echo "  \"broadcast\" : \"$netinfo_broadcast\"," >> $2
+	echo "  \"netmask\" : \"$netinfo_netmask\"," >> $2
+	echo "  \"network\" : \"$netinfo_network\"," >> $2
+	echo "  \"mac\" : \"$netinfo_mac\"," >> $2
+	echo "  \"ip6address\" : \"$netinfo_ip6address\"" >> $2
+	echo -n \} >> $2
+
+	idx=$((idx + 1 ))
+    done
+    echo "]" >> $2   
+}
+
+#echo \{ > aa
+#parse_baseconfig output aa
+#parse_system output aa
+#parse_baseboard dmi aa
+#parse_cpu dmi aa
+#parse_memory dmi aa
+#parse_cache dmi aa
+#parse_storage blk aa
+#parse_network output aa
+#echo \} >> aa

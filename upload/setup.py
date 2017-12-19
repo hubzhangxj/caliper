@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import shutil
 
 try:
     import client.common as common
@@ -17,6 +18,10 @@ if os.path.isdir('upload'):
     upload_dir = 'upload'
 else:
     upload_dir = '.'
+sh_list = ['config_info_run.sh', 'hw-functions']
+for sh in sh_list:
+    caliper = os.path.join(os.environ['HOME'], '.caliper', sh)
+    shutil.copy(os.path.join(upload_dir, sh), caliper)
 
 def get_packages():
     return ['caliper.upload']

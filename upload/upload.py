@@ -6,12 +6,82 @@ from poster.streaminghttp import register_openers
 import hashlib
 import urllib
 import urllib2
+import time
 import shutil
 import os,tarfile
-import zipfile
+import pyminizip
 import json
 from caliper.client.shared import caliper_path
 import caliper.server.utils as server_utils
+import itertools
+import mimetools
+import mimetypes
+from cStringIO import StringIO
+import urllib
+
+
+class MultiPartForm(object):
+    """Accumulate the data to be used when posting a form."""
+
+    def __init__(self):
+        self.form_fields = []
+        self.files = []
+        self.boundary = mimetools.choose_boundary()
+        return
+
+    def get_content_type(self):
+        return 'multipart/form-data; boundary=%s' % self.boundary
+
+    def add_field(self, name, value):
+        """Add a simple field to the form data."""
+        self.form_fields.append((name, value))
+        return
+
+    def add_file(self, fieldname, filename, fileHandle, mimetype=None):
+        """Add a file to be uploaded."""
+        body = fileHandle.read()
+        if mimetype is None:
+            mimetype = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+        self.files.append((fieldname, filename, mimetype, body))
+        return
+
+    def __str__(self):
+        """Return a string representing the form data, including attached files."""
+        # Build a list of lists, each containing "lines" of the
+        # request.  Each part is separated by a boundary string.
+        # Once the list is built, return a string where each
+        # line is separated by '\r\n'.
+        parts = []
+        part_boundary = '--' + self.boundary
+
+        # Add the form fields
+        parts.extend(
+            [part_boundary,
+             'Content-Disposition: form-data; name="%s"' % name,
+             '',
+             value,
+             ]
+            for name, value in self.form_fields
+        )
+
+        # Add the files to upload
+        parts.extend(
+            [part_boundary,
+             'Content-Disposition: file; name="%s"; filename="%s"' % \
+             (field_name, filename),
+             'Content-Type: %s' % content_type,
+             '',
+             body,
+             ]
+            for field_name, filename, content_type, body in self.files
+        )
+
+        # Flatten the list and add closing boundary marker,
+        # then return CR+LF separated data
+        flattened = list(itertools.chain(*parts))
+        flattened.append('--' + self.boundary + '--')
+        flattened.append('')
+        return '\r\n'.join(flattened)
 
 def make_targz(output_filename, source_dir):
     with tarfile.open(output_filename, "w:gz") as tar:
@@ -50,32 +120,46 @@ def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_p
     output_file=dirpath+".tar.gz"
     json_output_file = dirpath+"_josn.tar.gz"
     make_targz(json_output_file, json_file)
-    # remove json dir
+    # encryption(json_file, json_output_file, server_password)
+    # print '====================================='
+    # # remove json dir
     shutil.rmtree(json_file)
-    make_targz(output_file,dirpath)
+    make_targz(output_file, dirpath)
+    # encryption(dirpath, output_file, server_password)
+    # print '====================================='
+    hash_output = calcHash(output_file)
+    hash_log = calcHash(json_output_file)
 
 
-    # upload
-    register_openers()
-    datagen, headers = multipart_encode({'file':open(output_file, 'rb')})
-    request = urllib2.Request('http://'+server_url+'/test_post', datagen, headers)
-    response = urllib2.urlopen(request)
+    form = MultiPartForm()
+    form.add_field('username', server_user)
+    json_data = open(json_path, 'r')
+    json_data = json_data.read()
+    form.add_field('result', json.dumps(json_data))
+    form.add_field('hash_output', hash_output)
+    form.add_field('hash_log', hash_log)
 
-    datagen1, headers1 = multipart_encode({'file': open(json_output_file, 'rb')})
-    request1 = urllib2.Request('http://' + server_url + '/test_post', datagen1, headers1)
-    response1 = urllib2.urlopen(request1)
+    # Add a fake file
+    form.add_file('output', output_file,
+                  fileHandle=StringIO('output'))
+    form.add_file('log', json_output_file,
+                  fileHandle=StringIO('log'))
 
-    save_path = response.read()
+    # Build the request
+    print 'http://%s/data/upload'%server_url
+    request = urllib2.Request('http://%s/data/upload'%server_url)
+    body = str(form)
+    request.add_header('Content-type', form.get_content_type())
+    request.add_header('Content-length', len(body))
+    request.add_data(body)
 
-    # save db
-    with open(json_path,'r') as load_f:
-        json_data = json.load(load_f)
-    db_values={"save_path":save_path,"json_data":json_data, "server_user":server_user}
-    db_data = urllib.urlencode(db_values)
-    db_url = "http://"+server_url+"/save_data"
-    db_request = urllib2.Request(db_url, db_data)
-    db_response = urllib2.urlopen(db_request)
-    print db_response.read()
+    print
+    print 'OUTGOING DATA:'
+    print request.get_data()
+
+    print
+    print 'SERVER RESPONSE:'
+    print urllib2.urlopen(request).read()
 
 def calcHash(filepath):
     '''
@@ -87,8 +171,26 @@ def calcHash(filepath):
         sha1obj = hashlib.sha1()
         sha1obj.update(f.read())
         hash = sha1obj.hexdigest()
-    print(hash)
     return hash
+
+def encryption(inputpath, outpath, password):
+    file_list = []
+    file_list = get_file(inputpath, file_list)
+    compression_level = 5  # 1-9
+    pyminizip.compress_multiple(file_list, outpath, password, compression_level)
+
+def get_file(inputpath, file_list):
+    parents = os.listdir(inputpath)
+    for parent in parents:
+        child = os.path.join(inputpath, parent)
+        if os.path.isdir(child):
+            get_file(child, file_list)
+        else:
+            file_list.append(child)
+    print file_list
+    print '*******************************'
+    return file_list
+
 # example
 #dirpath = "C:\\Users\\yangtt\\Desktop\\fanxh-OptiPlex-3020_WS_17-08-07_11-03-46"
 # dirpath = caliper_path.workspace;

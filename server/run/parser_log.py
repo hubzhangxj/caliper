@@ -6,8 +6,9 @@ import sys
 import importlib
 import re
 import logging
-
+import subprocess
 import yaml
+import shutil
 try:
     import common
 except ImportError:
@@ -47,6 +48,10 @@ def parser_caliper_tests(flag, sections, run_case_list):
     else:
         if test_result:
             flag = test_result
+    try:
+        parse_test_config()
+    except:
+        logging.info("There is wrong in parsing test config")
     return flag
 
 def parsing_run(sections, run_case_list):
@@ -258,6 +263,12 @@ def parser_json(bench_name, parser_file, infile):
                 return -5
             outfp.close()
     return result
+
+def parse_test_config():
+    sh_path = os.path.join(os.environ['HOME'], '.caliper')
+    os.chdir(sh_path)
+    subprocess.call('./config_info_run.sh', stdout=subprocess.PIPE, shell=True)
+    shutil.copy('/tmp/config_output.json', os.path.join(Folder.json_dir, 'config_output.json'))
 
 def parseData(filePath):
     file = open(filePath)
