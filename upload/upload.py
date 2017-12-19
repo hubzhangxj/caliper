@@ -119,14 +119,15 @@ def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_p
     shutil.copyfile(json_path_source,json_path)
     output_file=dirpath+".tar.gz"
     json_output_file = dirpath+"_josn.tar.gz"
-    make_targz(json_output_file, json_file)
-    # encryption(json_file, json_output_file, server_password)
+
+    # make_targz(json_output_file, json_file)
+    encryption(json_file, json_output_file, server_password)
     # print '====================================='
     # # remove json dir
     shutil.rmtree(json_file)
-    make_targz(output_file, dirpath)
-    # encryption(dirpath, output_file, server_password)
-    # print '====================================='
+    # make_targz(output_file, dirpath)
+    encryption(dirpath, output_file, server_password)
+    print '====================================='
     hash_output = calcHash(output_file)
     hash_log = calcHash(json_output_file)
 
@@ -174,10 +175,13 @@ def calcHash(filepath):
     return hash
 
 def encryption(inputpath, outpath, password):
-    file_list = []
-    file_list = get_file(inputpath, file_list)
-    compression_level = 5  # 1-9
-    pyminizip.compress_multiple(file_list, outpath, password, compression_level)
+    import subprocess
+    subprocess.call("cd %s/.. && zip -rP %s %s %s"%(inputpath, password, outpath, inputpath.split(os.sep)[-1]), shell=True)  # 加密包
+
+    # file_list = []
+    # file_list = get_file(inputpath, file_list)
+    # compression_level = 5  # 1-9
+    # pyminizip.compress_multiple(file_list, outpath, password, compression_level)
 
 def get_file(inputpath, file_list):
     parents = os.listdir(inputpath)
