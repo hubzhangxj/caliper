@@ -47,14 +47,23 @@ def ConfigValue(path=None,section=None,key=None,action='get',value=None):
     else:
         return config.set(section,key,value)
 
-try:
-    client_ip = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='ip',action='get')
-except:
-    client_ip = '127.0.0.1'
-try:
-    client_user = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='user',action='get')
-except:
-    client_user = getpass.getuser()
+cf = ConfigParser.ConfigParser()
+host_path = os.path.join(caliper_config_file, 'hosts')
+cf.read(host_path)
+sections = cf.sections()
+opts = cf.options(sections[0])[0].split(' ')
+client_ip = opts[0]
+user_list = cf.get(sections[0], cf.options(sections[0])[0])
+client_user = user_list.split(' ')[0]
+# platForm_name = client_user
+# try:
+#     client_ip = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='ip',action='get')
+# except:
+#     client_ip = '127.0.0.1'
+# try:
+#     client_user = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='user',action='get')
+# except:
+#     client_user = getpass.getuser()
 try:
     platForm_name = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='Platform_name',action='get')
 except:

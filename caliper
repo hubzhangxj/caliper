@@ -172,11 +172,16 @@ def upload_url():
         return server_ip
 
 def get_remote_host():
-    client_ip = '127.0.0.1'
+    cf = ConfigParser.ConfigParser()
+    host_path = os.path.join(caliper_path.config_files.config_dir, 'hosts')
+    cf.read(host_path)
+    sections = cf.sections()
+    opts = cf.options(sections[0])[0].split(' ')
+    client_ip = opts[0]
+    user_list = cf.get(sections[0], cf.options(sections[0])[0])
+    user = user_list.split(' ')[0]
     port = 22
-    user = getpass.getuser()
-    password = ''
-
+    password = user_list.split('"')[-2]
     remote_host = host_factory.create_host(client_ip, user, password, port)
     return remote_host
 
@@ -448,8 +453,7 @@ if __name__=="__main__":
 
     if args.webpage and not args.send_email:
         try:
-            populate_excels()
-
+            # populate_excels()
             # filter all the test cases to get only the common test cases passed in all the plaforms. other test cases marked as INVALID.
             flag = normalize_scores()
 

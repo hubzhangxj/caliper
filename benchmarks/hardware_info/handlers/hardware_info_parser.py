@@ -1,30 +1,30 @@
 #!/usr/bin/python
 import yaml
-import logging
 import dictionary
-import glob
+import ConfigParser
 import os
 import re
-import pdb
-import subprocess
-import time
-import getpass
 import caliper.server.utils as server_utils
 from caliper.server.hosts import host_factory
-from caliper.client.shared import error
-from caliper.client.shared.settings import settings
-from caliper.client.shared.caliper_path import folder_ope as Folder
+import caliper.server.shared.caliper_path as caliper_path
+from caliper.server.shared.caliper_path import folder_ope as Folder
+
 path = "./HardwareInfo"
 out_path = "./hardware_yaml"
 lscpu_list = ['Architecture','Socket\(s\)','Cpu_Type','Core\(s\) per socket','Thread\(s\) per core','Model name','CPU\(s\)','NUMA node\(s\)','BogoMIPS','Byte Order']
 lsb_release_list = ['Distributor ID','Description','Release','Codename']
 lspci_list = ['Ethernet controller [0200]']
 def get_remote_host():
-    client_ip = '127.0.0.1'
+    cf = ConfigParser.ConfigParser()
+    host_path = os.path.join(caliper_path.config_files.config_dir, 'hosts')
+    cf.read(host_path)
+    sections = cf.sections()
+    opts = cf.options(sections[0])[0].split(' ')
+    client_ip = opts[0]
+    user_list = cf.get(sections[0], cf.options(sections[0])[0])
+    user = user_list.split(' ')[0]
     port = 22
-    user = getpass.getuser()
-    password = ''
-
+    password = user_list.split('"')[-2]
     remote_host = host_factory.create_host(client_ip, user, password, port)
     return remote_host
 
@@ -312,7 +312,7 @@ def update(dic,outfp):
 
     #    dic['Hardware_Info']['MEMORY']['L1_D-Cache_Size'] = cached
     #    dic['Hardware_Info']['MEMORY']['L1_I-Cache_Size'] = cachei
-
+    print dic
     outfp.write(yaml.dump(dic,default_flow_style=False))
     return 
 
@@ -334,29 +334,29 @@ def hardware_info_parser(content,outfp):
     for key,value in category.iteritems():
         value(dic)
     try:
-    	os_populate(dic,contents)
+        os_populate(dic,contents)
     except Exception as e:
-	pass
+        pass
     try:
-    	cpu_populate(dic,contents)
+        cpu_populate(dic,contents)
     except Exception as e:
-	pass
+        pass
     try:
-    	memory_populate(dic,contents)
+        memory_populate(dic,contents)
     except Exception as e:
-	pass
+        pass
     try:
-    	disk_populate(dic,contents)
+        disk_populate(dic,contents)
     except Exception as e:
-	pass
+        pass
     try:
-    	kernel_populate(dic,contents)
+        kernel_populate(dic,contents)
     except Exception as e:
-	pass
+        pass
     try:
-    	network_populate(dic,contents)
+        network_populate(dic,contents)
     except Exception as e:
-	pass
+        pass
     update(dic,outfp)
     host = get_remote_host()
     dic_yaml['Configuration']['CPU'] = dic['Hardware_Info']['CPU']['CPU_Cores']

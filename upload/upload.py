@@ -117,8 +117,8 @@ def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_p
     json_file = os.path.join(dirpath,"output", "results", "json")
     json_path=os.path.join(dirpath,os.path.basename(json_path_source))
     shutil.copyfile(json_path_source,json_path)
-    output_file=dirpath+".tar.gz"
-    json_output_file = dirpath+"_josn.tar.gz"
+    output_file=dirpath+".zip"
+    json_output_file = dirpath+"_josn.zip"
 
     # make_targz(json_output_file, json_file)
     encryption(json_file, json_output_file, server_password)

@@ -21,7 +21,7 @@ except Exception:
 from caliper.server.compute_model import scores_method
 from caliper.server.compute_model.scores_method import Scores_method
 from caliper.server.compute_model.scores_method import geometric_mean
-from caliper.client.shared import caliper_path
+from caliper.server.shared import caliper_path
 
 
 def compute_score(score_way, result_fp):

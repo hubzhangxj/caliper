@@ -1,4 +1,13 @@
 {
+  "common": [
+    {
+      "hardware_info":
+        {
+          "hardware_info":["enable" ,"1" ]
+        }
+    }
+  ],
+
   "memory": [
     {"cachebench":
           {"cachebench read":["enable" ,"1" ],

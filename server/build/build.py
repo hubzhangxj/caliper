@@ -370,8 +370,8 @@ def build_for_target(target, f_option, clear, sections):
     # This call assign target_arch with target architecture. Call
     # "get_host_arch" looks to be confusing :(
     target_arch = server_utils.get_host_arch(target)
-    if server_utils.get_target_ip(target) in server_utils.get_local_ip():
-        return build_for_local()
+    # if server_utils.get_target_ip(target) in server_utils.get_local_ip():
+    #     return build_for_local()
 
     try:
         host_arch = server_utils.get_local_machine_arch()
