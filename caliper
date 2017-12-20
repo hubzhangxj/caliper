@@ -140,8 +140,7 @@ def copy_yaml(remote_host):
     except Exception, e:
         logging.info("There is wrong when copy the caliper result")
 
-def upload_url():
-    remote_host = get_remote_host()
+def upload_url(remote_host):
     try:
         server_num = settings.get_value('Caliperweb', 'server_num', type=int)
     except Exception, e:
@@ -273,43 +272,37 @@ def push_ssh_key():
         subprocess.call('ansible-playbook -i hosts push_sshkey.yml -u %s' % getpass.getuser(), stdout=subprocess.PIPE, shell=True)
     except Exception as e:
         logging.debug(e)
-        pass
+        logging.info('push ssh key fail')
+        sys.exit(1)
 
 if __name__=="__main__":
     parser = ArgumentParser(version=common.VERSION)
+    parser.add_argument("-a", "--all", action="store_true", dest="all", default=False, help="run all")
     parser.add_argument("-b", "--build", action="store_true",
-            dest="build", default=True,help="select to incrementally build the selected test tools")
-    parser.add_argument("-B", "--nobuild", action="store_false",
-            dest="build", help="select not to incrementally build process of test tools")
+            dest="build", default=False,help="select to incrementally build the selected test tools")
     parser.add_argument("-c", "--cleanbuild", action="store_true",
             dest="cleanbuild", help="select to clean build the selected tools")
-    parser.add_argument("-r", "--run", action="store_true", dest="run", default=True,
+    parser.add_argument("-r", "--run", action="store_true", dest="run", default=False,
             help="select to run the selected test tools")
-    parser.add_argument("-R", "--norun", action="store_false", dest="run", help=
-            "not to execute the process of running test tools")
-    parser.add_argument("-p", "--parse", action="store_true", dest="parse", default=True,
+    parser.add_argument("-p", "--parse", action="store_true", dest="parse", default=False,
                         help="select to Parse the selected test tools")
-    parser.add_argument("-P", "--noparse", action="store_false", dest="parse", help=
-            "not to Parse the process of running test tools")
-    parser.add_argument("-s", "--score", action="store_true", dest="score", default=True,
+    parser.add_argument("-s", "--score", action="store_true", dest="score", default=False,
                         help="select to Score the selected test tools")
-    parser.add_argument("-S", "--noscore", action="store_false", dest="score", help=
-                        "not to Score the process of running test tools")
-    parser.add_argument("-w", "--webpage", action="store_true", dest="webpage", default=False,
-            help="select to generate the webpage test report")
+    parser.add_argument("-u", "--upload", action="store_true", dest="upload", default=False,
+            help="select the webpage to upload")
     parser.add_argument("-e", "--email", action="store_true", dest="send_email",
             default=False, help="Select to send mail to the receivers or not")
     parser.add_argument( "-f", "--folder", action="store", dest="folder",
             default="", help="assign a folder to store the results")
-    parser.add_argument("-C", "--config", action="store", dest="config_file",
-            default="", help="specify the location of config file")
+    # parser.add_argument("-C", "--config", action="store", dest="config_file",
+    #         default="", help="specify the location of config file")
     parser.add_argument("-l", "--benchmarklist", action="store_true", dest="benchmarklist", default=False,
                         help="display support benchmark list")
     parser.add_argument("-d", "--debug", action="store_true", dest="debug", default=False,help="debug mode")
     parser.add_argument("-m", "--message", action="store", dest="message",default="", help="add a message for test")
     parser.add_argument("-D", "--dimension", action="store", dest="dimension", default="", help="command line for dimension test")
     parser.add_argument("-T", "--tool", action="store", dest="tool", default="", help="command line for tool test")
-    parser.add_argument("-E", "--case", action="store", dest="case", default="", help="command line for case test")
+    parser.add_argument("-C", "--case", action="store", dest="case", default="", help="command line for case test")
 
     args = parser.parse_args()
     start_time = datetime.datetime.now()
@@ -353,27 +346,21 @@ if __name__=="__main__":
             print e
             sys.exit(1)
 
-    if args.config_file:
-        caliper_path.config_files.name = args.config_file
-        caliper_path.config_files.setup_path()
-        settings.set_config_files(os.path.join(
-                                caliper_path.config_files.config_dir,
-                                'client_config.cfg'
-                                ))
-    else:
-        caliper_path.config_files.name = caliper_path.folder_ope.workspace
-        caliper_path.config_files.setup_path()
-        if not os.path.exists(caliper_path.folder_ope.workspace + "/config"):
-            shutil.copytree(caliper_path.caliper_config_file, caliper_path.folder_ope.workspace + "/config")
+    # get config file
+    caliper_path.config_files.name = caliper_path.folder_ope.workspace
+    caliper_path.config_files.setup_path()
+    if not os.path.exists(caliper_path.folder_ope.workspace + "/config"):
+        shutil.copytree(caliper_path.caliper_config_file, caliper_path.folder_ope.workspace + "/config")
 
-        settings.set_config_files(os.path.join(
-            caliper_path.config_files.config_dir,
-            'client_config.cfg'
-        ))
+    settings.set_config_files(os.path.join(
+        caliper_path.config_files.config_dir,
+        'client_config.cfg'
+    ))
 
+    # create test dir
     caliper_path.create_dir()
     remote_host = get_remote_host()
-
+    # get test case list
     tool_list = []
     run_case_list = []
     if args.dimension:
@@ -398,39 +385,99 @@ if __name__=="__main__":
     else:
         sections, run_case_list = read_config()
 
-    if args.build or args.run:
+    if args.all:
         push_ssh_key()
-        if args.build:
-            try:
-                clear = 0
-                if args.cleanbuild:
-                    clear = 1
-                result1 = build_all_tests(remote_host,f_option,clear, sections)
-                if result1:
-                    sys.exit()
-            except Exception, e:
-                raise
+        # build
+        try:
+            clear = 0
+            if args.cleanbuild:
+                clear = 1
+            result1 = build_all_tests(remote_host, f_option, clear, sections)
+            if result1:
+                sys.exit()
+        except Exception, e:
+            raise
+        # run
+        try:
+            result2 = run_caliper(f_option, sections, run_case_list)
+            if result2:
+                sys.exit()
 
-        if args.run:
-            try:
-                result2 = run_caliper(f_option, sections, run_case_list)
-                if result2:
-                    sys.exit()
+        except Exception:
+            raise
 
-            except Exception:
-                raise
+        end_time = datetime.datetime.now()
+        interval = end_time - start_time
+        try:
+            summary_path = os.path.join(caliper_path.folder_ope.workspace, 'output', 'results_summary.log')
+            summary.output_summary_info(remote_host, summary_path, interval.seconds)
+        except Exception, e:
+            raise e
+        # parser
+        try:
+            result2 = parser_caliper_logs(f_option, sections, run_case_list)
+            if result2:
+               sys.exit()
+            result2 = score.compute_caliper_logs(remote_host, sections, run_case_list,1)
+        except Exception:
+            raise
+        # score
+        try:
+            result2 = score.compute_caliper_logs(remote_host, sections, run_case_list,2)
+            if intermediate:
+                parser_caliper(remote_host)
+            # copy yaml to corresponding dirs under caliper_out
+            copy_yaml(remote_host)
+        except Exception as e:
+            print e
+            pass
+        # upload
+        try:
+            # populate_excels()
+            # filter all the test cases to get only the common test cases passed in all the plaforms. other test cases marked as INVALID.
+            flag = normalize_scores()
 
-            end_time = datetime.datetime.now()
-            interval = end_time - start_time
-            try:
-                summary_path = os.path.join(caliper_path.folder_ope.workspace, 'output', 'results_summary.log')
-                summary.output_summary_info(remote_host, summary_path, interval.seconds)
-            except Exception, e:
-                raise e
-        if args.message:
-            message_file = Folder.caliper_message_file
-            mp = open(message_file, 'a+')
-            mp.write(args.message)
+            # Reads one value from all the plaforms and then compares this values with each other to rank them. This is done for all the values in the yaml files. These new values are writed to _score_post.yaml.
+            write_results.normalize_caliper()
+
+            # computes the score i.e TOTAL_SCORE in the form of 100% for each section in the newly generated _post.yaml and _post.json files. _post.yaml file is to be used for image creation and _post.json file is to be used for table creation in HTML report.
+            normalize.normalise()
+        except Exception as e:
+            print e
+        try:
+            upload_url(remote_host)
+        except:
+            pass
+
+    if args.build:
+        push_ssh_key()
+        try:
+            clear = 0
+            if args.cleanbuild:
+                clear = 1
+            result1 = build_all_tests(remote_host,f_option,clear, sections)
+            if result1:
+                sys.exit()
+        except Exception, e:
+            raise
+
+    if args.run:
+        push_ssh_key()
+        try:
+            result2 = run_caliper(f_option, sections, run_case_list)
+            if result2:
+                sys.exit()
+
+        except Exception:
+            raise
+
+        end_time = datetime.datetime.now()
+        interval = end_time - start_time
+        try:
+            summary_path = os.path.join(caliper_path.folder_ope.workspace, 'output', 'results_summary.log')
+            summary.output_summary_info(remote_host, summary_path, interval.seconds)
+        except Exception, e:
+            raise e
 
     if args.parse:
         try:
@@ -451,7 +498,7 @@ if __name__=="__main__":
             print e
             pass
 
-    if args.webpage and not args.send_email:
+    if args.upload:
         try:
             # populate_excels()
             # filter all the test cases to get only the common test cases passed in all the plaforms. other test cases marked as INVALID.
@@ -464,14 +511,12 @@ if __name__=="__main__":
             normalize.normalise()
         except Exception as e:
             print e
-            # sys.exit()
         try:
-            # flag = generate_web_tar()
-            upload_url()
+            upload_url(remote_host)
         except:
             pass
 
-    if args.webpage and args.send_email:
+    if args.upload and args.send_email:
         # flag = generate_web_tar()
         result_path = os.path.join(caliper_path.folder_ope.results_dir,
                 'test_results.tar.gz')
@@ -485,6 +530,11 @@ if __name__=="__main__":
             except Exception as e:
                 print("\nCan't able to send the mail as 'test_results.tar.gz' file is not created\n")
                 sys.exit()
+
+    if args.message:
+        message_file = Folder.caliper_message_file
+        mp = open(message_file, 'a+')
+        mp.write(args.message)
 
     if args.folder and args.send_email:
         result_path = os.path.join(caliper_path.folder_ope.workspace, caliper_path.folder_ope.name,
@@ -514,7 +564,7 @@ if __name__=="__main__":
                 print("\n Can't able to send the mail as 'results_summary.log' file is not present\n ")
                 sys.exit()
 
-    if not args.webpage and args.send_email:
+    if not args.upload and args.send_email:
         current_path = os.getcwd()
         flag = 0
         for root, _, files in sorted(os.walk(current_path)):

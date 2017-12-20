@@ -44,14 +44,13 @@ def compute_caliper_logs(target_exec_dir, sections, run_case_list, flag=1):
                 try:
                     category = values[sections[j]][section]['category']
                     scores_way = values[sections[j]][section]['scores_way']
-                    command = values[sections[j]][section]['command']
                 except Exception, e:
                     logging.debug("no value for the %s" % section)
                     logging.info(e)
                     continue
                 try:
                     logging.debug("Computing the score of the result of command: %s"
-                                  % command)
+                                  % section)
                     flag_compute = compute_case_score(dic[sections[j]][section]["value"], category,
                                                       scores_way, target_exec_dir, flag)
                 except Exception, e:
@@ -61,7 +60,7 @@ def compute_caliper_logs(target_exec_dir, sections, run_case_list, flag=1):
                 else:
                     if not flag_compute and dic[bench][section["value"]]:
                         logging.info("Error while computing the result\
-                                        of \"%s\"" % command)
+                                        of \"%s\"" % section)
             else:
                 continue
     logging.info("=" * 55)

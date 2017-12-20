@@ -20,7 +20,6 @@ from caliper.server import crash_handle
 from caliper.server.shared import error
 from caliper.server import utils as server_utils
 from caliper.server.shared import caliper_path
-from caliper.server.run import write_results
 from caliper.server.shared.caliper_path import folder_ope as Folder
 
 class run_case_thread(threading.Thread):
@@ -94,15 +93,7 @@ def run_caliper_tests(f_option, sections, run_case_list):
 def caliper_run(sections, run_case_list):
     # get the test cases defined files
     for i in range(0, len(sections)):
-        # try to resolve the configuration of the configuration file
-        try:
-            run_file = sections[i]+ '_run.cfg'
-            parser = sections[i]+ '_parser.py'
-        except Exception:
-            raise AttributeError("The is no option value of parser")
-
         common.print_format()
-
         logging.info("Running %s" % sections[i])
         bench = os.path.join(caliper_path.BENCHS_DIR, sections[i], 'defaults')
         try:
@@ -177,11 +168,6 @@ def run_all_cases(kind_bench, bench_name, run_case_list):
                             if case == section:
                                 num = case_list[dimension][i][tool][case][-1]
             flag = 0
-            try:
-                command = values[bench_name][section]['command']
-            except Exception:
-                logging.debug("no value for the %s" % section)
-                continue
 
             if os.path.exists(tmp_log_file):
                 os.remove(tmp_log_file)
@@ -190,7 +176,7 @@ def run_all_cases(kind_bench, bench_name, run_case_list):
             try:
                 for j in range(int(num)):
                     subprocess.call("echo 'the %s time'>>%s" % (j, Folder.caliper_run_log_file), shell=True)
-                    flag = run_client_command(section, tmp_log_file, command, bench_name)
+                    flag = run_client_command(section, tmp_log_file, bench_name)
             except Exception, e:
                 logging.info(e)
                 crash_handle.main()
@@ -208,7 +194,7 @@ def run_all_cases(kind_bench, bench_name, run_case_list):
                 server_utils.file_copy(logfile, tmp_log_file, 'a+')
                 if flag != 1:
                     logging.info("There is wrong when running the command \"%s\""
-                                 % command)
+                                 % section)
 
                     if os.path.exists(tmp_log_file):
                         os.remove(tmp_log_file)
@@ -241,27 +227,27 @@ def run_all_cases(kind_bench, bench_name, run_case_list):
                                     Folder.caliper_run_log_file), shell=True)
         subprocess.call("echo '======================================================'>>%s"% (Folder.caliper_run_log_file), shell=True)
 
-def run_client_command(cmd_sec_name, tmp_logfile, command, bench_name):
+def run_client_command(cmd_sec_name, tmp_logfile, bench_name):
     fp = open(tmp_logfile, "a+")
     start_log = "%%%%%%         %s test start       %%%%%% \n" % cmd_sec_name
     fp.write(start_log)
     fp.write("<<<BEGIN TEST>>>\n")
     tags = "[test: " + cmd_sec_name + "]\n"
     fp.write(tags)
-    logs = "log: " + get_actual_commands(command) + "\n"
+    logs = "log: " + get_actual_commands(cmd_sec_name) + "\n"
     fp.write(logs)
     fp.close()
     start = time.time()
     flag = 0
-    logging.debug("the client running command is %s" % command)
+    logging.debug("the client running command is %s" % cmd_sec_name)
 
     try:
         logging.debug("begining to execute the command of %s on remote host"
-                      % command)
+                      % cmd_sec_name)
         fp = open(tmp_logfile, "a+")
-        logging.debug("client command in localhost is: %s" % command)
+        logging.debug("client command in localhost is: %s" % cmd_sec_name)
         # FIXME: update code for this condition
-        [out, returncode] = run_commands(bench_name, command)
+        [out, returncode] = run_commands(bench_name, cmd_sec_name)
         fp.close()
         server_utils.file_copy(tmp_logfile, '/tmp/%s_output.log' % bench_name, 'a+')
     except error.ServRunError, e:

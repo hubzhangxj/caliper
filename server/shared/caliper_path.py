@@ -68,17 +68,16 @@ try:
     platForm_name = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='Platform_name',action='get')
 except:
     platForm_name = None
-
 if not platForm_name:
     # Redirecting the ssh warning to the standard "stderr" File
-    try:
-        hostName = subprocess.Popen('ssh '+str(client_user)+"@"+str(client_ip)+" 'hostname'", shell=True,
-                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        hostName = hostName.communicate()
-    except Exception as e:
-        logging.error(e)
-        sys.exit(1)
-    WORKSPACE = os.path.join(os.environ['HOME'],'caliper_output', str(hostName[0].strip()) + '_WS_'+ TIMP_STAMP)
+    # try:
+    #     hostName = subprocess.Popen('ssh '+str(client_user)+"@"+str(client_ip)+" 'hostname'", shell=True,
+    #                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    #     hostName = hostName.communicate()
+    # except Exception as e:
+    #     logging.error(e)
+    #     sys.exit(1)
+    WORKSPACE = os.path.join(os.environ['HOME'],'caliper_output', str(client_user) + '_WS_'+ TIMP_STAMP)
 else:
     WORKSPACE = os.path.join(os.environ['HOME'], 'caliper_output',
                              str(platForm_name) + '_WS_' + TIMP_STAMP)
@@ -92,40 +91,6 @@ def create_folder(folder, mode=0755):
     except OSError:
         os.makedirs(folder, mode)
 
-def create_dir():
-
-    if not os.path.exists(FRONT_END_DIR):
-        shutil.copytree(FRONT_TMP_DIR,
-                        FRONT_END_DIR)
-    if not os.path.exists(HTML_DATA_DIR_INPUT):
-        create_folder(HTML_DATA_DIR_INPUT)
-    if not os.path.exists(HTML_DATA_DIR_OUTPUT):
-        create_folder(HTML_DATA_DIR_OUTPUT)
-
-    if not os.path.exists(DATA_DIR_INPUT):
-        create_folder(DATA_DIR_INPUT)
-    if not os.path.exists(OPENSSL_DATA_DIR_INPUT):
-        create_folder(OPENSSL_DATA_DIR_INPUT)
-    if not os.path.exists(COV_DATA_DIR_INPUT):
-        create_folder(COV_DATA_DIR_INPUT)
-
-    # Reverte the code as before
-    for i in range(1,6):                                              
-        if not os.path.exists(os.path.join(COV_DATA_DIR_INPUT,str(i))):
-            create_folder(os.path.join(COV_DATA_DIR_INPUT,str(i)))   
-
-    if not os.path.exists(CONSOLIDATED_DATA_DIR_INPUT):
-        create_folder(CONSOLIDATED_DATA_DIR_INPUT)
-    if not os.path.exists(HW_DATA_DIR_INPUT):
-        create_folder(HW_DATA_DIR_INPUT)
-    if not os.path.exists(HTML_DATA_DIR):
-        create_folder(HTML_DATA_DIR)
-    if not os.path.exists(COV_DATA_DIR_OUTPUT):
-        create_folder(COV_DATA_DIR_OUTPUT)
-    if not os.path.exists(EXCEL_DATA_DIR_OUTPUT):
-        create_folder(EXCEL_DATA_DIR_OUTPUT)
-    if not os.path.exists(TEMPLATE_DATA_DIR):
-        create_folder(TEMPLATE_DATA_DIR)
 
 if not judge_caliper_installed():
     # This means caliper is not installed and execution will be local.
@@ -249,3 +214,49 @@ class ConfigFile(Singleton):
 
 config_files = ConfigFile()
 config_files.setup_path()
+
+def create_dir():
+
+    if not os.path.exists(FRONT_END_DIR):
+        shutil.copytree(FRONT_TMP_DIR,
+                        FRONT_END_DIR)
+    if not os.path.exists(HTML_DATA_DIR_INPUT):
+        create_folder(HTML_DATA_DIR_INPUT)
+    if not os.path.exists(HTML_DATA_DIR_OUTPUT):
+        create_folder(HTML_DATA_DIR_OUTPUT)
+
+    if not os.path.exists(DATA_DIR_INPUT):
+        create_folder(DATA_DIR_INPUT)
+    if not os.path.exists(OPENSSL_DATA_DIR_INPUT):
+        create_folder(OPENSSL_DATA_DIR_INPUT)
+    if not os.path.exists(COV_DATA_DIR_INPUT):
+        create_folder(COV_DATA_DIR_INPUT)
+
+    # Reverte the code as before
+    for i in range(1,6):
+        if not os.path.exists(os.path.join(COV_DATA_DIR_INPUT,str(i))):
+            create_folder(os.path.join(COV_DATA_DIR_INPUT,str(i)))
+
+    if not os.path.exists(CONSOLIDATED_DATA_DIR_INPUT):
+        create_folder(CONSOLIDATED_DATA_DIR_INPUT)
+    if not os.path.exists(HW_DATA_DIR_INPUT):
+        create_folder(HW_DATA_DIR_INPUT)
+    if not os.path.exists(HTML_DATA_DIR):
+        create_folder(HTML_DATA_DIR)
+    if not os.path.exists(COV_DATA_DIR_OUTPUT):
+        create_folder(COV_DATA_DIR_OUTPUT)
+    if not os.path.exists(EXCEL_DATA_DIR_OUTPUT):
+        create_folder(EXCEL_DATA_DIR_OUTPUT)
+    if not os.path.exists(TEMPLATE_DATA_DIR):
+        create_folder(TEMPLATE_DATA_DIR)
+
+    if not os.path.exists(folder_ope.build_dir):
+        create_folder(folder_ope.build_dir)
+    if not os.path.exists(folder_ope.exec_dir):
+        create_folder(folder_ope.exec_dir)
+    if not os.path.exists(folder_ope.results_dir):
+        create_folder(folder_ope.results_dir)
+    if not os.path.exists(folder_ope.yaml_dir):
+        create_folder(folder_ope.yaml_dir)
+    if not os.path.exists(folder_ope.html_dir):
+        create_folder(folder_ope.html_dir)

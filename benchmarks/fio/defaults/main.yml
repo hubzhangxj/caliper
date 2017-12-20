@@ -1,41 +1,33 @@
 fio:
-  fio randread bw:
+  randread_bw:
     category: 'Performance storage bandwidth fio_randread'
     scores_way: 'compute_speed_score 1.5'
-    command: 'randread_bw'
     parser: 'bw_parser'
-  fio randread iops:
+  randread_iops:
     category: 'Performance storage iops fio_randread'
     scores_way: 'compute_speed_score 1.5'
-    command: 'randread_iops'
     parser: 'iops_parser'
-  fio randwrite bw:
+  randwrite_bw:
     category: 'Performance storage bandwidth fio_randwrite'
     scores_way: 'compute_speed_score 1.5'
-    command: 'randwrite_bw'
     parser: 'bw_parser'
-  fio randwrite iops:
+  randwrite_iops:
     category: 'Performance storage iops fio_randwrite'
     scores_way: 'compute_speed_score 1.5'
-    command: 'randwrite_iops'
     parser: 'iops_parser'
-  fio read bw:
+  read_bw:
     category: 'Performance storage bandwidth fio_read'
     scores_way: 'compute_speed_score 1.5'
-    command: 'read_bw'
     parser: 'bw_parser'
-  fio read iops:
+  read_iops:
     category: 'Performance storage iops fio_read'
     scores_way: 'compute_speed_score 1.5'
-    command: 'read_iops'
     parser: 'iops_parser'
-  fio write bw:
+  write_bw:
     category: 'Performance storage bandwidth fio_write'
     scores_way: 'compute_speed_score 1.5'
-    command: 'write_bw'
     parser: 'bw_parser'
-  fio write iops:
+  write_iops:
     category: 'Performance storage iops fio_write'
     scores_way: 'compute_speed_score 1.5'
-    command: 'write_iops'
     parser: 'iops_parser'

@@ -71,14 +71,14 @@ except:
 
 if not platForm_name:
     # Redirecting the ssh warning to the standard "stderr" File
-    try:
-        hostName = subprocess.Popen('ssh '+str(client_user)+"@"+str(client_ip)+" 'hostname'", shell=True,
-                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        hostName = hostName.communicate()
-    except Exception as e:
-        logging.error(e)
-        sys.exit(1)
-    WORKSPACE = os.path.join(os.environ['HOME'],'caliper_output', str(hostName[0].strip()) + '_WS_'+ TIMP_STAMP)
+    # try:
+    #     hostName = subprocess.Popen('ssh '+str(client_user)+"@"+str(client_ip)+" 'hostname'", shell=True,
+    #                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    #     hostName = hostName.communicate()
+    # except Exception as e:
+    #     logging.error(e)
+    #     sys.exit(1)
+    WORKSPACE = os.path.join(os.environ['HOME'],'caliper_output', str(client_user) + '_WS_'+ TIMP_STAMP)
 else:
     WORKSPACE = os.path.join(os.environ['HOME'], 'caliper_output',
                              str(platForm_name) + '_WS_' + TIMP_STAMP)

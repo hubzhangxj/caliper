@@ -10,9 +10,9 @@
 
   "memory": [
     {"cachebench":
-          {"cachebench read":["enable" ,"1" ],
-          "cachebench write":["enable" ,"1" ],
-          "cachebench Modify":["enable" ,"1" ]
+          {"cachebench-read":["enable" ,"1" ],
+          "cachebench-write":["enable" ,"1" ],
+          "cachebench-Modify":["enable" ,"1" ]
         }
     },
 
@@ -24,23 +24,23 @@
     {
       "lmbench":
         {
-          "lmbench bandwidth stream v1": ["enable", "1"],
-          "lmbench bandwidth stream v2": ["enable", "1"],
-          "lmbench bandwidth local_die_1_core":["enable" ,"1" ],
-          "lmbench bandwidth local_die_4_core":["enable" ,"1" ],
-          "lmbench bandwidth local_die_16_core":["enable" ,"1" ],
-          "lmbench bandwidth local_die_32_core":["enable" ,"1" ],
-          "lmbench bandwidth local_die_64_core":["enable" ,"1" ],
-          "lmbench bandwidth cross_die_1_core":["enable" ,"1" ],
-          "lmbench bandwidth cross_die_4_core":["enable" ,"1" ],
-          "lmbench bandwidth cross_die_16_core":["enable" ,"1" ],
-          "lmbench latency local_die_1_core":["enable" ,"1" ],
-          "lmbench latency local_die_4_core":["enable" ,"1" ],
-          "lmbench latency local_die_16_core":["enable" ,"1" ],
-          "lmbench latency local_die_32_core":["enable" ,"1" ],
-          "lmbench latency cross_die_1_core":["enable" ,"1" ],
-          "lmbench latency crossl_die_4_core":["enable" ,"1" ],
-          "lmbench latency cross_die_16_core":["enable" ,"1" ]
+          "lmbench_bandwidth_stream_v1": ["enable", "1"],
+          "lmbench_bandwidth_stream_v2": ["enable", "1"],
+          "lmbench_bandwidth_local_die_1_core":["enable" ,"1" ],
+          "lmbench_bandwidth_local_die_4_core":["enable" ,"1" ],
+          "lmbench_bandwidth_local_die_16_core":["enable" ,"1" ],
+          "lmbench_bandwidth_local_die_32_core":["enable" ,"1" ],
+          "lmbench_bandwidth_local_die_64_core":["enable" ,"1" ],
+          "lmbench_bandwidth_cross_die_1_core":["enable" ,"1" ],
+          "lmbench_bandwidth_cross_die_4_core":["enable" ,"1" ],
+          "lmbench_bandwidth_cross_die_16_core":["enable" ,"1" ],
+          "lmbench_latency_local_die_1_core":["enable" ,"1" ],
+          "lmbench_latency_local_die_4_core":["enable" ,"1" ],
+          "lmbench_latency_local_die_16_core":["enable" ,"1" ],
+          "lmbench_latency_local_die_32_core":["enable" ,"1" ],
+          "lmbench_latency_cross_die_1_core":["enable" ,"1" ],
+          "lmbench_latency_cross_die_4_core":["enable" ,"1" ],
+          "lmbench_latency_cross_die_16_core":["enable" ,"1" ]
         }
     }
   ],
@@ -49,43 +49,43 @@
     {
       "netperf":
         {
-          "netperf TCP_STREAM":["enable" ,"1" ],
-          "netperf TCP_STREAM_R":["enable" ,"1" ],
-          "netperf TCP_RR":["enable" ,"1" ],
-          "netperf TCP_CRR":["enable" ,"1" ],
-          "netperf UDP_RR":["enable" ,"1" ]
+          "TCP_STREAM":["enable" ,"1" ],
+          "TCP_STREAM_R":["enable" ,"1" ],
+          "TCP_RR":["enable" ,"1" ],
+          "TCP_CRR":["enable" ,"1" ],
+          "UDP_RR":["enable" ,"1" ]
         }
     },
 
     {
       "iperf":
         {
-          "iperf TCP_sin_1_tx":["enable" ,"1" ],
-          "iperf TCP_sin_3_tx":["enable" ,"1" ],
-          "iperf TCP_sin_4_tx":["enable" ,"1" ],
-          "iperf TCP_sin_5_tx":["enable" ,"1" ],
-          "iperf TCP_sin_10_tx":["enable" ,"1" ],
-          "iperf TCP_sin_1_rx":["enable" ,"1" ],
-          "iperf TCP_sin_3_rx":["enable" ,"1" ],
-          "iperf TCP_sin_4_rx":["enable" ,"1" ],
-          "iperf TCP_sin_5_rx":["enable" ,"1" ],
-          "iperf TCP_sin_10_rx":["enable" ,"1" ],
-          "iperf UDP_sin_1_tx":["enable" ,"1" ],
-          "iperf UDP_sin_3_tx":["enable" ,"1" ],
-          "iperf UDP_sin_5_tx":["enable" ,"1" ],
-          "iperf UDP_sin_10_tx":["enable" ,"1" ],
-          "iperf UDP_sin_1_rx":["enable" ,"1" ],
-          "iperf UDP_sin_3_rx":["enable" ,"1" ],
-          "iperf UDP_sin_5_rx":["enable" ,"1" ],
-          "iperf UDP_sin_10_rx":["enable" ,"1" ]
+          "TCP_sin_1_tx":["enable" ,"1" ],
+          "TCP_sin_3_tx":["enable" ,"1" ],
+          "TCP_sin_4_tx":["enable" ,"1" ],
+          "TCP_sin_5_tx":["enable" ,"1" ],
+          "TCP_sin_10_tx":["enable" ,"1" ],
+          "TCP_sin_1_rx":["enable" ,"1" ],
+          "TCP_sin_3_rx":["enable" ,"1" ],
+          "TCP_sin_4_rx":["enable" ,"1" ],
+          "TCP_sin_5_rx":["enable" ,"1" ],
+          "TCP_sin_10_rx":["enable" ,"1" ],
+          "UDP_sin_1_tx":["enable" ,"1" ],
+          "UDP_sin_3_tx":["enable" ,"1" ],
+          "UDP_sin_5_tx":["enable" ,"1" ],
+          "UDP_sin_10_tx":["enable" ,"1" ],
+          "UDP_sin_1_rx":["enable" ,"1" ],
+          "UDP_sin_3_rx":["enable" ,"1" ],
+          "UDP_sin_5_rx":["enable" ,"1" ],
+          "UDP_sin_10_rx":["enable" ,"1" ]
         }
     },
 
     {
       "qperf":
         {
-          "qperf tcp_bw":["enable" ,"1" ],
-          "qperf tcp_lat":["enable" ,"1" ]
+          "tcp_bw":["enable" ,"1" ],
+          "tcp_lat":["enable" ,"1" ]
         }
     }
   ],
@@ -94,7 +94,7 @@
     {
       "lmbench":
         {
-          "lmbench lat":["enable" ,"1" ]
+          "lmbench_lat":["enable" ,"1" ]
         }
     }
   ],
@@ -123,7 +123,7 @@
       {
         "dhrystone":
           {
-            "dhrystone gcc_dhry2":["enable" ,"1" ]
+            "gcc_dhry2":["enable" ,"1" ]
           }
       },
 
@@ -173,14 +173,14 @@
       {
         "fio":
           {
-            "fio randread bw":["enable" ,"1" ],
-            "fio read bw":["enable" ,"1" ],
-            "fio write bw":["enable" ,"1" ],
-            "fio randread iops":["enable" ,"1" ],
-            "fio randwrite iops":["enable" ,"1" ],
-            "fio read iops":["enable" ,"1" ],
-            "fio write iops":["enable" ,"1" ],
-            "fio randwrite bw":["enable" ,"1" ]
+            "randread_bw":["enable" ,"1" ],
+            "randread_iops":["enable" ,"1" ],
+            "randwrite_bw":["enable" ,"1" ],
+            "randwrite_iops":["enable" ,"1" ],
+            "read_bw":["enable" ,"1" ],
+            "read_iops":["enable" ,"1" ],
+            "write_bw":["enable" ,"1" ],
+            "write_iops":["enable" ,"1" ]
           }
       },
 
@@ -201,7 +201,7 @@
 
     {
       "unzip":
-        {"compile 1":["enable" ,"1" ]}
+        {"compile_1":["enable" ,"1" ]}
     }
   ],
 
@@ -209,39 +209,28 @@
     {
       "compile":
         {
-          "compile 1":["enable" ,"1" ],
-          "compile 2":["enable" ,"1" ],
-          "compile 4":["enable" ,"1" ],
-          "compile 8":["enable" ,"1" ],
-          "compile 16":["enable" ,"1" ],
-          "compile 32":["enable" ,"1" ],
-          "compile 64":["enable" ,"1" ],
-          "compile 72":["enable" ,"1" ]
+          "compile_1":["enable" ,"1" ],
+          "compile_2":["enable" ,"1" ],
+          "compile_4":["enable" ,"1" ],
+          "compile_8":["enable" ,"1" ],
+          "compile_16":["enable" ,"1" ],
+          "compile_32":["enable" ,"1" ],
+          "compile_64":["enable" ,"1" ],
+          "compile_72":["enable" ,"1" ]
         }
     },
 
     {
       "nginx":
         {
-          "nginx_32_core_local_wrps":["disable" ,"1" ],
-          "nginx_32_core_cross_wrps":["disable" ,"1" ],
-          "nginx_64_core_wrps":["disable" ,"1" ]
+          "run":["disable" ,"1" ]
         }
     },
 
     {
       "redis":
         {
-          "instance_1":["disable" ,"1" ],
-          "instance_2":["disable" ,"1" ],
-          "instance_3":["disable" ,"1" ],
-          "instance_4":["disable" ,"1" ],
-          "instance_5":["disable" ,"1" ],
-          "instance_6":["disable" ,"1" ],
-          "instance_7":["disable" ,"1" ],
-          "instance_8":["disable" ,"1" ],
-          "instance_9":["disable" ,"1" ],
-          "instance_10":["disable" ,"1" ]
+          "run":["disable" ,"1" ]
         }
     }
     ]
