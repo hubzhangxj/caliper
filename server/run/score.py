@@ -51,14 +51,14 @@ def compute_caliper_logs(target_exec_dir, sections, run_case_list, flag=1):
                 try:
                     logging.debug("Computing the score of the result of command: %s"
                                   % section)
-                    flag_compute = compute_case_score(dic[sections[j]][section]["value"], category,
+                    flag_compute = compute_case_score(sections[j],dic[sections[j]][section]["value"], category,
                                                       scores_way, target_exec_dir, flag)
                 except Exception, e:
                     logging.info("Error while computing the result of \"%s\"" % section)
                     logging.info(e)
                     continue
                 else:
-                    if not flag_compute and dic[bench][section["value"]]:
+                    if not flag_compute and dic[bench][section]["value"]:
                         logging.info("Error while computing the result\
                                         of \"%s\"" % section)
             else:
@@ -70,11 +70,16 @@ def compute_caliper_logs(target_exec_dir, sections, run_case_list, flag=1):
     if not os.path.exists(caliper_path.HTML_DATA_DIR_OUTPUT):
         os.makedirs(caliper_path.HTML_DATA_DIR_OUTPUT)
 
-def compute_case_score(result, category, score_way, target, flag):
+def compute_case_score(sections, result, category, score_way, target, flag):
     tmp = category.split()
+    try:
+        tmp[3] = sections + '.' +tmp[3]
+    except:
+        pass
     length = len(tmp)
     # write the result and the corresponding score to files
-    target_name = server_utils.get_host_name(target)
+    # target_name = server_utils.get_host_name(target)
+    target_name = caliper_path.platForm_name
     yaml_dir = os.path.join(Folder.results_dir, 'yaml')
     result_yaml_name = target_name + '.yaml'
     score_yaml_name = target_name + '_score.yaml'

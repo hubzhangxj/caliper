@@ -5,12 +5,10 @@ import sys
 import logging
 import re
 import shutil
-import glob
-import yaml
 
 import test_perf_tranver as traverse
 import caliper.server.utils as server_utils
-from caliper.client.shared import caliper_path
+from caliper.server.shared import caliper_path
 
 LOCATION = os.path.dirname(sys.modules[__name__].__file__)
 
@@ -78,7 +76,7 @@ def copy_file(host):
     :return: None
     '''
     YAML_DIR = os.path.join(caliper_path.folder_ope.results_dir, 'yaml')
-    host_name = server_utils.get_host_name(host)
+    host_name = caliper_path.platForm_name
     host_yaml_name = host_name + '.yaml'
     hw_yaml_name = host_name + '_hw_info.yaml'
     score_yaml_name = host_name + '_score.yaml'

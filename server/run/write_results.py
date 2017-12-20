@@ -187,10 +187,8 @@ def write_yaml_perf(yaml_file, tmp, result, kind=1):
                     x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'] = {}
                 if not x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores']:
                     x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'] = {}
-                if tmp[3] not in \
-                    x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores']:
-                    x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'][tmp[3]] =\
-                                                                        result
+                if tmp[3] not in x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores']:
+                    x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'][tmp[3]] = result
                     flag = 1
                 x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'][tmp[3]] = result
                 flag = 1

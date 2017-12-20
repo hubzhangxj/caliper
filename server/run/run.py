@@ -60,7 +60,7 @@ class run_case_thread(threading.Thread):
         os.chdir(pwd)
         return [output, returncode]
 
-def run_caliper_tests(f_option, sections, run_case_list):
+def run_caliper_tests(f_option, sections, run_case_list, num):
     # f_option =1 if -f is used
     if f_option == 1:
         if not os.path.exists(Folder.exec_dir):
@@ -79,7 +79,7 @@ def run_caliper_tests(f_option, sections, run_case_list):
     flag = 0
     try:
         logging.debug("beginnig to run the test cases")
-        test_result = caliper_run(sections, run_case_list)
+        test_result = caliper_run(sections, run_case_list, num)
     except error.CmdError:
         logging.info("There is wrong in running benchmarks")
         flag = 1
@@ -90,7 +90,7 @@ def run_caliper_tests(f_option, sections, run_case_list):
 
 
 
-def caliper_run(sections, run_case_list):
+def caliper_run(sections, run_case_list, num):
     # get the test cases defined files
     for i in range(0, len(sections)):
         common.print_format()
@@ -99,7 +99,7 @@ def caliper_run(sections, run_case_list):
         try:
             # On some platforms, swapoff and swapon command is not able to execute.
             # So this function has been commented
-            result = run_all_cases(bench, sections[i], run_case_list)
+            result = run_all_cases(bench, sections[i], run_case_list, num)
         except Exception, e:
             logging.info(e)
             logging.info("Running %s Exception" % sections[i])
@@ -109,7 +109,7 @@ def caliper_run(sections, run_case_list):
             logging.info("Running %s Finished" % sections[i])
     return 0
 
-def run_all_cases(kind_bench, bench_name, run_case_list):
+def run_all_cases(kind_bench, bench_name, run_case_list, num):
     """
     function: run one benchmark which was selected in the configuration files
     """
@@ -157,16 +157,16 @@ def run_all_cases(kind_bench, bench_name, run_case_list):
     # for each command in run config file, read the config for the benchmark
     for section in sections_run:
         if section in run_case_list:
-            num = 1
-            config_files = os.path.join(caliper_path.config_files.config_dir, 'cases_config.json')
-            fp = open(config_files, 'r')
-            case_list = yaml.load(fp.read())
-            for dimension in case_list:
-                for i in range(len(case_list[dimension])):
-                    for tool in case_list[dimension][i]:
-                        for case in case_list[dimension][i][tool]:
-                            if case == section:
-                                num = case_list[dimension][i][tool][case][-1]
+            if num == 0:
+                config_files = os.path.join(caliper_path.config_files.config_dir, 'cases_config.json')
+                fp = open(config_files, 'r')
+                case_list = yaml.load(fp.read())
+                for dimension in case_list:
+                    for i in range(len(case_list[dimension])):
+                        for tool in case_list[dimension][i]:
+                            for case in case_list[dimension][i][tool]:
+                                if case == section:
+                                    num = case_list[dimension][i][tool][case][-1]
             flag = 0
 
             if os.path.exists(tmp_log_file):

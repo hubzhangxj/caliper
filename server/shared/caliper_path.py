@@ -55,32 +55,15 @@ client_ip = opts[0]
 user_list = cf.get(sections[0], cf.options(sections[0])[0])
 client_user = user_list.split(' ')[0]
 
-# platForm_name = client_user
-# try:
-#     client_ip = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='ip',action='get')
-# except:
-#     client_ip = '127.0.0.1'
-# try:
-#     client_user = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='user',action='get')
-# except:
-#     client_user = getpass.getuser()
 try:
     platForm_name = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='Platform_name',action='get')
 except:
-    platForm_name = None
-if not platForm_name:
-    # Redirecting the ssh warning to the standard "stderr" File
-    # try:
-    #     hostName = subprocess.Popen('ssh '+str(client_user)+"@"+str(client_ip)+" 'hostname'", shell=True,
-    #                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    #     hostName = hostName.communicate()
-    # except Exception as e:
-    #     logging.error(e)
-    #     sys.exit(1)
-    WORKSPACE = os.path.join(os.environ['HOME'],'caliper_output', str(client_user) + '_WS_'+ TIMP_STAMP)
+    platForm_name = str(client_user)
 else:
-    WORKSPACE = os.path.join(os.environ['HOME'], 'caliper_output',
-                             str(platForm_name) + '_WS_' + TIMP_STAMP)
+    if not platForm_name:
+        platForm_name = client_user
+
+WORKSPACE = os.path.join(os.environ['HOME'], 'caliper_output', str(platForm_name) + '_WS_' + TIMP_STAMP)
 intermediate = 0
 
 def create_folder(folder, mode=0755):

@@ -98,10 +98,10 @@ def populate_excels():
     except Exception as e:
        logging.info(e)
 
-def run_caliper(f_option, sections, run_case_list):
+def run_caliper(f_option, sections, run_case_list, num):
     try:
         logging.debug("begining to run Caliper")
-        result = run.run_caliper_tests(f_option, sections, run_case_list)
+        result = run.run_caliper_tests(f_option, sections, run_case_list, num)
     except Exception, e:
         print e
         logging.info("There is wrong when running Caliper")
@@ -273,7 +273,6 @@ def push_ssh_key():
     except Exception as e:
         logging.debug(e)
         logging.info('push ssh key fail')
-        sys.exit(1)
 
 if __name__=="__main__":
     parser = ArgumentParser(version=common.VERSION)
@@ -303,6 +302,7 @@ if __name__=="__main__":
     parser.add_argument("-D", "--dimension", action="store", dest="dimension", default="", help="command line for dimension test")
     parser.add_argument("-T", "--tool", action="store", dest="tool", default="", help="command line for tool test")
     parser.add_argument("-C", "--case", action="store", dest="case", default="", help="command line for case test")
+    parser.add_argument("-t", "--times", action="store", dest="times", default="", help="test times")
 
     args = parser.parse_args()
     start_time = datetime.datetime.now()
@@ -385,6 +385,10 @@ if __name__=="__main__":
     else:
         sections, run_case_list = read_config()
 
+    num = 0
+    if args.times:
+        num = int(args.times)
+
     if args.all:
         push_ssh_key()
         # build
@@ -399,7 +403,7 @@ if __name__=="__main__":
             raise
         # run
         try:
-            result2 = run_caliper(f_option, sections, run_case_list)
+            result2 = run_caliper(f_option, sections, run_case_list, num)
             if result2:
                 sys.exit()
 
@@ -445,39 +449,39 @@ if __name__=="__main__":
         except Exception as e:
             print e
         try:
-            upload_url(remote_host)
+            upload_url( caliper_path.folder_ope.workspace)
         except:
             pass
 
-    if args.build:
+    if args.build or args.run:
         push_ssh_key()
-        try:
-            clear = 0
-            if args.cleanbuild:
-                clear = 1
-            result1 = build_all_tests(remote_host,f_option,clear, sections)
-            if result1:
-                sys.exit()
-        except Exception, e:
-            raise
+        if args.build:
+            try:
+                clear = 0
+                if args.cleanbuild:
+                    clear = 1
+                result1 = build_all_tests(remote_host,f_option,clear, sections)
+                if result1:
+                    sys.exit()
+            except Exception, e:
+                raise
 
-    if args.run:
-        push_ssh_key()
-        try:
-            result2 = run_caliper(f_option, sections, run_case_list)
-            if result2:
-                sys.exit()
+        if args.run:
+            try:
+                result2 = run_caliper(f_option, sections, run_case_list, num)
+                if result2:
+                    sys.exit()
 
-        except Exception:
-            raise
+            except Exception:
+                raise
 
-        end_time = datetime.datetime.now()
-        interval = end_time - start_time
-        try:
-            summary_path = os.path.join(caliper_path.folder_ope.workspace, 'output', 'results_summary.log')
-            summary.output_summary_info(remote_host, summary_path, interval.seconds)
-        except Exception, e:
-            raise e
+            end_time = datetime.datetime.now()
+            interval = end_time - start_time
+            try:
+                summary_path = os.path.join(caliper_path.folder_ope.workspace, 'output', 'results_summary.log')
+                summary.output_summary_info(remote_host, summary_path, interval.seconds)
+            except Exception, e:
+                raise e
 
     if args.parse:
         try:
@@ -512,7 +516,7 @@ if __name__=="__main__":
         except Exception as e:
             print e
         try:
-            upload_url(remote_host)
+            upload_url( caliper_path.folder_ope.workspace)
         except:
             pass
 

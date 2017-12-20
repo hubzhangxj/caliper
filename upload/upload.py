@@ -4,10 +4,12 @@ from poster.encode import multipart_encode
 from poster.streaminghttp import register_openers
 
 import hashlib
+import urllib
 import urllib2
+import time
 import shutil
-import os
-
+import os,tarfile
+import pyminizip
 import json
 from caliper.client.shared import caliper_path
 import caliper.server.utils as server_utils
@@ -15,71 +17,7 @@ import itertools
 import mimetools
 import mimetypes
 from cStringIO import StringIO
-import subprocess
-from caliper.server.shared.caliper_path import folder_ope as Folder
-
-class MultiPartForm(object):
-    """Accumulate the data to be used when posting a form."""
-
-    def __init__(self):
-        self.form_fields = []
-        self.files = []
-        self.boundary = mimetools.choose_boundary()
-        return
-
-    def get_content_type(self):
-        return 'multipart/form-data; boundary=%s' % self.boundary
-
-    def add_field(self, name, value):
-        """Add a simple field to the form data."""
-        self.form_fields.append((name, value))
-        return
-
-    def add_file(self, fieldname, filename, fileHandle, mimetype=None):
-        """Add a file to be uploaded."""
-        body = fileHandle.read()
-        if mimetype is None:
-            mimetype = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
-        self.files.append((fieldname, filename, mimetype, body))
-        return
-
-    def __str__(self):
-        """Return a string representing the form data, including attached files."""
-        # Build a list of lists, each containing "lines" of the
-        # request.  Each part is separated by a boundary string.
-        # Once the list is built, return a string where each
-        # line is separated by '\r\n'.
-        parts = []
-        part_boundary = '--' + self.boundary
-
-        # Add the form fields
-        parts.extend(
-            [part_boundary,
-             'Content-Disposition: form-data; name="%s"' % name,
-             '',
-             value,
-             ]
-            for name, value in self.form_fields
-        )
-
-        # Add the files to upload
-        parts.extend(
-            [part_boundary,
-             'Content-Disposition: file; name="%s"; filename="%s"' % \
-             (field_name, filename),
-             'Content-Type: %s' % content_type,
-             '',
-             body,
-             ]
-            for field_name, filename, content_type, body in self.files
-        )
-
-        # Flatten the list and add closing boundary marker,
-        # then return CR+LF separated data
-        flattened = list(itertools.chain(*parts))
-        flattened.append('--' + self.boundary + '--')
-        flattened.append('')
-        return '\r\n'.join(flattened)
+import urllib
 
 def upload_result(target,server_url, server_user, server_password):
     '''
@@ -87,22 +25,20 @@ def upload_result(target,server_url, server_user, server_password):
     :param target: target machine running test
     :return: None
     '''
-    # get test device config
-    get_test_config()
     #workspace dir path for the test, for example: /home/fanxh/caliper_output/hansanyang-OptiPlex-3020_WS_17-05-03_11-29-29
     dirpath = caliper_path.WORKSPACE
 
     #dir path for score, for example: /home/fanxh/caliper_output/frontend/frontend/data_files/Normalised_Logs
     dir_score_path = caliper_path.HTML_DATA_DIR_OUTPUT
 
-    target_name = server_utils.get_host_name(target)
+    target_name = caliper_path.platForm_name
     #score json file name , for example:hansanyang-OptiPlex-3020_score_post.json
     score_json_file_name = target_name + '_score_post.json'
 
     #for example, /home/fanxh/caliper_output/frontend/frontend/data_files/Normalised_Logs/hansanyang-OptiPlex-3020_score_post.json
     score_json_file_fullname = os.path.join(dir_score_path,score_json_file_name)
 
-    upload_and_savedb(dirpath,score_json_file_fullname,server_url, server_user, server_password)
+    upload_and_savedb(target,score_json_file_fullname,server_url, server_user, server_password)
 
 
 def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_password):
@@ -114,45 +50,36 @@ def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_p
     json_path=os.path.join(dirpath,os.path.basename(json_path_source))
     shutil.copyfile(json_path_source,json_path)
     output_file=dirpath+".zip"
-    json_output_file = dirpath+"_josn.zip"
+    json_output_file = dirpath+"_json.zip"
 
+    # make_targz(json_output_file, json_file)
     encryption(json_file, json_output_file, server_password)
+    # print '====================================='
     # # remove json dir
     shutil.rmtree(json_file)
+    # make_targz(output_file, dirpath)
     encryption(dirpath, output_file, server_password)
     hash_output = calcHash(output_file)
     hash_log = calcHash(json_output_file)
 
 
-    form = MultiPartForm()
-    form.add_field('username', server_user)
     json_data = open(json_path, 'r')
     json_data = json_data.read()
-    form.add_field('result', json.dumps(json_data))
-    form.add_field('hash_output', hash_output)
-    form.add_field('hash_log', hash_log)
 
-    # Add a fake file
-    form.add_file('output', output_file,
-                  fileHandle=StringIO('output'))
-    form.add_file('log', json_output_file,
-                  fileHandle=StringIO('log'))
-
-    # Build the request
-    print 'http://%s/data/upload'%server_url
-    request = urllib2.Request('http://%s/data/upload'%server_url)
-    body = str(form)
-    request.add_header('Content-type', form.get_content_type())
-    request.add_header('Content-length', len(body))
-    request.add_data(body)
-
-    print
-    print 'OUTGOING DATA:'
-    print request.get_data()
-
-    print
-    print 'SERVER RESPONSE:'
-    print urllib2.urlopen(request).read()
+    # upload
+    register_openers()
+    params = [
+        ("output", open(output_file, 'rb')),
+        ("log", open(json_output_file, 'rb')),
+        ("username", server_user),
+        ("result", json_data),
+        ("hash_output", hash_output),
+        ("hash_log", hash_log),
+    ]
+    datagen, headers = multipart_encode(params)
+    request = urllib2.Request('http://%s/data/upload' % server_url,datagen, headers)
+    response = urllib2.urlopen(request).read()
+    print response
 
 def calcHash(filepath):
     '''
@@ -168,14 +95,21 @@ def calcHash(filepath):
 
 def encryption(inputpath, outpath, password):
     import subprocess
-    subprocess.call("cd %s/.. && zip -rP %s %s %s"%(inputpath, password, outpath, inputpath.split(os.sep)[-1]), shell=True)  # 加密包
+    # subprocess.call("cd %s/.. && zip -rP %s %s %s"%(inputpath, password, outpath, inputpath.split(os.sep)[-1]), shell=True)  # 加密包
+    subprocess.call("cd %s && zip -rP %s %s %s" % (inputpath, password, outpath, '*'),
+                    shell=True)  # 加密包
 
-def get_test_config():
-    sh_path = os.path.join(os.environ['HOME'], '.caliper')
-    os.chdir(sh_path)
-    subprocess.call('./config_info_run.sh', stdout=subprocess.PIPE, shell=True)
-    shutil.copy('/tmp/config_output.json', os.path.join(Folder.json_dir, 'config_output.json'))
-
+def get_file(inputpath, file_list):
+    parents = os.listdir(inputpath)
+    for parent in parents:
+        child = os.path.join(inputpath, parent)
+        if os.path.isdir(child):
+            get_file(child, file_list)
+        else:
+            file_list.append(child)
+    print file_list
+    print '*******************************'
+    return file_list
 
 # example
 #dirpath = "C:\\Users\\yangtt\\Desktop\\fanxh-OptiPlex-3020_WS_17-08-07_11-03-46"
