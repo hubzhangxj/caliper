@@ -22,7 +22,7 @@ from caliper.server.compute_model import scores_method
 from caliper.server.compute_model.scores_method import Scores_method
 from caliper.server.compute_model.scores_method import geometric_mean
 from caliper.server.shared import caliper_path
-
+from caliper.server.shared.caliper_path import folder_ope as Folder
 
 def compute_score(score_way, result_fp):
     # this part should be improved
@@ -422,13 +422,13 @@ def get_targets_data(outdir):
     return (yaml_files, json_files)
 
 def normalize_caliper():
+    # try:
+    #     for files in glob.glob(os.path.join(caliper_path.HTML_DATA_DIR_OUTPUT, "*")):
+    #         os.remove(files)
+    # except:
+    #     pass
     try:
-        for files in glob.glob(os.path.join(caliper_path.HTML_DATA_DIR_OUTPUT, "*")):
-            os.remove(files)
-    except:
-        pass
-    try:
-        normalize_caliper_output(caliper_path.HTML_DATA_DIR_INPUT)
+        normalize_caliper_output(Folder.yaml_dir)
     except Exception, e:
         logging.info(e.args[0], e.args[1])
         return
@@ -452,7 +452,7 @@ def normalize_results(yaml_file):
 
     yaml_file_post = yaml_file[0:-5] + "_post" + yaml_file[-5:]
     fileName = yaml_file_post.split('/')[-1]
-    yaml_file_post_output = os.path.join(caliper_path.HTML_DATA_DIR_OUTPUT,fileName)
+    yaml_file_post_output = os.path.join(Folder.yaml_dir,fileName)
     if os.path.exists(yaml_file):
         shutil.copyfile(yaml_file, yaml_file_post_output)
     else:
@@ -489,11 +489,6 @@ def normalize_score(results):
         for test_point in key_test_points:
             test_case_dic = test_point_dic[test_point]
             point_values = test_case_dic[point_str].values()
-            # for j in point_values:
-            #     print j
-            #     for i in j:
-            #         if j[i] >= 0:
-            #             useful_values =  string.atof(j[i])
             useful_values = [string.atof(x) for x in point_values
                                 if string.atof(x) >= 0]
             if len(useful_values) < 1:

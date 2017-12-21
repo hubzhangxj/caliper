@@ -5,7 +5,7 @@ import os
 import shutil
 
 try:
-    import client.common as common
+    import server.common as common
 except ImportError:
     import common
 

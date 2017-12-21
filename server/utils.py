@@ -5,10 +5,10 @@ import sys
 import os
 import re
 
-from caliper.client.shared.utils import *
-from caliper.client.shared import error
-from caliper.client.shared import caliper_path
-from caliper.client.shared.settings import settings
+from caliper.server.shared.utils import *
+from caliper.server.shared import error
+from caliper.server.shared import caliper_path
+from caliper.server.shared.settings import settings
 
 def get_target_exec_dir(target):
     try:
@@ -140,15 +140,6 @@ def get_local_machine_arch():
             msg = "Caliper does not support this kind of arch machine"
             raise error.ServUnsupportedArchError(msg)
 
-
-def get_target_ip(target):
-    try:
-        client_ip = settings.get_value('TARGET', 'ip', type=str)
-    except Exception:
-        client_ip = '127.0.0.1'
-        #raise
-    else:
-        return client_ip
 
 
 def sh_escape(command):

@@ -20,7 +20,7 @@ def upload_result(dirpath,server_url, server_user, server_password):
     get_test_config()
 
     #dir path for score, for example: /home/fanxh/caliper_output/frontend/frontend/data_files/Normalised_Logs
-    dir_score_path = caliper_path.HTML_DATA_DIR_OUTPUT
+    dir_score_path = Folder.yaml_dir
 
     target_name = caliper_path.platForm_name
     #score json file name , for example:hansanyang-OptiPlex-3020_score_post.json
@@ -88,7 +88,9 @@ def encryption(inputpath, outpath, password):
 def get_test_config():
     sh_path = os.path.join(os.environ['HOME'], '.caliper')
     os.chdir(sh_path)
-    subprocess.call('./config_info_run.sh', stdout=subprocess.PIPE, shell=True)
+    print "=---------------------------------="
+    print subprocess.call('echo "123456"|sudo -S ./config_info_run.sh', shell=True)
+    print "=---------------------------------="
     shutil.copy('/tmp/config_output.json', os.path.join(Folder.json_dir, 'config_output.json'))
 
 # example

@@ -23,14 +23,8 @@ def judge_caliper_installed():
         else:
             return 0
 
-
-
 CURRENT_PATH = os.path.dirname(sys.modules[__name__].__file__)
 CALIPER_DIR = os.path.abspath(os.path.join(CURRENT_PATH, '..', '..'))
-PARSER_DIR = os.path.abspath(os.path.join(CALIPER_DIR, 'client', 'parser'))
-FRONT_TMP_DIR = os.path.join(CALIPER_DIR, 'frontend')
-SERVER_SYNC_FILE_SRC=os.path.join(CALIPER_DIR,'client','server.py')
-
 
 caliper_output = os.path.join(os.environ['HOME'], 'caliper_output', 'configuration')
 caliper_config_file = os.path.join(caliper_output,'config')
@@ -54,6 +48,7 @@ opts = cf.options(sections[0])[0].split(' ')
 client_ip = opts[0]
 user_list = cf.get(sections[0], cf.options(sections[0])[0])
 client_user = user_list.split(' ')[0]
+sudo_password = user_list.split('"')[-2]
 
 try:
     platForm_name = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='Platform_name',action='get')
@@ -96,24 +91,6 @@ SOURCE_BUILD_FILE = os.path.join(CALIPER_DIR, 'server', 'build', 'build.sh')
 TMP_DIR = os.path.join('/tmp', 'caliper.tmp'+ "_" + TIMP_STAMP)
 GEN_DIR = os.path.join(CALIPER_REPORT_HOME, 'binary')
 BUILD_LOGS = os.path.join(os.environ['HOME'],'.caliper_build_logs')
-FRONT_END_DIR = os.path.join(CALIPER_REPORT_HOME,'frontend')
-HTML_DATA_DIR = os.path.join(FRONT_END_DIR, 'frontend', 'data_files')
-
-DATA_DIR_INPUT = os.path.join(HTML_DATA_DIR, 'Input_Logs')
-HTML_DATA_DIR_INPUT = os.path.join(DATA_DIR_INPUT, 'Input_Report')
-OPENSSL_DATA_DIR_INPUT = os.path.join(DATA_DIR_INPUT,'Input_Openssl')
-COV_DATA_DIR_INPUT = os.path.join(DATA_DIR_INPUT,'Input_Cov')
-CONSOLIDATED_DATA_DIR_INPUT = os.path.join(DATA_DIR_INPUT,'Input_Consolidated')
-HW_DATA_DIR_INPUT = os.path.join(DATA_DIR_INPUT,'Input_Hardware')
-HW_DATA_DIR_OUTPUT = os.path.join(FRONT_END_DIR, 'polls', 'static', 'TargetInfo')
-HTML_DATA_DIR_OUTPUT = os.path.join(HTML_DATA_DIR, 'Normalised_Logs')
-COV_DATA_DIR_OUTPUT = os.path.join(FRONT_END_DIR, 'polls', 'static', 'TestInfo','Iterations')
-EXCEL_DATA_DIR_OUTPUT = os.path.join(FRONT_END_DIR, 'polls', 'static', 'TestInfo','Report-Data')
-TEMPLATE_DATA_DIR = os.path.join(FRONT_END_DIR,'polls','templates','polls')
-
-HTML_PICTURE_DIR = os.path.join(FRONT_END_DIR, 'polls', 'static', 'polls',
-                                'pictures')
-
 
 def get_caliper_num():
     number = 0
@@ -199,39 +176,6 @@ config_files = ConfigFile()
 config_files.setup_path()
 
 def create_dir():
-
-    if not os.path.exists(FRONT_END_DIR):
-        shutil.copytree(FRONT_TMP_DIR,
-                        FRONT_END_DIR)
-    if not os.path.exists(HTML_DATA_DIR_INPUT):
-        create_folder(HTML_DATA_DIR_INPUT)
-    if not os.path.exists(HTML_DATA_DIR_OUTPUT):
-        create_folder(HTML_DATA_DIR_OUTPUT)
-
-    if not os.path.exists(DATA_DIR_INPUT):
-        create_folder(DATA_DIR_INPUT)
-    if not os.path.exists(OPENSSL_DATA_DIR_INPUT):
-        create_folder(OPENSSL_DATA_DIR_INPUT)
-    if not os.path.exists(COV_DATA_DIR_INPUT):
-        create_folder(COV_DATA_DIR_INPUT)
-
-    # Reverte the code as before
-    for i in range(1,6):
-        if not os.path.exists(os.path.join(COV_DATA_DIR_INPUT,str(i))):
-            create_folder(os.path.join(COV_DATA_DIR_INPUT,str(i)))
-
-    if not os.path.exists(CONSOLIDATED_DATA_DIR_INPUT):
-        create_folder(CONSOLIDATED_DATA_DIR_INPUT)
-    if not os.path.exists(HW_DATA_DIR_INPUT):
-        create_folder(HW_DATA_DIR_INPUT)
-    if not os.path.exists(HTML_DATA_DIR):
-        create_folder(HTML_DATA_DIR)
-    if not os.path.exists(COV_DATA_DIR_OUTPUT):
-        create_folder(COV_DATA_DIR_OUTPUT)
-    if not os.path.exists(EXCEL_DATA_DIR_OUTPUT):
-        create_folder(EXCEL_DATA_DIR_OUTPUT)
-    if not os.path.exists(TEMPLATE_DATA_DIR):
-        create_folder(TEMPLATE_DATA_DIR)
 
     if not os.path.exists(folder_ope.build_dir):
         create_folder(folder_ope.build_dir)

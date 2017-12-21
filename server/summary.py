@@ -12,7 +12,7 @@ except ImportError:
     import common
 
 import caliper.server.utils as server_utils
-from caliper.client.shared import caliper_path
+from caliper.server.shared import caliper_path
 from caliper.server.hosts import host_factory
 
 

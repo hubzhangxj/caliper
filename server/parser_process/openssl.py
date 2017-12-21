@@ -6,7 +6,7 @@ import openpyxl
 import glob
 import sys
 import logging
-from caliper.client.shared import caliper_path
+from caliper.server.shared import caliper_path
 
 template_dir = caliper_path.TEMPLATE_DATA_DIR
 template = os.path.join(template_dir,"Openssl_Template.xlsx")

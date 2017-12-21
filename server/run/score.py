@@ -64,11 +64,6 @@ def compute_caliper_logs(sections, run_case_list, flag=1):
             else:
                 continue
     logging.info("=" * 55)
-    if not os.path.exists(caliper_path.HTML_DATA_DIR_INPUT):
-        os.makedirs(caliper_path.HTML_DATA_DIR_INPUT)
-
-    if not os.path.exists(caliper_path.HTML_DATA_DIR_OUTPUT):
-        os.makedirs(caliper_path.HTML_DATA_DIR_OUTPUT)
 
 def compute_case_score(sections, result, category, score_way, flag):
     tmp = category.split()

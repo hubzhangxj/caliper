@@ -10,7 +10,7 @@ from email.MIMEImage import MIMEImage
 from email.MIMEBase import MIMEBase
 from email.Encoders import encode_base64
 
-from caliper.client.shared import utils
+from caliper.server.shared import utils
 
 
 class EmailContext(object):

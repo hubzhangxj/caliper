@@ -11,4 +11,4 @@ except ImportError:
     sys.path.pop(0)
 
 setup_modules.setup(base_path=client_dir,
-                    root_module_name="caliper.client")
+                    root_module_name="server.client")

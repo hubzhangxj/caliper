@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-from caliper.client.shared import error, settings
+from caliper.server.shared import error, settings
 from caliper.server import utils
 from caliper.server.hosts import ssh_host
 

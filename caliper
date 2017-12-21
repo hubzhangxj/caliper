@@ -37,9 +37,6 @@ from caliper.server.shared import send_mails
 from caliper.server import summary
 from caliper.server.parser_process import parser as parser_engine
 from caliper.server.parser_process import normalize
-from caliper.server.parser_process import openssl
-from caliper.server.parser_process import hardware
-from caliper.server.parser_process import performance_functional
 from caliper.server.shared.caliper_path import intermediate
 from caliper.server.shared.caliper_path import folder_ope as Folder
 from caliper.upload import upload
@@ -54,46 +51,6 @@ def build_all_tests(test_node, remote_host,f_option,clear, sections):
         raise
     else:
         return result1
-
-def populate_excels():
-    template_dir = caliper_path.TEMPLATE_DATA_DIR
-    input_cov = caliper_path.COV_DATA_DIR_INPUT
-    output_cov = caliper_path.COV_DATA_DIR_OUTPUT
-    input_path = caliper_path.CONSOLIDATED_DATA_DIR_INPUT
-    output_path = caliper_path.EXCEL_DATA_DIR_OUTPUT
-    file_list = []
-
-    Iteration_len = 0
-
-    col = performance_functional.col_start
-
-    cov_files_list = performance_functional.get_cov_file_list(input_cov)
-
-    if cov_files_list:
-        Iteration_len = len(cov_files_list[0])
-
-    for item in cov_files_list:
-        file_name = ".".join(item[0].split("/")[-1].split(".")[0:-1])
-        output_excel_path = os.path.join(output_cov, file_name)
-        if not os.path.exists(output_excel_path):
-            os.makedirs(output_excel_path)
-        try:
-            col_end = performance_functional.populate_excel(item, output_excel_path, template_dir,1)
-            performance_functional.mean_cov_populate( output_excel_path, col_end,file_name)#for each platforms in the Input_Cov folder generate the Iteration excel
-            performance_functional.get_COV_excel(output_excel_path,file_name,output_cov,col,template_dir,Iteration_len)#copy the COV values to final COV excel
-        except Exception as e:
-            logging.info(e)
-        col += 1
-
-    for files in glob.glob(os.path.join(input_path, "*yaml")):
-        file_list.append(files)
-    col_end = performance_functional.populate_excel(file_list,output_path,template_dir,0)
-
-    try:
-       openssl.populate_excel()
-       hardware.populate_excel()
-    except Exception as e:
-       logging.info(e)
 
 def run_caliper(test_node, f_option, sections, run_case_list, num):
     try:
@@ -125,17 +82,17 @@ def parser_caliper(remote_host):
         logging.info("There is wrong when parsering the caliper result")
         raise
 
-def copy_yaml(remote_host):
-    '''
-    copy yaml to corresponding dirs under caliper_output
-    :param remote_host: target machine
-    :return: None
-    '''
-    try:
-        logging.debug("begining to copy the result of caliper")
-        parser_engine.copy_file(remote_host)
-    except Exception, e:
-        logging.info("There is wrong when copy the caliper result")
+# def copy_yaml(remote_host):
+#     '''
+#     copy yaml to corresponding dirs under caliper_output
+#     :param remote_host: target machine
+#     :return: None
+#     '''
+#     try:
+#         logging.debug("begining to copy the result of caliper")
+#         parser_engine.copy_file(remote_host)
+#     except Exception, e:
+#         logging.info("There is wrong when copy the caliper result")
 
 def upload_url(result):
     try:
@@ -193,54 +150,9 @@ def kill_django(pid):
     utils.kill_process_tree(pid)
 RESULT_DIR = caliper_path.folder_ope.results_dir
 
-def generate_web_tar():
-    newpid = os.fork()
-    logging.debug("the pid number is %d" % newpid)
-    #child process
-    if newpid == 0:
-        return_code = 0
-        try:
-            subprocess.call( "cd %s; python manage.py migrate --fake; cd -" %
-                    caliper_path.FRONT_END_DIR, shell=True )
-            return_code = subprocess.call("cd %s; python\
-                    manage.py runserver 8001 --noreload 1>/dev/null 2>&1 & " %
-                    caliper_path.FRONT_END_DIR, shell=True)
-        except Exception as e:
-            raise e
-        else:
-            os._exit(return_code)
-    else: # parent process
-        time.sleep(10)
-        logging.debug("the parent pid of parent is %d" % os.getpid())
-        try:
-            logging.info("Generating the webpages which are test results")
-            subprocess.call("wget -r -p -k -np\
-                    http://127.0.0.1:8001 -P %s -q" % RESULT_DIR,
-                    shell=True)
-            test_dir = os.path.join(RESULT_DIR, 'test_results')
-            if os.path.exists( test_dir ):
-                shutil.rmtree(test_dir)
-            test_dir = os.path.join(RESULT_DIR, 'test_results.tar.gz')
-            if os.path.exists( test_dir ):
-                try:
-                    shutil.rmtree(test_dir)
-                except:
-                    os.remove(test_dir)
-            subprocess.call("cd %s; mv 127.0.0.1:8001 test_results; tar\
-                    czf test_results.tar.gz test_results; rm -fr\
-                    test_results" % RESULT_DIR, shell=True)
-        except Exception as e:
-            print e
-            logging.info("There is wrong with generating the test result webpage")
-            kill_django(newpid)
-            return 0
-        else:
-            logging.info("Finishing generating the test result webpage")
-            kill_django(newpid)
-            return 1
 
 def normalize_scores():
-    write_results.yaml_filter(caliper_path.HTML_DATA_DIR_INPUT)
+    write_results.yaml_filter(Folder.yaml_dir)
     return
 
 def read_config():
@@ -432,7 +344,7 @@ if __name__=="__main__":
             if intermediate:
                 parser_caliper(remote_host)
             # copy yaml to corresponding dirs under caliper_out
-            copy_yaml(remote_host)
+            # copy_yaml(remote_host)
         except Exception as e:
             print e
             pass
@@ -498,14 +410,14 @@ if __name__=="__main__":
             if intermediate:
                 parser_caliper(remote_host)
             # copy yaml to corresponding dirs under caliper_out
-            copy_yaml(remote_host)
+            # copy_yaml(remote_host)
         except Exception as e:
             print e
             pass
 
     if args.upload:
         try:
-            copy_yaml(remote_host)
+            # copy_yaml(remote_host)
             # populate_excels()
             # filter all the test cases to get only the common test cases passed in all the plaforms. other test cases marked as INVALID.
             flag = normalize_scores()

@@ -23,10 +23,10 @@ import ConfigParser
 import fcntl
 import errno
 
-from caliper.client.shared import error, logging_manager
-from caliper.client.shared.settings import settings
-from caliper.client.shared import caliper_path
-from caliper.client.shared.tests_setting import BaseCfg
+from caliper.server.shared import error, logging_manager
+from caliper.server.shared.settings import settings
+from caliper.server.shared import caliper_path
+from caliper.server.shared.tests_setting import BaseCfg
 
 
 class SimpleFlock:

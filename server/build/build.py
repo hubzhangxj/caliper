@@ -349,9 +349,6 @@ def build_for_target(test_node, target, f_option, clear, sections):
     #f_option is set if -f is used
     # Create the temperory build folders
 
-    if not os.path.exists(caliper_path.FRONT_END_DIR):
-        shutil.copytree(caliper_path.FRONT_TMP_DIR,
-                caliper_path.FRONT_END_DIR)
     if f_option == 0:
         if os.path.exists(FOLDER.caliper_log_file):
             os.remove(FOLDER.caliper_log_file)
@@ -367,10 +364,6 @@ def build_for_target(test_node, target, f_option, clear, sections):
         create_folder(FOLDER.yaml_dir)
     if not os.path.exists(FOLDER.html_dir):
         create_folder(FOLDER.html_dir)
-    if not os.path.exists(caliper_path.HTML_DATA_DIR_INPUT):
-        os.makedirs(caliper_path.HTML_DATA_DIR_INPUT)
-    if not os.path.exists(caliper_path.HTML_DATA_DIR_OUTPUT):
-        os.makedirs(caliper_path.HTML_DATA_DIR_OUTPUT)
 
     # This call assign target_arch with target architecture. Call
     # "get_host_arch" looks to be confusing :(
@@ -400,7 +393,7 @@ def build_for_target(test_node, target, f_option, clear, sections):
             return result
 
     # Copy generated binaries to target machine
-    result = copy_gen_to_target(target, target_arch)
+    # result = copy_gen_to_target(target, target_arch)
     return result
 
 
@@ -420,7 +413,7 @@ def copy_gen_to_target(target, target_arch):
         remote_caliper_dir = os.path.join(remote_pwd, "caliper")
         remote_gen_dir = os.path.join(remote_caliper_dir, "binary",
                                         target_arch)
-        send_file_relative = ['client', 'common.py',  '__init__.py']
+        send_file_relative = ['server', 'common.py',  '__init__.py']
         send_files = [os.path.join(CALIPER_DIR, i) for i in
                 send_file_relative]
         send_gen_files = os.path.join(GEN_DIR, target_arch)
