@@ -5,7 +5,7 @@ import sys
 import logging
 import re
 import shutil
-
+import glob
 import test_perf_tranver as traverse
 import caliper.server.utils as server_utils
 from caliper.server.shared import caliper_path
@@ -83,6 +83,12 @@ def copy_file(host):
     host_yaml_file = os.path.join(YAML_DIR, host_yaml_name)
     hw_yaml_file = os.path.join(YAML_DIR, hw_yaml_name)
     score_yaml_file = os.path.join(YAML_DIR, score_yaml_name)
+    for files in glob.glob(os.path.join(caliper_path.HW_DATA_DIR_INPUT, "*")):
+        os.remove(files)
+    for files in glob.glob(os.path.join(caliper_path.HTML_DATA_DIR_INPUT, "*")):
+        os.remove(files)
+    for files in glob.glob(os.path.join(caliper_path.CONSOLIDATED_DATA_DIR_INPUT, "*")):
+        os.remove(files)
     if os.path.exists(hw_yaml_file):
         shutil.copy(hw_yaml_file, caliper_path.HW_DATA_DIR_INPUT)
     if os.path.exists(score_yaml_file):

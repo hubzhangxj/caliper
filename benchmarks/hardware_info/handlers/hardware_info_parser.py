@@ -312,7 +312,6 @@ def update(dic,outfp):
 
     #    dic['Hardware_Info']['MEMORY']['L1_D-Cache_Size'] = cached
     #    dic['Hardware_Info']['MEMORY']['L1_I-Cache_Size'] = cachei
-    print dic
     outfp.write(yaml.dump(dic,default_flow_style=False))
     return 
 
@@ -364,7 +363,7 @@ def hardware_info_parser(content,outfp):
     dic_yaml['Configuration']['Memory'] = dic['Hardware_Info']['MEMORY']['Main_Memory_Size']
     dic_yaml['Configuration']['OS_Version'] = dic['Hardware_Info']['KERNEL']['Version']
     dic_yaml['Configuration']['Byte_order'] = dic['Hardware_Info']['CPU']['Byte_Order']
-    dic_yaml['Configuration']['Hostname'] = server_utils.get_host_name(host)
+    dic_yaml['Configuration']['Hostname'] = caliper_path.platForm_name
     dic_yaml['Configuration']['L1d_cache'] = dic['Hardware_Info']['MEMORY']['L1_D-Cache_Size']
     dic_yaml['Configuration']['L1i_cache'] = dic['Hardware_Info']['MEMORY']['L1_I-Cache_Size']
     dic_yaml['Configuration']['L2_cache'] = dic['Hardware_Info']['MEMORY']['L2_Cache_Size']

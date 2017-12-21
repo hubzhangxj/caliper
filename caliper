@@ -140,7 +140,7 @@ def copy_yaml(remote_host):
     except Exception, e:
         logging.info("There is wrong when copy the caliper result")
 
-def upload_url(remote_host):
+def upload_url(result):
     try:
         server_num = settings.get_value('Caliperweb', 'server_num', type=int)
     except Exception, e:
@@ -159,16 +159,17 @@ def upload_url(remote_host):
             server_password = settings.get_value('Caliperweb', 'server_password%s' % int(i+1), type=str)
         except Exception, e:
             server_password = ""
+        print server_ip
         if server_ip:
             try:
                 server_ip += ':8000'
                 logging.info("remote server %s upload start" % server_ip)
-                upload.upload_result(remote_host, server_ip, server_user, server_password)
+                upload.upload_result(result, server_ip, server_user, server_password)
                 logging.info("remote upload end")
             except Exception as e:
                 logging.info(e)
-
-        return server_ip
+    if server_num == 0:
+        logging.info('no upload value,please set upload value at caliper_output/configuration/config/client_config.cfg file')
 
 def get_remote_host():
     cf = ConfigParser.ConfigParser()
@@ -422,12 +423,12 @@ if __name__=="__main__":
             result2 = parser_caliper_logs(f_option, sections, run_case_list)
             if result2:
                sys.exit()
-            result2 = score.compute_caliper_logs(remote_host, sections, run_case_list,1)
+            result2 = score.compute_caliper_logs(sections, run_case_list,1)
         except Exception:
             raise
         # score
         try:
-            result2 = score.compute_caliper_logs(remote_host, sections, run_case_list,2)
+            result2 = score.compute_caliper_logs(sections, run_case_list,2)
             if intermediate:
                 parser_caliper(remote_host)
             # copy yaml to corresponding dirs under caliper_out
@@ -488,12 +489,12 @@ if __name__=="__main__":
             result2 = parser_caliper_logs(f_option, sections, run_case_list)
             if result2:
                sys.exit()
-            result2 = score.compute_caliper_logs(remote_host, sections, run_case_list,1)
+            result2 = score.compute_caliper_logs(sections, run_case_list,1)
         except Exception:
             raise
     if args.score:
         try:
-            result2 = score.compute_caliper_logs(remote_host, sections, run_case_list,2)
+            result2 = score.compute_caliper_logs(sections, run_case_list,2)
             if intermediate:
                 parser_caliper(remote_host)
             # copy yaml to corresponding dirs under caliper_out
@@ -504,6 +505,7 @@ if __name__=="__main__":
 
     if args.upload:
         try:
+            copy_yaml(remote_host)
             # populate_excels()
             # filter all the test cases to get only the common test cases passed in all the plaforms. other test cases marked as INVALID.
             flag = normalize_scores()
@@ -512,11 +514,13 @@ if __name__=="__main__":
             write_results.normalize_caliper()
 
             # computes the score i.e TOTAL_SCORE in the form of 100% for each section in the newly generated _post.yaml and _post.json files. _post.yaml file is to be used for image creation and _post.json file is to be used for table creation in HTML report.
+            print '1111111111111111111111111'
             normalize.normalise()
         except Exception as e:
             print e
         try:
-            upload_url( caliper_path.folder_ope.workspace)
+            print '222222222222222222222222'
+            upload_url(caliper_path.folder_ope.workspace)
         except:
             pass
 
