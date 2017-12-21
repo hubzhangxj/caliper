@@ -50,7 +50,8 @@
     {"platform":"postgresql-server-dev-all","install":"yes"},
     {"platform":"pkg-config","install":"yes"},
     {"platform":"libpcre++-dev","install":"yes"},
-    {"platform":"libffi-dev","install":"yes"}
+    {"platform":"libffi-dev","install":"yes"},
+    {"platform":"sshpass","install":"yes"}
 ],
 
 
@@ -103,7 +104,8 @@
     {"platform":"python-yaml","install":"yes"},
     {"platform":"pkg-config","install":"yes"},
     {"platform":"libpcre++-dev","install":"yes"},
-    {"platform":"libffi-dev","install":"yes"}
+    {"platform":"libffi-dev","install":"yes"},
+    {"platform":"sshpass","install":"yes"}
 ],
 
 "centos_x86_packages":[
@@ -135,7 +137,8 @@
     {"platform":"gcc-c++","install":"yes"},
     {"platform":"libaio","install":"yes"},
     {"platform":"zlib.i686","install":"yes"},
-    {"platform":"postgresql","install":"yes"}
+    {"platform":"postgresql","install":"yes"},
+    {"platform":"sshpass","install":"yes"}
 ],
 
 
@@ -167,6 +170,7 @@
     {"platform":"dstat","install":"yes"},
     {"platform":"gcc-c++","install":"yes"},
     {"platform":"libaio","install":"yes"},
-    {"platform":"postgresql","install":"yes"}
+    {"platform":"postgresql","install":"yes"},
+    {"platform":"sshpass","install":"yes"}
 ]
 }
