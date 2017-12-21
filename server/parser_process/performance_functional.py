@@ -6,7 +6,7 @@ import glob
 #from caliper.client.shared import caliper_path
 import numpy
 import sys
-from openpyxl.utils import (_get_column_letter)
+from openpyxl.utils import (get_column_letter)
 
 col_start = 6
 row_start = 3
@@ -85,8 +85,8 @@ def get_cov_file_list(input_cov):
 
 def row_slice(wb,sheet_name,row,col_start,col_end):
     data_list = []
-    a = (_get_column_letter(col_start))
-    b = (_get_column_letter(col_end))
+    a = (get_column_letter(col_start))
+    b = (get_column_letter(col_end))
     a += str(row)
     b += str(row)
     col_range = a+":"+b
