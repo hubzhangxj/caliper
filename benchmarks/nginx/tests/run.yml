@@ -1,8 +1,8 @@
-- hosts: multiclient
+- hosts: Device
   roles:
   - start-client
 
-- hosts: multiserver
+- hosts: TestNode
   roles:
   - end-server
 

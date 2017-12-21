@@ -1,9 +1,9 @@
 ---
-- hosts: multiclient
+- hosts: Device
   roles:
   - build-client
 
-- hosts: multiserver
+- hosts: TestNode
   roles:
   - build-server
   - start-server

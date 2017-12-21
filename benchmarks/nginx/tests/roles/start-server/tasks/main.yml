@@ -1,6 +1,6 @@
 ---
 - name: start nginx-server on server 
-  command: sh {{ home }}/caliper_output/caliper/benchmarks/nginx/start-server.sh
+  command: sh /tmp/nginx/start-server.sh
   become: true
   become_method: sudo
   become_user: root
