@@ -126,6 +126,8 @@ def recursive_file_permissions(path, mode, uid=-1, gid=-1):
 
 def run():
     caliper_data_dir = os.path.join(os.environ['HOME'], '.caliper')
+    config_info_run_sh = os.path.join(caliper_data_dir,'config_info_run.sh')
+    hw_functions = os.path.join(caliper_data_dir, 'hw-functions')
     caliper_tmp_dir = os.path.join(caliper_data_dir, 'benchmarks')
     caliper_output = os.path.join(os.environ['HOME'], 'caliper_output')
     caliper_configuration = os.path.join(caliper_output,'configuration')
@@ -140,6 +142,14 @@ def run():
     shutil.copystat(
             os.path.join(os.getcwd(), 'benchmarks'),
             caliper_tmp_dir
+    )
+    shutil.copyfile(
+        os.path.join(os.getcwd(), 'upload/config_info_run.sh'),
+        config_info_run_sh
+    )
+    shutil.copyfile(
+        os.path.join(os.getcwd(), 'upload/hw-functions'),
+        hw_functions
     )
     os.chmod(caliper_data_dir, stat.S_IRWXO + stat.S_IRWXU)
     setup(

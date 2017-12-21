@@ -4,29 +4,20 @@ from poster.encode import multipart_encode
 from poster.streaminghttp import register_openers
 
 import hashlib
-import urllib
 import urllib2
-import time
 import shutil
-import os,tarfile
-import pyminizip
-import json
-from caliper.client.shared import caliper_path
-import caliper.server.utils as server_utils
-import itertools
-import mimetools
-import mimetypes
-from cStringIO import StringIO
-import urllib
+import os
+import subprocess
+from caliper.server.shared import caliper_path
+from caliper.server.shared.caliper_path import folder_ope as Folder
 
-def upload_result(target,server_url, server_user, server_password):
+def upload_result(dirpath,server_url, server_user, server_password):
     '''
     upload result to server
     :param target: target machine running test
     :return: None
     '''
-    #workspace dir path for the test, for example: /home/fanxh/caliper_output/hansanyang-OptiPlex-3020_WS_17-05-03_11-29-29
-    dirpath = caliper_path.WORKSPACE
+    get_test_config()
 
     #dir path for score, for example: /home/fanxh/caliper_output/frontend/frontend/data_files/Normalised_Logs
     dir_score_path = caliper_path.HTML_DATA_DIR_OUTPUT
@@ -38,7 +29,7 @@ def upload_result(target,server_url, server_user, server_password):
     #for example, /home/fanxh/caliper_output/frontend/frontend/data_files/Normalised_Logs/hansanyang-OptiPlex-3020_score_post.json
     score_json_file_fullname = os.path.join(dir_score_path,score_json_file_name)
 
-    upload_and_savedb(target,score_json_file_fullname,server_url, server_user, server_password)
+    upload_and_savedb(dirpath,score_json_file_fullname,server_url, server_user, server_password)
 
 
 def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_password):
@@ -52,12 +43,9 @@ def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_p
     output_file=dirpath+".zip"
     json_output_file = dirpath+"_json.zip"
 
-    # make_targz(json_output_file, json_file)
     encryption(json_file, json_output_file, server_password)
-    # print '====================================='
     # # remove json dir
     shutil.rmtree(json_file)
-    # make_targz(output_file, dirpath)
     encryption(dirpath, output_file, server_password)
     hash_output = calcHash(output_file)
     hash_log = calcHash(json_output_file)
@@ -94,22 +82,14 @@ def calcHash(filepath):
     return hash
 
 def encryption(inputpath, outpath, password):
-    import subprocess
-    # subprocess.call("cd %s/.. && zip -rP %s %s %s"%(inputpath, password, outpath, inputpath.split(os.sep)[-1]), shell=True)  # 加密包
     subprocess.call("cd %s && zip -rP %s %s %s" % (inputpath, password, outpath, '*'),
                     shell=True)  # 加密包
 
-def get_file(inputpath, file_list):
-    parents = os.listdir(inputpath)
-    for parent in parents:
-        child = os.path.join(inputpath, parent)
-        if os.path.isdir(child):
-            get_file(child, file_list)
-        else:
-            file_list.append(child)
-    print file_list
-    print '*******************************'
-    return file_list
+def get_test_config():
+    sh_path = os.path.join(os.environ['HOME'], '.caliper')
+    os.chdir(sh_path)
+    subprocess.call('./config_info_run.sh', stdout=subprocess.PIPE, shell=True)
+    shutil.copy('/tmp/config_output.json', os.path.join(Folder.json_dir, 'config_output.json'))
 
 # example
 #dirpath = "C:\\Users\\yangtt\\Desktop\\fanxh-OptiPlex-3020_WS_17-08-07_11-03-46"

@@ -1,7 +1,7 @@
 import os
 import sys
 try:
-    import caliper.client.setup_modules as setup_modules
+    import caliper.server.setup_modules as setup_modules
     client_dir = os.path.dirname(setup_modules.__file__)
 except ImportError:
     dirname = os.path.dirname(sys.modules[__name__].__file__)

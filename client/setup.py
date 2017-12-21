@@ -20,7 +20,6 @@ else:
 
 def get_packages():
     return ['caliper.client.shared',
-            'caliper.client.parser',
             'caliper.client']
 
 def get_package_dirs():

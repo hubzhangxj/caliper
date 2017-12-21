@@ -60,7 +60,7 @@ class run_case_thread(threading.Thread):
         os.chdir(pwd)
         return [output, returncode]
 
-def run_caliper_tests(f_option, sections, run_case_list, num):
+def run_caliper_tests(test_node, f_option, sections, run_case_list, num):
     # f_option =1 if -f is used
     if f_option == 1:
         if not os.path.exists(Folder.exec_dir):
@@ -79,7 +79,7 @@ def run_caliper_tests(f_option, sections, run_case_list, num):
     flag = 0
     try:
         logging.debug("beginnig to run the test cases")
-        test_result = caliper_run(sections, run_case_list, num)
+        test_result = caliper_run(test_node, sections, run_case_list, num)
     except error.CmdError:
         logging.info("There is wrong in running benchmarks")
         flag = 1
@@ -90,7 +90,7 @@ def run_caliper_tests(f_option, sections, run_case_list, num):
 
 
 
-def caliper_run(sections, run_case_list, num):
+def caliper_run(test_node, sections, run_case_list, num):
     # get the test cases defined files
     for i in range(0, len(sections)):
         common.print_format()
@@ -99,7 +99,7 @@ def caliper_run(sections, run_case_list, num):
         try:
             # On some platforms, swapoff and swapon command is not able to execute.
             # So this function has been commented
-            result = run_all_cases(bench, sections[i], run_case_list, num)
+            result = run_all_cases(test_node, bench, sections[i], run_case_list, num)
         except Exception, e:
             logging.info(e)
             logging.info("Running %s Exception" % sections[i])
@@ -109,7 +109,7 @@ def caliper_run(sections, run_case_list, num):
             logging.info("Running %s Finished" % sections[i])
     return 0
 
-def run_all_cases(kind_bench, bench_name, run_case_list, num):
+def run_all_cases(test_node, kind_bench, bench_name, run_case_list, num):
     """
     function: run one benchmark which was selected in the configuration files
     """
@@ -176,7 +176,7 @@ def run_all_cases(kind_bench, bench_name, run_case_list, num):
             try:
                 for j in range(int(num)):
                     subprocess.call("echo 'the %s time'>>%s" % (j, Folder.caliper_run_log_file), shell=True)
-                    flag = run_client_command(section, tmp_log_file, bench_name)
+                    flag = run_client_command(test_node, section, tmp_log_file, bench_name)
             except Exception, e:
                 logging.info(e)
                 crash_handle.main()
@@ -227,7 +227,7 @@ def run_all_cases(kind_bench, bench_name, run_case_list, num):
                                     Folder.caliper_run_log_file), shell=True)
         subprocess.call("echo '======================================================'>>%s"% (Folder.caliper_run_log_file), shell=True)
 
-def run_client_command(cmd_sec_name, tmp_logfile, bench_name):
+def run_client_command(test_node, cmd_sec_name, tmp_logfile, bench_name):
     fp = open(tmp_logfile, "a+")
     start_log = "%%%%%%         %s test start       %%%%%% \n" % cmd_sec_name
     fp.write(start_log)
@@ -247,7 +247,7 @@ def run_client_command(cmd_sec_name, tmp_logfile, bench_name):
         fp = open(tmp_logfile, "a+")
         logging.debug("client command in localhost is: %s" % cmd_sec_name)
         # FIXME: update code for this condition
-        [out, returncode] = run_commands(bench_name, cmd_sec_name)
+        [out, returncode] = run_commands(test_node, bench_name, cmd_sec_name)
         fp.close()
         server_utils.file_copy(tmp_logfile, '/tmp/%s_output.log' % bench_name, 'a+')
     except error.ServRunError, e:
@@ -289,7 +289,7 @@ def get_actual_commands(commands):
         return ''
     return actual_commands
 
-def run_commands(bench_name, commands):
+def run_commands(test_node, bench_name, commands):
     returncode = -1
     output = ''
 
@@ -309,10 +309,17 @@ def run_commands(bench_name, commands):
                           % actual_commands)
             test_case_dir = os.path.join(caliper_path.BENCHS_DIR, bench_name, 'tests')
             os.chdir(test_case_dir)
-            result = subprocess.call(
-                'ansible-playbook -i %s %s.yml --extra-vars "hosts=Device" -u %s>> %s 2>&1' %
-                (TEST_CASE_CONFIG, actual_commands,getpass.getuser(), Folder.caliper_run_log_file), stdout=subprocess.PIPE,
-                shell=True)
+            if test_node != '':
+                result = subprocess.call(
+                    'ansible-playbook -i %s %s.yml --extra-vars "hosts=%s" -u %s>> %s 2>&1' %
+                    (TEST_CASE_CONFIG, actual_commands,test_node, getpass.getuser(), Folder.caliper_run_log_file), stdout=subprocess.PIPE,
+                    shell=True)
+            else:
+                result = subprocess.call(
+                    'ansible-playbook -i %s %s.yml --extra-vars "hosts=Device" -u %s>> %s 2>&1' %
+                    (TEST_CASE_CONFIG, actual_commands, getpass.getuser(), Folder.caliper_run_log_file),
+                    stdout=subprocess.PIPE,
+                    shell=True)
         except error.CmdError, e:
             raise error.ServRunError(e.args[0], e.args[1])
     except Exception, e:

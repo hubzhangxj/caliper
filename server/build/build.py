@@ -174,7 +174,7 @@ def getAllFilesRecursive(root):
                 files.append(os.path.join(root, f))
     return files
 
-def build_caliper(target_arch, sections, flag=0,clear=0):
+def build_caliper(test_node, target_arch, sections, flag=0,clear=0):
     """
     target_arch means to build the caliper for the special arch
     flag mean build for the target or local machine (namely server)
@@ -278,8 +278,13 @@ def build_caliper(target_arch, sections, flag=0,clear=0):
             log_file = os.path.join('/tmp', log_name)
             os.chdir(build_dir)
             try:
-                result = subprocess.call('ansible-playbook -i %s site.yml --extra-vars "hosts=Device" -u %s>> %s 2>&1'
-                                         %(build_config, getpass.getuser(),log_file), stdout=subprocess.PIPE, shell=True)
+                if test_node != '':
+                    result = subprocess.call('ansible-playbook -i %s site.yml --extra-vars "hosts=%s" -u %s>> %s 2>&1'
+                                             %(build_config, test_node, getpass.getuser(),log_file), stdout=subprocess.PIPE, shell=True)
+                else:
+                    result = subprocess.call(
+                        'ansible-playbook -i %s site.yml --extra-vars "hosts=Device" -u %s>> %s 2>&1'
+                        % (build_config, getpass.getuser(), log_file), stdout=subprocess.PIPE, shell=True)
             except Exception as e:
                 result = e
             for k in range(len(case_list['network'])):
@@ -340,7 +345,7 @@ def create_folder(folder, mode=0755):
     except OSError:
         os.makedirs(folder, mode)
 
-def build_for_target(target, f_option, clear, sections):
+def build_for_target(test_node, target, f_option, clear, sections):
     #f_option is set if -f is used
     # Create the temperory build folders
 
@@ -387,7 +392,7 @@ def build_for_target(target, f_option, clear, sections):
 
     try:
         # Build all caliper benchmarks for the target architecture
-        result = build_caliper(target_arch, sections, flag=0,clear=clear)
+        result = build_caliper(test_node, target_arch, sections, flag=0,clear=clear)
     except Exception:
         raise
     else:

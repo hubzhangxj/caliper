@@ -19,8 +19,6 @@ import yaml
 
 from argparse import ArgumentParser
 
-from caliper.client.parser.dictionary import openssl
-from caliper.server.shared.caliper_path import folder_ope as FOLDER
 try:
     import caliper.common as common
 except ImportError:
@@ -32,7 +30,6 @@ from caliper.server.run import parser_log
 from caliper.server.run import score
 from caliper.server.run import write_results
 from caliper.server.shared.settings import settings
-from caliper.server.shared import error
 from caliper.server.hosts import host_factory
 from caliper.server.shared import caliper_path
 from caliper.server.shared import utils
@@ -48,10 +45,10 @@ from caliper.server.shared.caliper_path import folder_ope as Folder
 from caliper.upload import upload
 
 
-def build_all_tests(remote_host,f_option,clear, sections):
+def build_all_tests(test_node, remote_host,f_option,clear, sections):
     try:
         logging.info("Begining to build Caliper for the remote host")
-        result1 = build.build_for_target(remote_host, f_option, clear, sections)
+        result1 = build.build_for_target(test_node, remote_host, f_option, clear, sections)
     except Exception, e:
         logging.info(e)
         raise
@@ -98,10 +95,10 @@ def populate_excels():
     except Exception as e:
        logging.info(e)
 
-def run_caliper(f_option, sections, run_case_list, num):
+def run_caliper(test_node, f_option, sections, run_case_list, num):
     try:
         logging.debug("begining to run Caliper")
-        result = run.run_caliper_tests(f_option, sections, run_case_list, num)
+        result = run.run_caliper_tests(test_node, f_option, sections, run_case_list, num)
     except Exception, e:
         print e
         logging.info("There is wrong when running Caliper")
@@ -304,6 +301,7 @@ if __name__=="__main__":
     parser.add_argument("-T", "--tool", action="store", dest="tool", default="", help="command line for tool test")
     parser.add_argument("-C", "--case", action="store", dest="case", default="", help="command line for case test")
     parser.add_argument("-t", "--times", action="store", dest="times", default="", help="test times")
+    parser.add_argument("-n", "--node", action="store", dest="node", default="", help="Select testnode to run test")
 
     args = parser.parse_args()
     start_time = datetime.datetime.now()
@@ -389,7 +387,9 @@ if __name__=="__main__":
     num = 0
     if args.times:
         num = int(args.times)
-
+    test_node = ''
+    if args.node:
+        test_node = args.node
     if args.all:
         push_ssh_key()
         # build
@@ -397,14 +397,14 @@ if __name__=="__main__":
             clear = 0
             if args.cleanbuild:
                 clear = 1
-            result1 = build_all_tests(remote_host, f_option, clear, sections)
+            result1 = build_all_tests(test_node, remote_host, f_option, clear, sections)
             if result1:
                 sys.exit()
         except Exception, e:
             raise
         # run
         try:
-            result2 = run_caliper(f_option, sections, run_case_list, num)
+            result2 = run_caliper(test_node, f_option, sections, run_case_list, num)
             if result2:
                 sys.exit()
 
@@ -461,7 +461,7 @@ if __name__=="__main__":
                 clear = 0
                 if args.cleanbuild:
                     clear = 1
-                result1 = build_all_tests(remote_host,f_option,clear, sections)
+                result1 = build_all_tests(test_node, remote_host,f_option,clear, sections)
                 if result1:
                     sys.exit()
             except Exception, e:
@@ -469,7 +469,7 @@ if __name__=="__main__":
 
         if args.run:
             try:
-                result2 = run_caliper(f_option, sections, run_case_list, num)
+                result2 = run_caliper(test_node, f_option, sections, run_case_list, num)
                 if result2:
                     sys.exit()
 
@@ -514,12 +514,11 @@ if __name__=="__main__":
             write_results.normalize_caliper()
 
             # computes the score i.e TOTAL_SCORE in the form of 100% for each section in the newly generated _post.yaml and _post.json files. _post.yaml file is to be used for image creation and _post.json file is to be used for table creation in HTML report.
-            print '1111111111111111111111111'
+
             normalize.normalise()
         except Exception as e:
             print e
         try:
-            print '222222222222222222222222'
             upload_url(caliper_path.folder_ope.workspace)
         except:
             pass
