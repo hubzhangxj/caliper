@@ -227,9 +227,6 @@ if __name__=="__main__":
                         help="display support benchmark list")
     parser.add_argument("-d", "--debug", action="store_true", dest="debug", default=False,help="debug mode")
     parser.add_argument("-m", "--message", action="store", dest="message",default="", help="add a message for test")
-    parser.add_argument("-D", "--dimension", action="store", dest="dimension", default="", help="command line for dimension test")
-    parser.add_argument("-T", "--tool", action="store", dest="tool", default="", help="command line for tool test")
-    parser.add_argument("-C", "--case", action="store", dest="case", default="", help="command line for case test")
     parser.add_argument("-t", "--times", action="store", dest="times", default="", help="test times")
     parser.add_argument("-n", "--node", action="store", dest="node", default="", help="Select testnode to run test")
 
