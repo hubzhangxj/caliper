@@ -28,6 +28,15 @@ class run_case_thread(threading.Thread):
         self.bench_name = bench_name
         self.commands = commands
         self.host = host
+    def get_sections(self):
+        dic = {}
+        cf = ConfigParser.ConfigParser()
+        cf.read(os.path.join(caliper_path.config_files.config_dir, 'hosts'))
+        devices = cf.options('fastest')
+        for device in devices:
+            tool_list = yaml.load(cf.get('fastest',device))
+            dic[device] = tool_list
+        return dic
 
     def run(self):
         returncode = -1
@@ -40,10 +49,11 @@ class run_case_thread(threading.Thread):
                 logging.debug("the actual commands running in local is: %s"
                               % actual_commands)
                 test_case_dir = os.path.join(caliper_path.BENCHS_DIR, self.bench_name, 'tests')
+
                 os.chdir(test_case_dir)
                 result = subprocess.call(
-                    'ansible-playbook -i %s/hosts %s.yml --extra-vars "hosts=%s" -u root>> %s 2>&1' %
-                    (test_case_dir, actual_commands, self.host, Folder.caliper_run_log_file), stdout=subprocess.PIPE, shell=True)
+                    'ansible-playbook -i %s %s.yml --extra-vars "hosts=%s" -u root>> %s 2>&1' %
+                    (os.path.join(caliper_path.config_files.config_dir, 'hosts'), actual_commands, self.host, Folder.caliper_run_log_file), stdout=subprocess.PIPE, shell=True)
             except error.CmdError, e:
                 raise error.ServRunError(e.args[0], e.args[1])
         except Exception, e:
@@ -92,21 +102,21 @@ def run_caliper_tests(test_node, f_option, sections, run_case_list, num):
 
 def caliper_run(test_node, sections, run_case_list, num):
     # get the test cases defined files
-    for i in range(0, len(sections)):
+    for section in sections:
         common.print_format()
-        logging.info("Running %s" % sections[i])
-        bench = os.path.join(caliper_path.BENCHS_DIR, sections[i], 'defaults')
+        logging.info("Running %s" % section)
+        bench = os.path.join(caliper_path.BENCHS_DIR, section, 'defaults')
         try:
             # On some platforms, swapoff and swapon command is not able to execute.
             # So this function has been commented
-            result = run_all_cases(test_node, bench, sections[i], run_case_list, num)
+            result = run_all_cases(test_node, bench, section, run_case_list, num)
         except Exception, e:
             logging.info(e)
-            logging.info("Running %s Exception" % sections[i])
+            logging.info("Running %s Exception" % section)
             crash_handle.main()
             common.print_format()
         else:
-            logging.info("Running %s Finished" % sections[i])
+            logging.info("Running %s Finished" % section)
     return 0
 
 def run_all_cases(test_node, kind_bench, bench_name, run_case_list, num):
