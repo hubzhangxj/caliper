@@ -53,6 +53,7 @@ def get_packages():
             'caliper.server.parser_process',
             'caliper.server.run',
             'caliper.server.shared',
+            'caliper.server.upload',
             'caliper.server',
             'caliper']
 

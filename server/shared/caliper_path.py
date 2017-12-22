@@ -8,8 +8,6 @@ import subprocess
 import datetime
 import shutil
 import ConfigParser
-import logging
-import getpass
 
 def judge_caliper_installed():
     try:

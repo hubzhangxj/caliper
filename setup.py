@@ -19,7 +19,6 @@ except ImportError:
     from distutils.core import setup
 
 import server.setup
-import upload.setup
 
 CURRENT_PATH = os.path.dirname(sys.modules[__name__].__file__)
 CALIPER_TMP_DIR = os.path.join(os.environ['HOME'], 'caliper_output')
@@ -44,13 +43,12 @@ def _combine_dicts(list_dicts):
 
 
 def get_packages():
-    return (server.setup.get_packages()+upload.setup.get_packages())
+    return (server.setup.get_packages())
 
 
 def get_package_dirs():
     return _combine_dicts(
-            [server.setup.get_package_dirs(),
-            upload.setup.get_package_dirs()]
+            [server.setup.get_package_dirs()]
             )
 
 
@@ -90,14 +88,15 @@ def run():
             caliper_tmp_dir
     )
     shutil.copyfile(
-        os.path.join(os.getcwd(), 'upload/config_info_run.sh'),
+        os.path.join(os.getcwd(), 'server/upload/config_info_run.sh'),
         config_info_run_sh
     )
     shutil.copyfile(
-        os.path.join(os.getcwd(), 'upload/hw-functions'),
+        os.path.join(os.getcwd(), 'server/upload/hw-functions'),
         hw_functions
     )
     os.chmod(caliper_data_dir, stat.S_IRWXO + stat.S_IRWXU)
+    os.chmod(caliper_tmp_dir, stat.S_IRWXO + stat.S_IRWXU)
     setup(
             name='caliper',
             version=common.VERSION,
