@@ -1,5 +1,5 @@
 dhrystone:
-  gcc_dhry2:
+  dhrystone_gcc_dhry2:
     category: 'Performance cpu_sincore sincore_int dhry2'
     scores_way: 'compute_speed_score 4'
     parser: 'dhry2_parser'

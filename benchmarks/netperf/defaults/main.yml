@@ -1,21 +1,21 @@
 netperf:
-  TCP_CRR:
+  netperf_TCP_CRR:
     category: 'Performance network bandwidth TCP_CRR'
     scores_way: 'compute_speed_score 4'
     parser: 'frequent_parser'
-  TCP_RR:
+  netperf_TCP_RR:
     category: 'Performance network bandwidth TCP_RR'
     scores_way: 'compute_speed_score 4'
     parser: 'frequent_parser'
-  TCP_STREAM:
+  netperf_TCP_STREAM:
     category: 'Performance network bandwidth TCP_stream'
     scores_way: 'compute_speed_score 2'
     parser: 'throughput_parser'
-  TCP_STREAM_R:
+  netperf_TCP_STREAM_R:
     category: 'Performance network bandwidth TCP_stream_r'
     scores_way: 'compute_speed_score 2'
     parser: 'throughput_parser'
-  UDP_RR:
+  netperf_UDP_RR:
     category: 'Performance network bandwidth UDP_RR'
     scores_way: 'compute_speed_score 4'
     parser: 'frequent_parser'

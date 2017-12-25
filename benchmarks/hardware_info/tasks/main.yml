@@ -1,2 +1,0 @@
-- name: copy file
-  copy: src=hw_info_run.sh dest=/tmp/hw_info_run.sh mode=0777

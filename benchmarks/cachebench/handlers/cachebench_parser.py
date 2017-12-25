@@ -31,21 +31,21 @@ def get_average_value(content, outfp, flag_str):
 
 def cachebench_read_parser(content, outfp):
     score = -1
-    score = get_average_value(content, outfp, "cachebench(.*)-r")
+    score = get_average_value(content, outfp, "cachebench(.*)_r")
     outfp.write("read bandwidth: " + str(score) + '\n')
     return score
 
 
 def cachebench_write_parser(content, outfp):
     score = -1
-    score = get_average_value(content, outfp, "cachebench(.*)-w")
+    score = get_average_value(content, outfp, "cachebench(.*)_w")
     outfp.write("write bandwidth: " + str(score) + '\n')
     return score
 
 
 def cachebench_modify_parser(content, outfp):
     score = -1
-    score = get_average_value(content, outfp, "cachebench(.*)-M")
+    score = get_average_value(content, outfp, "cachebench(.*)_M")
     outfp.write("read/mdify/write bandwidth: " + str(score) + '\n')
     return score
 
