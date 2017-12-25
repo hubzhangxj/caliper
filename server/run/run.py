@@ -26,7 +26,7 @@ from caliper.server.shared.caliper_path import folder_ope as Folder
 def get_sections():
     dic = {}
     cf = ConfigParser.ConfigParser()
-    cf.read(os.path.join(caliper_path.config_files.config_dir, 'fasthosts'))
+    cf.read(os.path.join(caliper_path.config_files.config_dir, 'hosts'))
     devices = cf.options('fastest')
     for device in devices:
         tool_list = yaml.load(cf.get('fastest', device))

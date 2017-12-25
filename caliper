@@ -224,7 +224,13 @@ def push_ssh_key():
     try:
         logging.info('Begining to push ssh key for the test host')
         os.chdir(TEST_CASE_DIR)
-        subprocess.call('ansible-playbook -i hosts push_sshkey.yml -u %s' % getpass.getuser(), stdout=subprocess.PIPE, shell=True)
+        cf = ConfigParser.ConfigParser()
+        cf.read(os.path.join(caliper_path.config_files.config_dir, 'hosts'))
+        sections = cf.sections()
+        for section in sections:
+            if section == 'fastest':
+                continue
+            subprocess.call('ansible-playbook -i hosts push_sshkey.yml -e hosts=%s -u %s' % (section, getpass.getuser()), stdout=subprocess.PIPE, shell=True)
     except Exception as e:
         logging.debug(e)
         logging.info('push ssh key fail')
@@ -330,7 +336,7 @@ if __name__=="__main__":
         if g_option == 1:
             sections, run_case_list = get_sections()
         else:
-            sections, run_case_list = get_config('')
+            sections, run_case_list = get_config('all')
         push_ssh_key()
         # build
         try:
@@ -433,7 +439,7 @@ if __name__=="__main__":
         if g_option == 1:
             sections, run_case_list = get_sections()
         else:
-            sections, run_case_list = get_config('')
+            sections, run_case_list = get_config('all')
         try:
             result2 = parser_caliper_logs(f_option, sections, run_case_list)
             if result2:
@@ -445,7 +451,7 @@ if __name__=="__main__":
         if g_option == 1:
             sections, run_case_list = get_sections()
         else:
-            sections, run_case_list = get_config('')
+            sections, run_case_list = get_config('all')
         try:
             result2 = score.compute_caliper_logs(sections, run_case_list,2)
             if intermediate:
