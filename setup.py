@@ -78,6 +78,9 @@ def run():
     if os.path.exists(caliper_tmp_dir):
         shutil.rmtree(caliper_tmp_dir)
 
+    if os.path.exists(get_hw_info_dir):
+        shutil.rmtree(get_hw_info_dir)
+
     shutil.copytree(
             os.path.join(os.getcwd(), 'benchmarks'),
             caliper_tmp_dir

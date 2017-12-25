@@ -3,7 +3,7 @@
   tasks:
     - name: remove latest data
       file:
-        path: /tmp/hardware_info_output.log
+        path: /tmp/hardwareinfo_output.log
         state: absent
 
     - name: run hardware_info
@@ -11,11 +11,11 @@
       register: logdata
       ignore_errors: yes
 
-    - lineinfile: create=yes  dest=/tmp/hardware_info_output.log line="{{ logdata.stdout }}" state=present
+    - lineinfile: create=yes  dest=/tmp/hardwareinfo_output.log line="{{ logdata.stdout }}" state=present
 
 
     - name: fetch result
       fetch:
-        src: /tmp/hardware_info_output.log
-        dest: /tmp/hardware_info_output.log
+        src: /tmp/hardwareinfo_output.log
+        dest: /tmp/hardwareinfo_output.log
         flat: yes

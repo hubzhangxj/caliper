@@ -1,3 +1,3 @@
 - hosts: '{{ hosts }}'
   roles:
-  - ../../hardware_info
+  - ../../hardwareinfo

@@ -204,6 +204,7 @@ def push_ssh_key():
     except Exception as e:
         logging.debug(e)
         logging.info('push ssh key fail')
+        pass
 
 if __name__=="__main__":
     parser = ArgumentParser(version=common.VERSION)
