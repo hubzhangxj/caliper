@@ -70,9 +70,8 @@ def recursive_file_permissions(path, mode, uid=-1, gid=-1):
 
 def run():
     caliper_data_dir = os.path.join(os.environ['HOME'], '.caliper')
-    config_info_run_sh = os.path.join(caliper_data_dir,'config_info_run.sh')
-    hw_functions = os.path.join(caliper_data_dir, 'hw-functions')
     caliper_tmp_dir = os.path.join(caliper_data_dir, 'benchmarks')
+    get_hw_info_dir = os.path.join(caliper_data_dir, 'get_hw_info')
     caliper_output = os.path.join(os.environ['HOME'], 'caliper_output')
     caliper_configuration = os.path.join(caliper_output,'configuration')
     caliper_config_file = os.path.join(caliper_configuration,'config')
@@ -87,16 +86,17 @@ def run():
             os.path.join(os.getcwd(), 'benchmarks'),
             caliper_tmp_dir
     )
-    shutil.copyfile(
-        os.path.join(os.getcwd(), 'server/upload/config_info_run.sh'),
-        config_info_run_sh
+    shutil.copytree(
+        os.path.join(os.getcwd(), 'server', 'upload', 'get_hw_info'),
+        get_hw_info_dir
     )
-    shutil.copyfile(
-        os.path.join(os.getcwd(), 'server/upload/hw-functions'),
-        hw_functions
+    shutil.copystat(
+        os.path.join(os.getcwd(), 'server', 'upload', 'get_hw_info'),
+        get_hw_info_dir
     )
     os.chmod(caliper_data_dir, stat.S_IRWXO + stat.S_IRWXU)
     os.chmod(caliper_tmp_dir, stat.S_IRWXO + stat.S_IRWXU)
+    os.chmod(get_hw_info_dir, stat.S_IRWXO + stat.S_IRWXU)
     setup(
             name='caliper',
             version=common.VERSION,

@@ -86,11 +86,10 @@ def encryption(inputpath, outpath, password):
                     shell=True)  # 加密包
 
 def get_test_config():
-    sh_path = os.path.join(os.environ['HOME'], '.caliper')
+    sh_path = os.path.join(os.environ['HOME'], '.caliper', 'get_hw_info', 'tests')
     os.chdir(sh_path)
-    print "=---------------------------------="
-    print subprocess.call('echo "123456"|sudo -S ./config_info_run.sh', shell=True)
-    print "=---------------------------------="
+    hosts_path = os.path.join(caliper_path.caliper_config_file, 'hosts')
+    subprocess.call("ansible-playbook -i %s test.yml -e hosts=%s" % (hosts_path, caliper_path.sections[0]), shell=True)
     shutil.copy('/tmp/config_output.json', os.path.join(Folder.json_dir, 'config_output.json'))
 
 # example
