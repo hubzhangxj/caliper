@@ -195,10 +195,10 @@ def get_sections():
     run_case_list = []
     case_list = yaml.load(fp.read())
     cf = ConfigParser.ConfigParser()
-    cf.read(os.path.join(caliper_path.config_files.config_dir, 'fasthosts'))
-    devices = cf.options('fastest')
+    cf.read(os.path.join(caliper_path.config_files.config_dir, 'hosts'))
+    devices = cf.options('fasttest')
     for device in devices:
-        tool_list = yaml.load(cf.get('fastest', device))
+        tool_list = yaml.load(cf.get('fasttest', device))
         all_sections = all_sections + tool_list
     sections = list(set(all_sections))
     for section in sections:
