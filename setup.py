@@ -156,7 +156,7 @@ def run():
             maintainer="open-estuary",
             install_requires=[
                 'pyYAML',
-                'django >= 1.6.1', ]
+                'django == 1.11.5', ]
             )
     create_dir()
     os.chown(caliper_output,getpwnam(os.environ['HOME'].split('/')[-1]).pw_uid,-1)
