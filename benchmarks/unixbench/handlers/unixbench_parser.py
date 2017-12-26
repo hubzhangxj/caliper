@@ -63,11 +63,15 @@ def unixbench(filePath, outfp):
                             realCell = cell.strip()
                             if realCell is not "" and realCell != "========":
                                 td.append(realCell)
-                    else:
+                    elif len(cells) > 1:
                         td.append(cells[0])
                         td.append("")
                         td.append("")
                         td.append(cells[1])
+                    else:
+                        td.append(cells[0])
+                        td.append("")
+                        td.append("")
 
                     if len(td) > 0:
                         table.append(td)

@@ -16,20 +16,20 @@ def stressng(filePath, outfp):
     result = []
     for case in cases:
         caseDict = {}
-        titleGroup = re.search('\[test:([\s\S]+)metrics-brief', case)
+        titleGroup = re.search('\[test:([\s\S]+)stress-', case)
         if titleGroup != None:
             caseDict[parser_log.TOP] = titleGroup.group(0)
 
             caseDict[parser_log.BOTTOM] = parser_log.getBottom(case)
 
-        my_regex = '%s([\s\S]+)\[status\]:' % ("metrics-brief")
+        my_regex = '%s([\s\S]+)\[status\]:' % ("stress-")
         center = re.search(my_regex, case)
         table_contents = []
         if center != None:
             tableDict = {}
             data = center.group(1).strip()
             print data
-            topstr_group = re.search("stress[\s\S]+?\[[\d]+\]([\s\S]+\n)stress-ng: info:  \[\d+\] stressor", data)
+            topstr_group = re.search("stress[\s\S]+?\[[\d]+\]([\s\S]+\n)stress-ng: info: \[\d+\] stressor", data)
             if topstr_group is not None:
                 topstr = topstr_group.groups()[0]
                 top = re.sub("stress([\s\S]+?)\[[\d]+\] ", "", topstr.strip())
