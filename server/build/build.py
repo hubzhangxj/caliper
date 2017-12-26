@@ -8,9 +8,11 @@ import logging
 import yaml
 import sys
 import signal
+import time
 from pwd import getpwnam
 import json
 import getpass
+import threading
 
 try:
     import caliper.common as common
@@ -22,6 +24,7 @@ import caliper.server.shared.utils as client_utils
 from caliper.server.shared import error
 from caliper.server.shared import caliper_path
 from caliper.server.shared.caliper_path import folder_ope as FOLDER
+from caliper.server.run.run import get_sections
 
 CALIPER_DIR = caliper_path.CALIPER_DIR
 GEN_DIR = caliper_path.GEN_DIR
@@ -35,6 +38,135 @@ currentProcess = [0,os.getpid()]
 
 signal_ingored = [signal.SIGINT,signal.SIGTERM,signal.SIGALRM,signal.SIGHUP]
 original_sigint = [None]*len(signal_ingored)
+
+class build_tool_thread(threading.Thread):
+    def __init__(self, target_arch, host, sections, clear):
+        threading.Thread.__init__(self)
+        """
+        target_arch means to build the caliper for the special arch
+        sections mean build for tools
+        """
+        self.host = host
+        self.sections = sections
+        self.target_arch = target_arch
+        self.clear = clear
+
+    def run(self):
+        global GEN_DIR, BUILD_MAPPING_FILE, BUILD_MAPPING_DIR
+        GEN_DIR = caliper_path.GEN_DIR
+
+        if self.target_arch:
+            arch = self.target_arch
+        else:
+            arch = 'x86_64'
+        # get the config file
+        case_file = os.path.join(TEST_CASE_DIR, 'cases_config.json')
+        fp = open(case_file, 'r')
+        case_list = json.load(fp)
+        BUILD_MAPPING_DIR = os.path.join(BUILD_MAPPING_DIR, arch)
+        if not os.path.exists(BUILD_MAPPING_DIR):
+            try:
+                os.makedirs(BUILD_MAPPING_DIR)
+            except:
+                pass
+
+        # set_signals()
+        # check and delete those binaries if it is already built if -c is used
+        if self.clear:
+            logging.info("=" * 55)
+            logging.info("WARNING: Please wait, dont run any other instance of caliper")
+            for section in self.sections:
+                BUILD_MAPPING_FILE = os.path.join(BUILD_MAPPING_DIR, section + '.yaml')
+                with client_utils.SimpleFlock(BUILD_MAPPING_FILE, 60):
+                    fp = open(BUILD_MAPPING_FILE)
+                    dic = yaml.load(fp)
+                    fp.close()
+                    if type(dic) != dict:
+                        dic = {}
+                    if section in dic.keys():
+                        for file in dic[section]['binaries']:
+                            try:
+                                shutil.rmtree(file)
+                            except:
+                                pass
+                        dic[section]['binaries'] = []
+                        dic[section]['ProcessID'] = 0
+                    fp = open(BUILD_MAPPING_FILE, 'w')
+                    fp.write(yaml.dump(dic, default_flow_style=False))
+                    fp.close()
+            logging.info("It is safe to run caliper now")
+            logging.info("=" * 55)
+
+        for section in self.sections:
+            BUILD = 0
+            BUILD_MAPPING_FILE = os.path.join(BUILD_MAPPING_DIR, section + '.yaml')
+            reset_binary_mapping()
+
+            try:
+                # Lock the file and modify it if this is the first process which is building the tool
+                with client_utils.SimpleFlock(BUILD_MAPPING_FILE, 60):
+                    fp = open(BUILD_MAPPING_FILE)
+                    dic = yaml.load(fp)
+                    if type(dic) != dict:
+                        dic = {}
+                    fp.close()
+                    if section not in dic.keys():
+                        dic[section] = {}
+                        dic[section]['binaries'] = []
+                        dic[section]['ProcessID'] = os.getpid()
+                        BUILD = 1
+                    fp = open(BUILD_MAPPING_FILE, 'w')
+                    fp.write(yaml.dump(dic, default_flow_style=False))
+                    fp.close()
+
+                # checking if binary field is empty, empty means that the previous build is a failure
+                if not dic[section]['binaries']:
+                    BUILD = 1
+            except Exception as e:
+                logging.debug(e)
+                sys.exit(1)
+
+            BUILD = 1
+            if BUILD == 1:
+                logging.info("=" * 55)
+                logging.info("Building %s" % section)
+                build_dir = os.path.join(caliper_path.BENCHS_DIR, section, 'tests')
+                build_config = os.path.join(TEST_CASE_DIR, 'hosts')
+                log_name = "%s.log" % section
+                log_file = os.path.join('/tmp', log_name)
+                os.chdir(build_dir)
+                try:
+                    if self.host != '':
+                        result = subprocess.call(
+                            'ansible-playbook -i %s site.yml --extra-vars "hosts=%s" -u %s>> %s 2>&1'
+                            % (build_config, self.host, getpass.getuser(), log_file), stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, shell=True)
+                    else:
+                        result = subprocess.call(
+                            'ansible-playbook -i %s site.yml --extra-vars "hosts=Device" -u %s>> %s 2>&1'
+                            % (build_config, getpass.getuser(), log_file), stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, shell=True)
+                except Exception as e:
+                    result = e
+                for k in range(len(case_list['network'])):
+                    if section in case_list['network'][k]:
+                        try:
+                            subprocess.Popen(
+                                'ansible-playbook -i %s runserver.yml -u %s' % (build_config, getpass.getuser()),
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                        except Exception as e:
+                            pass
+                if result:
+                    logging.info("Building %s Failed" % section)
+                    logging.info("=" * 55)
+                    record_log(log_file, arch, 0)
+                else:
+                    logging.info("Building %s Successful" % section)
+                    logging.info("=" * 55)
+                    record_log(log_file, arch, 1)
+
+        # reset_signals()
+        return 0
 
 def copy_dic(src,dest,skip):
     try:
@@ -174,138 +306,6 @@ def getAllFilesRecursive(root):
                 files.append(os.path.join(root, f))
     return files
 
-def build_caliper(test_node, target_arch, sections, flag=0,clear=0):
-    """
-    target_arch means to build the caliper for the special arch
-    flag mean build for the target or local machine (namely server)
-        0: means for the target
-        1: means for the server
-    """
-    copy = 0
-    global GEN_DIR,BUILD_MAPPING_FILE,BUILD_MAPPING_DIR
-    GEN_DIR = caliper_path.GEN_DIR
-
-    prev_build_files = []
-    current_build_files = []
-    WS_prev_build_files = []
-    WS_current_build_files = []
-
-    if target_arch:
-        arch = target_arch
-    else:
-        arch = 'x86_64'
-    # get the files list of 'cfg'
-    case_file = os.path.join(TEST_CASE_DIR, 'cases_config.json')
-    fp = open(case_file, 'r')
-    case_list = json.load(fp)
-    BUILD_MAPPING_DIR = os.path.join(BUILD_MAPPING_DIR,arch)
-    if not os.path.exists(BUILD_MAPPING_DIR):
-        try:
-            os.makedirs(BUILD_MAPPING_DIR)
-        except:
-            pass
-    source_build_file = caliper_path.SOURCE_BUILD_FILE
-    set_signals()
-    # check and delete those binaries if it is already built if -c is used
-    if clear:
-        logging.info("=" * 55)
-        logging.info("WARNING: Please wait, dont run any other instance of caliper")
-        for section in sections:
-            BUILD_MAPPING_FILE = os.path.join(BUILD_MAPPING_DIR, section + '.yaml')
-            with client_utils.SimpleFlock(BUILD_MAPPING_FILE, 60):
-                fp = open(BUILD_MAPPING_FILE)
-                dic = yaml.load(fp)
-                fp.close()
-                if type(dic) != dict:
-                    dic = {}
-                if section in dic.keys():
-                    for file in dic[section]['binaries']:
-                        try:
-                            shutil.rmtree(file)
-                        except:
-                            pass
-                    dic[section]['binaries'] = []
-                    dic[section]['ProcessID'] = 0
-                fp = open(BUILD_MAPPING_FILE, 'w')
-                fp.write(yaml.dump(dic, default_flow_style=False))
-                fp.close()
-        logging.info("It is safe to run caliper now")
-        logging.info("=" * 55)
-
-    for section in sections:
-        BUILD = 0
-        BUILD_MAPPING_FILE = os.path.join(BUILD_MAPPING_DIR, section + '.yaml')
-        reset_binary_mapping()
-
-        try:
-            #Lock the file and modify it if this is the first process which is building the tool
-            with client_utils.SimpleFlock(BUILD_MAPPING_FILE, 60):
-                fp = open(BUILD_MAPPING_FILE)
-                dic = yaml.load(fp)
-                if type(dic) != dict:
-                    dic = {}
-                fp.close()
-                if section not in dic.keys():
-                    dic[section] = {}
-                    dic[section]['binaries'] = []
-                    dic[section]['ProcessID'] = os.getpid()
-                    BUILD = 1
-                fp = open(BUILD_MAPPING_FILE, 'w')
-                fp.write(yaml.dump(dic, default_flow_style=False))
-                fp.close()
-
-            #checking if binary field is empty, empty means that the previous build is a failure
-            if not dic[section]['binaries']:
-                BUILD = 1
-
-            # Checking if the tool if already built or is in the process of being built by another process
-            if dic[section]['ProcessID'] not in currentProcess:
-                # We shall continue to build the next tools and we'll copy these binaries later
-                logging.info("=" * 55)
-                # logging.info("%s is being built by someother process, we'll build the remaining tools" % sections[i])
-                # continue
-        except Exception as e:
-            logging.debug(e)
-            sys.exit(1)
-
-        BUILD = 1
-        if BUILD == 1:
-            logging.info("=" * 55)
-            logging.info("Building %s" % section)
-            build_dir = os.path.join(caliper_path.BENCHS_DIR, section, 'tests')
-            build_config = os.path.join(TEST_CASE_DIR, 'hosts')
-            log_name = "%s.log" % section
-            log_file = os.path.join('/tmp', log_name)
-            os.chdir(build_dir)
-            try:
-                if test_node != '':
-                    result = subprocess.call('ansible-playbook -i %s site.yml --extra-vars "hosts=%s" -u %s>> %s 2>&1'
-                                             %(build_config, test_node, getpass.getuser(),log_file), stdout=subprocess.PIPE, shell=True)
-                else:
-                    result = subprocess.call(
-                        'ansible-playbook -i %s site.yml --extra-vars "hosts=Device" -u %s>> %s 2>&1'
-                        % (build_config, getpass.getuser(), log_file), stdout=subprocess.PIPE, shell=True)
-            except Exception as e:
-                result = e
-            for k in range(len(case_list['network'])):
-                if section in case_list['network'][k]:
-                    try:
-                        subprocess.Popen(
-                            'ansible-playbook -i %s runserver.yml -u %s' % (build_config, getpass.getuser()), stdout=subprocess.PIPE, shell=True)
-                    except Exception as e:
-                        pass
-            if result:
-                logging.info("Building Failed")
-                logging.info("=" * 55)
-                record_log(log_file, arch, 0)
-            else:
-                logging.info("Building Successful")
-                logging.info("=" * 55)
-                record_log(log_file, arch, 1)
-
-    reset_signals()
-    return 0
-
 def record_log(log_file, arch, succeed_flag):
     build_log_dir = FOLDER.build_dir
     main_build_dir = os.path.join(caliper_path.BUILD_LOGS, arch)
@@ -345,7 +345,7 @@ def create_folder(folder, mode=0755):
     except OSError:
         os.makedirs(folder, mode)
 
-def build_for_target(test_node, target, f_option, clear, sections):
+def build_for_target(test_node, target, g_option, f_option, clear, sections):
     #f_option is set if -f is used
     # Create the temperory build folders
 
@@ -368,8 +368,6 @@ def build_for_target(test_node, target, f_option, clear, sections):
     # This call assign target_arch with target architecture. Call
     # "get_host_arch" looks to be confusing :(
     target_arch = server_utils.get_host_arch(target)
-    # if server_utils.get_target_ip(target) in server_utils.get_local_ip():
-    #     return build_for_local()
 
     try:
         host_arch = server_utils.get_local_machine_arch()
@@ -384,10 +382,24 @@ def build_for_target(test_node, target, f_option, clear, sections):
     logging.info(" ")
 
     try:
+        dic = {}
         # Build all caliper benchmarks for the target architecture
-        result = build_caliper(test_node, target_arch, sections, flag=0,clear=clear)
+        if g_option == 1:
+            # concurrent build
+            dic = get_sections()
+        else:
+            dic[test_node] = sections
+        thread_list = []
+        for device in dic:
+            run_test = build_tool_thread(target_arch, device, dic[device], clear)
+            run_test.start()
+            time.sleep(1)
+            thread_list.append(run_test)
+        for thread in thread_list:
+            thread.join()
+        result = 0
     except Exception:
-        raise
+        result = 1
     else:
         if result:
             return result
@@ -452,18 +464,3 @@ def copy_gen_to_server(target, path):
         logging.info("finished the scp server script to the remote host")
         return 0
 
-def build_for_local():
-    arch = server_utils.get_local_machine_arch()
-    logging.info("arch of the local host is %s" % arch)
-    arch_dir = os.path.join(GEN_DIR, arch)
-    # if os.path.exists(arch_dir):
-    #     shutil.rmtree(arch_dir)
-    try:
-        result = build_caliper(arch, flag=0, clear=0)
-    except Exception, e:
-        raise Exception(e.args[0], e.args[1])
-    else:
-        return result
-
-if __name__ == "__main__":
-    build_for_local()

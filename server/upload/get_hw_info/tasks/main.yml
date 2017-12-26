@@ -4,30 +4,37 @@
 - name: install jq for redhat
   yum: name=jq state=present disable_gpg_check=yes
   when: ansible_os_family == 'RedHat'
+  ignore_errors: yes
 
 - name: install jq for ubuntu
   apt: name=jq state=present
   when: ansible_distribution == 'Ubuntu'
+  ignore_errors: yes
 
 - name: install ethtool for redhat
   yum: name=ethtool state=present disable_gpg_check=yes
   when: ansible_os_family == 'RedHat'
+  ignore_errors: yes
 
 - name: install ethtool for ubuntu
   apt: name=ethtool state=present
   when: ansible_distribution == 'Ubuntu'
+  ignore_errors: yes
 
 - name: install lshw for redhat
   yum: name=lshw state=present disable_gpg_check=yes
   when: ansible_os_family == 'RedHat'
+  ignore_errors: yes
 
 - name: install lshw for ubuntu
   apt: name=lshw state=present
   when: ansible_distribution == 'Ubuntu'
+  ignore_errors: yes
 
 - name: install lsblk for redhat
   yum: name=lsblk state=present disable_gpg_check=yes
   when: ansible_os_family == 'RedHat'
+  ignore_errors: yes
 
 - name: install lsblk for ubuntu
   apt: name=lsblk state=present
@@ -37,10 +44,12 @@
 - name: install dmidecode for redhat
   yum: name=dmidecode state=present disable_gpg_check=yes
   when: ansible_os_family == 'RedHat'
+  ignore_errors: yes
 
 - name: install dmidecode for ubuntu
   apt: name=dmidecode state=present
   when: ansible_distribution == 'Ubuntu'
+  ignore_errors: yes
 
 - name: copy config_info_run.sh file
   copy: src=config_info_run.sh dest=/tmp/config_info_run.sh mode=0755

@@ -36,10 +36,10 @@ from caliper.server.shared.caliper_path import folder_ope as Folder
 from caliper.server.upload import upload
 
 
-def build_all_tests(test_node, remote_host,f_option,clear, sections):
+def build_all_tests(test_node, remote_host,g_option, f_option,clear, sections):
     try:
         logging.info("Begining to build Caliper for the remote host")
-        result1 = build.build_for_target(test_node, remote_host, f_option, clear, sections)
+        result1 = build.build_for_target(test_node, remote_host, g_option, f_option, clear, sections)
     except Exception, e:
         logging.info(e)
         raise
@@ -228,9 +228,9 @@ def push_ssh_key():
         cf.read(os.path.join(caliper_path.config_files.config_dir, 'hosts'))
         sections = cf.sections()
         for section in sections:
-            if section == 'fastest':
+            if section == 'fasttest':
                 continue
-            subprocess.call('ansible-playbook -i hosts push_sshkey.yml -e hosts=%s -u %s' % (section, getpass.getuser()), stdout=subprocess.PIPE, shell=True)
+            subprocess.call('ansible-playbook -i hosts push_sshkey.yml -e hosts=%s -u %s' % (section, getpass.getuser()), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     except Exception as e:
         logging.debug(e)
         logging.info('push ssh key fail')
@@ -327,6 +327,8 @@ if __name__=="__main__":
     test_node = ''
     if args.node:
         test_node = args.node
+    else:
+        test_node = caliper_path.sections[0]
 
     g_option = 0
     if args.concurrent:
@@ -343,7 +345,7 @@ if __name__=="__main__":
             clear = 0
             if args.cleanbuild:
                 clear = 1
-            result1 = build_all_tests(test_node, remote_host, f_option, clear, sections)
+            result1 = build_all_tests(test_node, remote_host, g_option, f_option, clear, sections)
             if result1:
                 sys.exit()
         except Exception, e:
@@ -408,7 +410,7 @@ if __name__=="__main__":
                 clear = 0
                 if args.cleanbuild:
                     clear = 1
-                result1 = build_all_tests(test_node, remote_host,f_option,clear, sections)
+                result1 = build_all_tests(test_node, remote_host, g_option, f_option, clear, sections)
                 if result1:
                     sys.exit()
             except Exception, e:
