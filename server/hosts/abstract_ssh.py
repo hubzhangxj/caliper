@@ -8,10 +8,10 @@ import socket
 import glob
 import shutil
 
-from caliper.client.shared import error, autotemp
+from caliper.server.shared import error, autotemp
 from caliper.server import utils
 from caliper.server.hosts import remote_host
-from caliper.client.shared.settings import settings
+from caliper.server.shared.settings import settings
 
 
 enable_master_ssh = settings.get_value('TestNode', 'enable_master_ssh',

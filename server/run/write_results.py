@@ -21,8 +21,8 @@ except Exception:
 from caliper.server.compute_model import scores_method
 from caliper.server.compute_model.scores_method import Scores_method
 from caliper.server.compute_model.scores_method import geometric_mean
-from caliper.client.shared import caliper_path
-
+from caliper.server.shared import caliper_path
+from caliper.server.shared.caliper_path import folder_ope as Folder
 
 def compute_score(score_way, result_fp):
     # this part should be improved
@@ -64,13 +64,13 @@ def compute_score(score_way, result_fp):
 def write_yaml_func(yaml_file, tmp, result, kind):
     return write_yaml_perf(yaml_file, tmp, result, kind)
 
-def write_dic(result, tmp, score_way, yaml_file, file_flag):
+def write_dic(sections, result, tmp, score_way, yaml_file, file_flag):
     flag = 0
     for key in result.keys():
         if type(result[key]) == dict:
             sub_dic = result[key]
             tmp.append(key)
-            flag = write_sin_dic(sub_dic, tmp, score_way, yaml_file, file_flag)
+            flag = write_sin_dic(sections, sub_dic, tmp, score_way, yaml_file, file_flag)
             tmp.remove(key)
         else:
             logging.debug("There is wrong with the parser")
@@ -80,7 +80,7 @@ def write_dic(result, tmp, score_way, yaml_file, file_flag):
     return flag
 
 
-def write_sin_dic(result, tmp, score_way, yaml_file, file_flag):
+def write_sin_dic(sections, result, tmp, score_way, yaml_file, file_flag):
     flag = 0
     for key in result.keys():
         if type(result[key]) == list:
@@ -99,7 +99,7 @@ def write_sin_dic(result, tmp, score_way, yaml_file, file_flag):
         if file_flag == 2:
             geo_mean = compute_score(score_way, geo_mean)
 
-        flag1 = write_yaml_perf(yaml_file, tmp, geo_mean, file_flag)
+        flag1 = write_yaml_perf(sections, yaml_file, tmp, geo_mean, file_flag)
 
         tmp.remove(key)
         if not flag1:
@@ -108,14 +108,14 @@ def write_sin_dic(result, tmp, score_way, yaml_file, file_flag):
     return flag
 
 
-def write_multi_dic(result, tmp, score_way, yaml_file, flag_file):
+def write_multi_dic(sections, result, tmp, score_way, yaml_file, flag_file):
     flag = 0
     for key in result.keys():
         if type(result[key]) == dict:
             try:
                 sub_dic = result[key]
                 tmp.append(key)
-                flag = write_dic(sub_dic, tmp, score_way, yaml_file, flag_file)
+                flag = write_dic(sections, sub_dic, tmp, score_way, yaml_file, flag_file)
                 tmp.remove(key)
             except Exception:
                 flag = -1
@@ -137,7 +137,7 @@ def round_perf(score):
     return score
 
 
-def write_yaml_perf(yaml_file, tmp, result, kind=1):
+def write_yaml_perf(section, yaml_file, tmp, result, kind=1):
     flag = 0
     try:
         if not os.path.exists(yaml_file):
@@ -178,8 +178,9 @@ def write_yaml_perf(yaml_file, tmp, result, kind=1):
             x[RES][tmp[0]][tmp[1]][tmp[2]] = {}
         if kind == 1:
             if tmp[3] not in x[RES][tmp[0]][tmp[1]][tmp[2]]:
-                x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]] = {}
-            x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]] = result
+                x[RES][tmp[0]][tmp[1]][tmp[2]][section+'.'+tmp[3]] = {}
+            # x[RES][tmp[0]][tmp[1]][tmp[2]][section+'.'+tmp[3]] = result
+            x[RES][tmp[0]][tmp[1]][tmp[2]][section+'.'+tmp[3]] = result
             flag = 1
         else:
             if kind == 2:
@@ -187,12 +188,11 @@ def write_yaml_perf(yaml_file, tmp, result, kind=1):
                     x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'] = {}
                 if not x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores']:
                     x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'] = {}
-                if tmp[3] not in \
-                    x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores']:
-                    x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'][tmp[3]] =\
-                                                                        result
+                if tmp[3] not in x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores']:
+                    x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'][section+'.'+tmp[3]] = result
                     flag = 1
-                x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'][tmp[3]] = result
+                x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'][section+'.'+tmp[3]] = result
+                # x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'][section+'.'+tmp[3]] = result
                 flag = 1
     except BaseException, e:
         logging.debug("There is wrong when write the data in file %s." % yaml)
@@ -422,13 +422,13 @@ def get_targets_data(outdir):
     return (yaml_files, json_files)
 
 def normalize_caliper():
+    # try:
+    #     for files in glob.glob(os.path.join(caliper_path.HTML_DATA_DIR_OUTPUT, "*")):
+    #         os.remove(files)
+    # except:
+    #     pass
     try:
-        for files in glob.glob(os.path.join(caliper_path.HTML_DATA_DIR_OUTPUT, "*")):
-            os.remove(files)
-    except:
-        pass
-    try:
-        normalize_caliper_output(caliper_path.HTML_DATA_DIR_INPUT)
+        normalize_caliper_output(Folder.yaml_dir)
     except Exception, e:
         logging.info(e.args[0], e.args[1])
         return
@@ -452,7 +452,7 @@ def normalize_results(yaml_file):
 
     yaml_file_post = yaml_file[0:-5] + "_post" + yaml_file[-5:]
     fileName = yaml_file_post.split('/')[-1]
-    yaml_file_post_output = os.path.join(caliper_path.HTML_DATA_DIR_OUTPUT,fileName)
+    yaml_file_post_output = os.path.join(Folder.yaml_dir,fileName)
     if os.path.exists(yaml_file):
         shutil.copyfile(yaml_file, yaml_file_post_output)
     else:
@@ -469,7 +469,6 @@ def normalize_results(yaml_file):
     if func_str in dic_[results_str].keys():
         func_results = dic_[results_str][func_str]
         dic_[results_str][func_str] = normalize_score(func_results)
-
     with open(yaml_file_post_output, 'w') as outfile:
         outfile.write(yaml.dump(dic_, default_flow_style=False))
         flag = 1

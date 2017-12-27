@@ -10,7 +10,7 @@ import os
 import re
 import logging
 
-from caliper.client.shared import error
+from caliper.server.shared import error
 
 TEE_TO_LOGS = object()
 

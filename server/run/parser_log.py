@@ -6,8 +6,9 @@ import sys
 import importlib
 import re
 import logging
-
+import subprocess
 import yaml
+import shutil
 try:
     import common
 except ImportError:
@@ -130,7 +131,6 @@ def parse_all_cases(kind_bench, bench_name, parser_file, dic, run_case_list):
             flag = 0
             try:
                 parser = values[bench_name][section]['parser']
-                command = values[bench_name][section]['command']
             except Exception:
                 logging.debug("no value for the %s" % section)
                 continue
@@ -139,7 +139,7 @@ def parse_all_cases(kind_bench, bench_name, parser_file, dic, run_case_list):
             # parser the result in the tmp_log_file, the result is the output of
             # running the command
             try:
-                logging.debug("Parsering the result of command: %s" % command)
+                logging.debug("Parsering the result of command: %s" % section)
                 outfp = open(logfile, 'r')
                 infp = open(tmp_log_file, 'w')
                 # infp.write(re.findall("test start\s+%+(.*?)%+\s+test_end", outfp.read(), re.DOTALL)[sections_run.index(section) - i])

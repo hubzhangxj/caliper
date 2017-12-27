@@ -2,13 +2,13 @@ import yaml
 import json
 import os
 import glob
-from caliper.client.shared import caliper_path
+from caliper.server.shared import caliper_path
+from caliper.server.shared.caliper_path import folder_ope as Folder
 
-DATAFILES_FOLDER = caliper_path.HTML_DATA_DIR_OUTPUT
 
 def normalise():
     dicList = []
-    for filename in glob.glob(os.path.join(DATAFILES_FOLDER, '*_score_post.yaml')):
+    for filename in glob.glob(os.path.join(Folder.yaml_dir, '*_score_post.yaml')):
         dicList.append(yaml.load(open(filename)))
     normalize_files(dicList)
     return
@@ -187,8 +187,12 @@ def delete(dic, option):
 
 def save(dicList):
     for dic in dicList:
-        outputyaml = open(os.path.join(caliper_path.HTML_DATA_DIR_OUTPUT, dic['name'] + "_score_post.yaml"),'w')
-        outputjson = open(os.path.join(caliper_path.HTML_DATA_DIR_OUTPUT , dic['name'] + "_score_post.json"),'w')
+        try:
+            dic['name']
+        except:
+            dic['name'] = caliper_path.platForm_name
+        outputyaml = open(os.path.join(Folder.yaml_dir, dic['name'] + "_score_post.yaml"),'w')
+        outputjson = open(os.path.join(Folder.yaml_dir , dic['name'] + "_score_post.json"),'w')
         outputyaml.write(yaml.dump(dic, default_flow_style=False))
         outputjson.write(json.dumps(dic,indent=0,sort_keys=True))
         outputyaml.close()

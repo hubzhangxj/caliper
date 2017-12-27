@@ -1,3 +1,11 @@
+- name: install unzip for redhat
+  yum: name=unzip state=present disable_gpg_check=yes
+  when: ansible_os_family == 'RedHat'
+
+- name: install unzip for ubuntu
+  apt: name=unzip state=present
+  when: ansible_distribution == 'Ubuntu'
+
 - name: mkdir -p /tmp/scripts
   shell: "mkdir -p /tmp/scripts"
 

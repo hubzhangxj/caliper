@@ -16,7 +16,7 @@ import os
 import logging
 import tempfile as module_tempfile
 
-from caliper.client.shared import utils
+from caliper.server.shared import utils
 
 _TEMPLATE = '_autotmp_'
 

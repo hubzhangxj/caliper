@@ -3,7 +3,7 @@ import os
 import yaml
 import openpyxl
 import glob
-from caliper.client.shared import caliper_path
+from caliper.server.shared import caliper_path
 path = caliper_path.HW_DATA_DIR_INPUT
 template = os.path.join(caliper_path.TEMPLATE_DATA_DIR,"Hw_Template.xlsx")
 output = os.path.join(caliper_path.HW_DATA_DIR_OUTPUT,'Platform_Configuration.xlsx')

@@ -1,4 +1,4 @@
-__all__ = ['client', 'common']
-import client
+__all__ = ['server', 'common']
+import server
 import common
 

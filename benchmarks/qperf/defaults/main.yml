@@ -1,11 +1,9 @@
 qperf:
-  qperf tcp_bw:
+  qperf_tcp_bw:
     category: 'Performance network bandwidth'
     scores_way: 'compute_speed_score 1'
-    command: 'tcp_bw'
     parser: 'qperf_parser'
-  qperf tcp_lat:
+  qperf_tcp_lat:
     category: 'Performance network local_lat'
     scores_way: 'exp_score_compute 1 -0.5'
-    command: 'tcp_lat'
     parser: 'qperf_parser'

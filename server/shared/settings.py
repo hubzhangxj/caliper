@@ -7,8 +7,8 @@
 
 import os
 import ConfigParser
-from caliper.client.shared import error
-from caliper.client.shared import caliper_path
+from caliper.server.shared import error
+from caliper.server.shared import caliper_path
 
 
 class SettingsError(error.AutoError):

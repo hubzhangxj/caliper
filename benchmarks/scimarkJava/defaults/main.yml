@@ -1,6 +1,5 @@
 scimarkJava:
-  scimark java:
+  scimarkJava_scimark_java:
     category: 'Performance application jdk scimark'
     scores_way: 'compute_speed_score 0'
-    command: 'scimark_java'
     parser: 'scimark_parser'

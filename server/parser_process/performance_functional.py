@@ -3,7 +3,6 @@ import os
 import yaml
 import openpyxl
 import glob
-#from caliper.client.shared import caliper_path
 import numpy
 import sys
 from openpyxl.utils import (_get_column_letter)

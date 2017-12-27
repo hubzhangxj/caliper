@@ -10,9 +10,9 @@ try:
 except ImportError:
     import common
 
-from caliper.client.shared import error
-from caliper.client.shared import utils
-from caliper.client.shared.settings import settings
+from caliper.server.shared import error
+from caliper.server.shared import utils
+from caliper.server.shared.settings import settings
 from caliper.server.hosts import host_factory
 
 

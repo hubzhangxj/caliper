@@ -8,8 +8,6 @@ import subprocess
 import datetime
 import shutil
 import ConfigParser
-import logging
-import getpass
 
 def judge_caliper_installed():
     try:
@@ -23,14 +21,8 @@ def judge_caliper_installed():
         else:
             return 0
 
-
-
 CURRENT_PATH = os.path.dirname(sys.modules[__name__].__file__)
 CALIPER_DIR = os.path.abspath(os.path.join(CURRENT_PATH, '..', '..'))
-PARSER_DIR = os.path.abspath(os.path.join(CALIPER_DIR, 'client', 'parser'))
-FRONT_TMP_DIR = os.path.join(CALIPER_DIR, 'frontend')
-SERVER_SYNC_FILE_SRC=os.path.join(CALIPER_DIR,'client','server.py')
-
 
 caliper_output = os.path.join(os.environ['HOME'], 'caliper_output', 'configuration')
 caliper_config_file = os.path.join(caliper_output,'config')
@@ -46,33 +38,25 @@ def ConfigValue(path=None,section=None,key=None,action='get',value=None):
         return config.get(section, key)
     else:
         return config.set(section,key,value)
+cf = ConfigParser.ConfigParser()
+host_path = os.path.join(caliper_config_file, 'hosts')
+cf.read(host_path)
+sections = cf.sections()
+opts = cf.options(sections[0])[0].split(' ')
+client_ip = opts[0]
+user_list = cf.get(sections[0], cf.options(sections[0])[0])
+client_user = user_list.split(' ')[0]
+sudo_password = user_list.split('"')[-2]
 
-try:
-    client_ip = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='ip',action='get')
-except:
-    client_ip = '127.0.0.1'
-try:
-    client_user = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='user',action='get')
-except:
-    client_user = getpass.getuser()
 try:
     platForm_name = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='Platform_name',action='get')
 except:
-    platForm_name = None
-
-if not platForm_name:
-    # Redirecting the ssh warning to the standard "stderr" File
-    try:
-        hostName = subprocess.Popen('ssh '+str(client_user)+"@"+str(client_ip)+" 'hostname'", shell=True,
-                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        hostName = hostName.communicate()
-    except Exception as e:
-        logging.error(e)
-        sys.exit(1)
-    WORKSPACE = os.path.join(os.environ['HOME'],'caliper_output', str(hostName[0].strip()) + '_WS_'+ TIMP_STAMP)
+    platForm_name = str(client_user)
 else:
-    WORKSPACE = os.path.join(os.environ['HOME'], 'caliper_output',
-                             str(platForm_name) + '_WS_' + TIMP_STAMP)
+    if not platForm_name:
+        platForm_name = client_user
+
+WORKSPACE = os.path.join(os.environ['HOME'], 'caliper_output', str(platForm_name) + '_WS_' + TIMP_STAMP)
 intermediate = 0
 
 def create_folder(folder, mode=0755):
@@ -83,40 +67,6 @@ def create_folder(folder, mode=0755):
     except OSError:
         os.makedirs(folder, mode)
 
-def create_dir():
-
-    if not os.path.exists(FRONT_END_DIR):
-        shutil.copytree(FRONT_TMP_DIR,
-                        FRONT_END_DIR)
-    if not os.path.exists(HTML_DATA_DIR_INPUT):
-        create_folder(HTML_DATA_DIR_INPUT)
-    if not os.path.exists(HTML_DATA_DIR_OUTPUT):
-        create_folder(HTML_DATA_DIR_OUTPUT)
-
-    if not os.path.exists(DATA_DIR_INPUT):
-        create_folder(DATA_DIR_INPUT)
-    if not os.path.exists(OPENSSL_DATA_DIR_INPUT):
-        create_folder(OPENSSL_DATA_DIR_INPUT)
-    if not os.path.exists(COV_DATA_DIR_INPUT):
-        create_folder(COV_DATA_DIR_INPUT)
-
-    # Reverte the code as before
-    for i in range(1,6):                                              
-        if not os.path.exists(os.path.join(COV_DATA_DIR_INPUT,str(i))):
-            create_folder(os.path.join(COV_DATA_DIR_INPUT,str(i)))   
-
-    if not os.path.exists(CONSOLIDATED_DATA_DIR_INPUT):
-        create_folder(CONSOLIDATED_DATA_DIR_INPUT)
-    if not os.path.exists(HW_DATA_DIR_INPUT):
-        create_folder(HW_DATA_DIR_INPUT)
-    if not os.path.exists(HTML_DATA_DIR):
-        create_folder(HTML_DATA_DIR)
-    if not os.path.exists(COV_DATA_DIR_OUTPUT):
-        create_folder(COV_DATA_DIR_OUTPUT)
-    if not os.path.exists(EXCEL_DATA_DIR_OUTPUT):
-        create_folder(EXCEL_DATA_DIR_OUTPUT)
-    if not os.path.exists(TEMPLATE_DATA_DIR):
-        create_folder(TEMPLATE_DATA_DIR)
 
 if not judge_caliper_installed():
     # This means caliper is not installed and execution will be local.
@@ -139,24 +89,6 @@ SOURCE_BUILD_FILE = os.path.join(CALIPER_DIR, 'server', 'build', 'build.sh')
 TMP_DIR = os.path.join('/tmp', 'caliper.tmp'+ "_" + TIMP_STAMP)
 GEN_DIR = os.path.join(CALIPER_REPORT_HOME, 'binary')
 BUILD_LOGS = os.path.join(os.environ['HOME'],'.caliper_build_logs')
-FRONT_END_DIR = os.path.join(CALIPER_REPORT_HOME,'frontend')
-HTML_DATA_DIR = os.path.join(FRONT_END_DIR, 'frontend', 'data_files')
-
-DATA_DIR_INPUT = os.path.join(HTML_DATA_DIR, 'Input_Logs')
-HTML_DATA_DIR_INPUT = os.path.join(DATA_DIR_INPUT, 'Input_Report')
-OPENSSL_DATA_DIR_INPUT = os.path.join(DATA_DIR_INPUT,'Input_Openssl')
-COV_DATA_DIR_INPUT = os.path.join(DATA_DIR_INPUT,'Input_Cov')
-CONSOLIDATED_DATA_DIR_INPUT = os.path.join(DATA_DIR_INPUT,'Input_Consolidated')
-HW_DATA_DIR_INPUT = os.path.join(DATA_DIR_INPUT,'Input_Hardware')
-HW_DATA_DIR_OUTPUT = os.path.join(FRONT_END_DIR, 'polls', 'static', 'TargetInfo')
-HTML_DATA_DIR_OUTPUT = os.path.join(HTML_DATA_DIR, 'Normalised_Logs')
-COV_DATA_DIR_OUTPUT = os.path.join(FRONT_END_DIR, 'polls', 'static', 'TestInfo','Iterations')
-EXCEL_DATA_DIR_OUTPUT = os.path.join(FRONT_END_DIR, 'polls', 'static', 'TestInfo','Report-Data')
-TEMPLATE_DATA_DIR = os.path.join(FRONT_END_DIR,'polls','templates','polls')
-
-HTML_PICTURE_DIR = os.path.join(FRONT_END_DIR, 'polls', 'static', 'polls',
-                                'pictures')
-
 
 def get_caliper_num():
     number = 0
@@ -240,3 +172,16 @@ class ConfigFile(Singleton):
 
 config_files = ConfigFile()
 config_files.setup_path()
+
+def create_dir():
+
+    if not os.path.exists(folder_ope.build_dir):
+        create_folder(folder_ope.build_dir)
+    if not os.path.exists(folder_ope.exec_dir):
+        create_folder(folder_ope.exec_dir)
+    if not os.path.exists(folder_ope.results_dir):
+        create_folder(folder_ope.results_dir)
+    if not os.path.exists(folder_ope.yaml_dir):
+        create_folder(folder_ope.yaml_dir)
+    if not os.path.exists(folder_ope.html_dir):
+        create_folder(folder_ope.html_dir)

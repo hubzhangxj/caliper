@@ -5,7 +5,7 @@ import os
 import logging
 import urllib
 
-from caliper.client.shared import error
+from caliper.server.shared import error
 from caliper.server.hosts import basic_host
 from caliper.server import utils
 
