@@ -78,7 +78,7 @@ def compute_case_score(sections, result, category, score_way, flag):
         result_yaml = os.path.join(yaml_dir, result_yaml_name)
     else:
         result_yaml = os.path.join(yaml_dir, score_yaml_name)
-    if ((length != 0 and length <= 4) and tmp[0] == 'Performance'):
+    if ((length != 0 and length <= 6) and tmp[0] == 'Performance'):
         return compute_perf(sections, result, tmp, score_way, result_yaml, flag)
     else:
         return -4
@@ -95,7 +95,7 @@ def compute_perf(sections, result, tmp, score_way, result_yaml, flag=1):
         result_fp = result
     elif type(result) is types.IntType:
         result_fp = result
-    elif (type(result) == dict and (len(tmp) > 0 and len(tmp) < 4)):
+    elif (type(result) == dict and (len(tmp) > 0 and len(tmp) < 6)):
         return deal_dic_for_yaml(sections, result, tmp, score_way,
                                  result_yaml, flag)
     else:

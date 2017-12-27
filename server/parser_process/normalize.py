@@ -81,13 +81,30 @@ def normalize_files(dicList):
                                             index = 0
                                             for dic in dicList:
                                                 try:
+
                                                     value_Sub.append(dic[top][category][sub_category][scenario][division][key])
                                                 except KeyError:
                                                     value_Sub.append(0)
+                                            sub1_scenario = ''
+                                            sub2_scenario = ''
                                             for value in value_Sub:
-                                                if max(value_Sub) > 0:
-                                                    if value > 0:
-                                                        value_Sub_Normalize.append(round(100*value/max(value_Sub),2))
+                                                if type(value) == dict:
+                                                    sub1_scenario = value.keys()[0]
+                                                    for va in value:
+                                                        if type(value[va]) == dict:
+                                                            sub2_scenario = value[va].keys()[0]
+                                                            for v in value[va]:
+                                                                sub_value = value[va][v]
+                                                            max_list = value[va].values()
+                                                        else:
+                                                            max_list = value.values()
+                                                            sub_value = value[va]
+                                                else:
+                                                    sub_value = value
+                                                    max_list = value_Sub
+                                                if max(max_list) > 0:
+                                                    if sub_value > 0:
+                                                        value_Sub_Normalize.append(round(100*sub_value/max(max_list),2))
                                                     else:
                                                         value_Sub_Normalize.append(0)
                                                 else:
@@ -95,7 +112,13 @@ def normalize_files(dicList):
 
                                             for dic in dicList:
                                                 try:
-                                                    dic[top][category][sub_category][scenario][division][key] = value_Sub_Normalize[index]
+                                                    if sub2_scenario:
+                                                        dic[top][category][sub_category][scenario][division][key][sub1_scenario][sub2_scenario] = value_Sub_Normalize[index]
+                                                    elif sub1_scenario:
+                                                        dic[top][category][sub_category][scenario][division][key][sub1_scenario] = \
+                                                            value_Sub_Normalize[index]
+                                                    else:
+                                                        dic[top][category][sub_category][scenario][division][key] = value_Sub_Normalize[index]
                                                     index+=1
                                                 except KeyError:
                                                    pass
