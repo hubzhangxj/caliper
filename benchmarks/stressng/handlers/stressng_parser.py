@@ -28,7 +28,6 @@ def stressng(filePath, outfp):
         if center != None:
             tableDict = {}
             data = center.group(1).strip()
-            print data
             topstr_group = re.search("stress[\s\S]+?\[[\d]+\]([\s\S]+\n)stress-ng: info: \[\d+\] stressor", data)
             if topstr_group is not None:
                 topstr = topstr_group.groups()[0]

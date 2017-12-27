@@ -177,22 +177,59 @@ def write_yaml_perf(section, yaml_file, tmp, result, kind=1):
         if tmp[2] not in x[RES][tmp[0]][tmp[1]]:
             x[RES][tmp[0]][tmp[1]][tmp[2]] = {}
         if kind == 1:
-            if tmp[3] not in x[RES][tmp[0]][tmp[1]][tmp[2]]:
-                x[RES][tmp[0]][tmp[1]][tmp[2]][section+'.'+tmp[3]] = {}
-            # x[RES][tmp[0]][tmp[1]][tmp[2]][section+'.'+tmp[3]] = result
-            x[RES][tmp[0]][tmp[1]][tmp[2]][section+'.'+tmp[3]] = result
+            if len(tmp) <= 4:
+                if tmp[3] not in x[RES][tmp[0]][tmp[1]][tmp[2]]:
+                    x[RES][tmp[0]][tmp[1]][tmp[2]][section+'.'+tmp[3]] = {}
+                # x[RES][tmp[0]][tmp[1]][tmp[2]][section+'.'+tmp[3]] = result
+                x[RES][tmp[0]][tmp[1]][tmp[2]][section+'.'+tmp[3]] = result
+            elif len(tmp) == 5:
+                if tmp[3] not in x[RES][tmp[0]][tmp[1]][tmp[2]]:
+                    x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]] = {}
+                if tmp[4] not in x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]]:
+                    x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]][section + '.' + tmp[4]] = {}
+                x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]][section+'.'+tmp[4]] = result
+            else :
+                if tmp[3] not in x[RES][tmp[0]][tmp[1]][tmp[2]]:
+                    x[RES][tmp[0]][tmp[1]][tmp[2]][section + '.' + tmp[3]] = {}
+                if tmp[4] not in x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]]:
+                    x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]][tmp[4]] = {}
+                if tmp[5] not in x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]][tmp[4]]:
+                    x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]][tmp[4]][tmp[5]] = {}
+                x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]][tmp[4]][section + '.' + tmp[5]] = result
+
             flag = 1
         else:
             if kind == 2:
-                if 'Point_Scores' not in x[RES][tmp[0]][tmp[1]][tmp[2]]:
-                    x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'] = {}
-                if not x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores']:
-                    x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'] = {}
-                if tmp[3] not in x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores']:
+                if len(tmp) <= 4:
+                    if 'Point_Scores' not in x[RES][tmp[0]][tmp[1]][tmp[2]]:
+                        x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'] = {}
+                    if not x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores']:
+                        x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'] = {}
+                    if tmp[3] not in x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores']:
+                        x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'][section+'.'+tmp[3]] = result
                     x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'][section+'.'+tmp[3]] = result
-                    flag = 1
-                x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'][section+'.'+tmp[3]] = result
-                # x[RES][tmp[0]][tmp[1]][tmp[2]]['Point_Scores'][section+'.'+tmp[3]] = result
+                elif len(tmp) == 5:
+                    if tmp[3] not in x[RES][tmp[0]][tmp[1]][tmp[2]]:
+                        x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]] = {}
+                    if 'Point_Scores' not in x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]]:
+                        x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]]['Point_Scores'] = {}
+                    if not x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]]['Point_Scores']:
+                        x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]]['Point_Scores'] = {}
+                    if tmp[4] not in x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]]['Point_Scores']:
+                        x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]]['Point_Scores'][section+'.'+tmp[4]] = result
+                    x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]]['Point_Scores'][section+'.'+tmp[4]] = result
+                else:
+                    if tmp[3] not in x[RES][tmp[0]][tmp[1]][tmp[2]]:
+                        x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]] = {}
+                    if tmp[4] not in x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]]:
+                        x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]][tmp[4]] = {}
+                    if 'Point_Scores' not in x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]][tmp[4]]:
+                        x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]][tmp[4]]['Point_Scores'] = {}
+                    if not x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]][tmp[4]]['Point_Scores']:
+                        x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]][tmp[4]]['Point_Scores'] = {}
+                    if tmp[5] not in x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]][tmp[4]]['Point_Scores']:
+                        x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]][tmp[4]]['Point_Scores'][section+'.'+tmp[5]] = result
+                    x[RES][tmp[0]][tmp[1]][tmp[2]][tmp[3]][tmp[4]]['Point_Scores'][section+'.'+tmp[5]] = result
                 flag = 1
     except BaseException, e:
         logging.debug("There is wrong when write the data in file %s." % yaml)
@@ -488,7 +525,16 @@ def normalize_score(results):
         # get the geometric value for each point
         for test_point in key_test_points:
             test_case_dic = test_point_dic[test_point]
-            point_values = test_case_dic[point_str].values()
+            if point_str in test_case_dic.keys():
+                point_values = test_case_dic[point_str].values()
+            else:
+                for key in test_case_dic.keys():
+                    if point_str in test_case_dic[key].keys():
+                        point_values = test_case_dic[key][point_str].values()
+                    else:
+                        # point_values = test_case_dic[key][point_str].values()
+                        point_values = test_case_dic[key]['sub2'][point_str].values()
+
             useful_values = [string.atof(x) for x in point_values
                                 if string.atof(x) >= 0]
             if len(useful_values) < 1:

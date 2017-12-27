@@ -109,7 +109,7 @@ def get_exec_tools(selected_tools):
     return pass_tools, partial_tools, failed_tools
 
 
-def write_summary_tools(summary_file, target):
+def write_summary_tools(summary_file):
     selected_tools = get_selected_tools()
     if len(selected_tools):
         selected_num = "\nNum of tools selected: %s" % len(selected_tools)
@@ -136,7 +136,7 @@ def write_summary_tools(summary_file, target):
     write_file(summary_file, '\n')
 
 
-def write_info_for_tools(filename, target):
+def write_info_for_tools(filename):
     build_suc_info = "Tool %s : Build PASS"
     build_fail_info = "Tool %s : Build Fail"
     exec_suc_info = "Tool %s : Execution PASS\n"
@@ -175,8 +175,8 @@ def output_summary_info(target, summary_file, interval):
     write_yaml_file(hardware_info, summary_file)
     used_time = "Total used time: %.4s minutes" % (interval/60.0)
     write_file(summary_file, used_time)
-    write_summary_tools(summary_file, target)
-    write_info_for_tools(summary_file, target)
+    write_summary_tools(summary_file)
+    write_info_for_tools(summary_file)
 
 if __name__ == "__main__":
     start_time = datetime.datetime.now()
