@@ -1,3 +1,11 @@
+- name: install numactl for redhat
+  yum: name=numactl state=present disable_gpg_check=yes
+  when: ansible_os_family == 'RedHat'
+
+- name: install numactl for ubuntu
+  apt: name=numactl state=present
+  when: ansible_distribution == 'Ubuntu'
+
 - name: copy file
   copy: src=lmbench.build.tar.gz dest=/tmp/lmbench.build.tar.gz mode=0777
 
