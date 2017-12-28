@@ -100,7 +100,6 @@ def upload_url(result_path):
         print server_ip
         if server_ip:
             try:
-                server_ip += ':8000'
                 logging.info("remote server %s upload start" % server_ip)
                 upload.upload_result(result_path, server_ip, server_user, server_password)
                 logging.info("remote upload end")
