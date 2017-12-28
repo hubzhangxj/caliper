@@ -36,21 +36,18 @@ from caliper.server.shared.caliper_path import folder_ope as Folder
 from caliper.server.upload import upload
 
 
-def build_all_tests(test_node, remote_host,g_option, f_option,clear, sections):
+def build_all_tests(test_node, remote_host,c_option, f_option, sections):
     try:
-        logging.info("Begining to build Caliper for the remote host")
-        result1 = build.build_for_target(test_node, remote_host, g_option, f_option, clear, sections)
+        result = build.build_for_target(test_node, remote_host, c_option, f_option, clear, sections)
     except Exception, e:
-        logging.info(e)
         raise
-    else:
-        return result1
+    return result
 
-def run_caliper(test_node, f_option, g_option, sections, run_case_list, num):
+def run_caliper(test_node, f_option, sections, run_case_list, num):
     try:
         logging.debug("begining to run Caliper")
-        result = run.run_caliper_tests(test_node, f_option, g_option, sections, run_case_list, num)
-    except Exception, e:
+        result = run.run_caliper_tests(test_node, f_option, c_option, sections, run_case_list, num)
+    except Exception:
         print e
         logging.info("There is wrong when running Caliper")
         raise
@@ -211,6 +208,15 @@ def get_sections():
                     pass
     return sections, run_case_list
 
+def get_run_sections(option):
+    if c_option == 1:
+        sections, run_case_list = get_sections()
+    else:
+        if 'all' in option:
+            sections, run_case_list = get_config('all')
+        else:
+            sections, run_case_list = get_config(option)
+    return sections, run_case_list
 
 def push_ssh_key():
     '''
@@ -237,6 +243,11 @@ def push_ssh_key():
         pass
 
 def optional_arg(arg_default):
+    '''
+    parser.add_option
+    :param arg_default: arg default value
+    :return: if no value return arg_default else return value
+    '''
     def func(option, opt_str, value, parser):
         if parser.rargs and not parser.rargs[0].startswith('-'):
             val = parser.rargs[0]
@@ -251,11 +262,12 @@ if __name__=="__main__":
     parser = optparse.OptionParser()
     parser.add_option("-v", "--version", action="store_true", dest="version", default=False, help="display version")
     parser.add_option("-a", "--all", action="store_true", dest="all", default=False, help="run all")
-    # parser.add_argument("-b", "--build", action="store", dest="build", default="",
-    #                     help="select to incrementally build the selected test tools")
+    parser.add_option('-b', '--build', action='callback', callback=optional_arg('all_build'), dest='build',
+                      help="select to incrementally build the selected test tools")
+    parser.add_option('-r', '--run', action='callback', callback=optional_arg('all_run'), dest='run',
+                      help="select to run the selected test tools")
     parser.add_option("-q", "--cleanbuild", action="store_true",
             dest="cleanbuild", help="select to clean build the selected tools")
-    # parser.add_option("-r", "--run", action="store", dest="run", default="", help="select to run the selected test tools")
     parser.add_option("-p", "--parse", action="store_true", dest="parse", default=False,
                         help="select to Parse the selected test tools")
     parser.add_option("-s", "--score", action="store_true", dest="score", default=False,
@@ -274,8 +286,6 @@ if __name__=="__main__":
     parser.add_option("-n", "--node", action="store", dest="node", default="", help="Select testnode to run test")
     parser.add_option("-c", "--concurrent", action="store_true", dest="concurrent", default=False,
                         help="concurrent test")
-    parser.add_option('-b', '--build', action='callback', callback=optional_arg('all_build'), dest='build', help="select to incrementally build the selected test tools")
-    parser.add_option('-r', '--run', action='callback', callback=optional_arg('all_run'), dest='run', help="select to run the selected test tools")
 
     (options, args) = parser.parse_args()
     start_time = datetime.datetime.now()
@@ -346,34 +356,21 @@ if __name__=="__main__":
     else:
         test_node = caliper_path.sections[0]
 
-    g_option = 0
+    c_option = 0
     if options.concurrent:
-        g_option = 1
+        c_option = 1
+
+    clear = 0
+    if options.cleanbuild:
+        clear = 1
 
     if options.all:
-        if g_option == 1:
-            sections, run_case_list = get_sections()
-        else:
-            sections, run_case_list = get_config('all')
+        sections, run_case_list = get_run_sections('all')
         push_ssh_key()
         # build
-        try:
-            clear = 0
-            if options.cleanbuild:
-                clear = 1
-            result1 = build_all_tests(test_node, remote_host, g_option, f_option, clear, sections)
-            if result1:
-                sys.exit()
-        except Exception, e:
-            raise
+        result1 = build_all_tests(test_node, remote_host, c_option, f_option, sections)
         # run
-        try:
-            result2 = run_caliper(test_node, f_option, g_option, sections, run_case_list, num)
-            if result2:
-                sys.exit()
-
-        except Exception:
-            raise
+        result2 = run_caliper(test_node, f_option, sections, run_case_list, num)
 
         end_time = datetime.datetime.now()
         interval = end_time - start_time
@@ -383,6 +380,7 @@ if __name__=="__main__":
         except Exception, e:
             logging.info(e)
             pass
+
         # parser
         try:
             result2 = parser_caliper_logs(f_option, sections, run_case_list)
@@ -391,6 +389,7 @@ if __name__=="__main__":
             result2 = score.compute_caliper_logs(sections, run_case_list,1)
         except Exception:
             raise
+
         # score
         try:
             result2 = score.compute_caliper_logs(sections, run_case_list,2)
@@ -399,6 +398,7 @@ if __name__=="__main__":
         except Exception as e:
             print e
             pass
+
         # upload
         try:
             # filter all the test cases to get only the common test cases passed in all the plaforms. other test cases marked as INVALID.
@@ -419,38 +419,12 @@ if __name__=="__main__":
     if options.build or options.run:
         push_ssh_key()
         if options.build:
-            if g_option == 1:
-                sections, run_case_list = get_sections()
-            else:
-                if options.build == 'all_build':
-                    sections, run_case_list = get_config('all')
-                else:
-                    sections, run_case_list = get_config(options.build)
-            try:
-                clear = 0
-                if options.cleanbuild:
-                    clear = 1
-                result1 = build_all_tests(test_node, remote_host, g_option, f_option, clear, sections)
-                if result1:
-                    sys.exit()
-            except Exception, e:
-                raise
+            sections, run_case_list = get_run_sections(options.build)
+            result1 = build_all_tests(test_node, remote_host, c_option, f_option, sections)
 
         if options.run:
-            if g_option == 1:
-                sections, run_case_list = get_sections()
-            else:
-                if options.run == 'all_run':
-                    sections, run_case_list = get_config('all')
-                else:
-                    sections, run_case_list = get_config(options.run)
-            try:
-                result2 = run_caliper(test_node, f_option, g_option, sections, run_case_list, num)
-                if result2:
-                    sys.exit()
-
-            except Exception:
-                raise
+            sections, run_case_list = get_run_sections(options.run)
+            result2 = run_caliper(test_node, f_option, sections, run_case_list, num)
 
             end_time = datetime.datetime.now()
             interval = end_time - start_time
@@ -462,10 +436,10 @@ if __name__=="__main__":
                 pass
 
     if options.parse:
-        if g_option == 1:
-            sections, run_case_list = get_sections()
+        if options.run:
+            sections, run_case_list = get_run_sections(options.run)
         else:
-            sections, run_case_list = get_config('all')
+            sections, run_case_list = get_run_sections('all')
         try:
             result2 = parser_caliper_logs(f_option, sections, run_case_list)
             if result2:
@@ -474,10 +448,10 @@ if __name__=="__main__":
         except Exception:
             raise
     if options.score:
-        if g_option == 1:
-            sections, run_case_list = get_sections()
+        if options.run:
+            sections, run_case_list = get_run_sections(options.run)
         else:
-            sections, run_case_list = get_config('all')
+            sections, run_case_list = get_run_sections('all')
         try:
             result2 = score.compute_caliper_logs(sections, run_case_list,2)
             if intermediate:
@@ -488,7 +462,6 @@ if __name__=="__main__":
 
     if options.upload:
         try:
-            # copy_yaml(remote_host)
             # filter all the test cases to get only the common test cases passed in all the plaforms. other test cases marked as INVALID.
             flag = normalize_scores()
 
