@@ -302,8 +302,11 @@ parse_network() {
     idx=0
     network_interfaces=`jq -r .ansible_facts.ansible_interfaces[] $1`
     for interface in $network_interfaces; do
+        if [ $interface = "lo" ]; then continue; fi
+        echo $interface | grep virbr > /dev/null
+        if [ $? -eq 0 ]; then continue; fi
         netinfo_interface=`jq -r .ansible_facts.ansible_$interface.device $1`
-        if [ $netinfo_interface = "lo" ]; then continue; fi
+        #if [ $netinfo_interface = "lo" ]; then continue; fi
         netinfo_bandWidth=`ethtool $interface | grep "Speed:" |  awk '{print $2}'`
         netinfo_driver=`jq -r .ansible_facts.ansible_$interface.module $1`
         netinfo_driverVersion=`modinfo $netinfo_driver|grep ^version| awk '{print $2}'`
