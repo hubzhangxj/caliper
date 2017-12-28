@@ -177,7 +177,7 @@ parse_memory() {
                 echo \"type\" : \"$memory_type\", >> $2
                 echo \"speed\" : \"$memory_speed\", >> $2
                 echo \"clockSpeed\" : \"$memory_clockSpeed\", >> $2
-                echo \"bankLocator\" : \"$memory_bankLocator\", >> $2
+                echo \"bankLocator\" : \"$memory_bankLocator\" >> $2
                 echo -n \} >> $2
                 memCount=$((memCount + 1 ))
 	    fi

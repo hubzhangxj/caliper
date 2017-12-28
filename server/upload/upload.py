@@ -7,6 +7,7 @@ import hashlib
 import urllib2
 import shutil
 import os
+import sys
 import subprocess
 from caliper.server.shared import caliper_path
 from caliper.server.shared.caliper_path import folder_ope as Folder
@@ -56,6 +57,11 @@ def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_p
 
     # upload
     register_openers()
+    login_upload = urllib2.Request('http://%s/data/cert?userName="%s"&password="%s"' % (server_url, server_user, server_password))
+    response = urllib2.urlopen(login_upload).read()
+    if response != 'success':
+        print 'upload fail,please check your username and password'
+        sys.exit()
     params = [
         ("output", open(output_file, 'rb')),
         ("log", open(json_output_file, 'rb')),
