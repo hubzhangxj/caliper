@@ -246,6 +246,7 @@ parse_storage() {
 
     storageInfo_count=`jq .blockdevices[].name $1 | wc -l`
     idx=0
+    disk_count=0
     while [ $idx -lt $storageInfo_count ]; do
         storageInfo_device=`jq -r .blockdevices[$idx].name $1`
         storageInfo_type=`jq -r .blockdevices[$idx].type $1`
@@ -258,6 +259,8 @@ parse_storage() {
 	    continue
 	fi
 
+	if [ $disk_count -gt 0 ]; then echo "," >> $2; fi
+
         echo "{" >> $2
         echo \"deviceName\" : \"$storageInfo_device\", >> $2
         echo \"model\" : \"$storageInfo_model\", >> $2
@@ -265,9 +268,11 @@ parse_storage() {
         echo \"sectorsize\" : \"$storageInfo_sectorsize\", >> $2
 
         parts_count=`jq -r .blockdevices[$idx].children[].name $1 | wc -l`
-	if [ $parts_count -gt 0 ]; then
-	    echo \"partitons\" : \[ >> $2
-	fi
+	#if [ $parts_count -gt 0 ]; then
+	#    echo \"partitons\" : \[ >> $2
+	#fi
+
+	echo \"partitons\" : \[ >> $2
 
         part_idx=0
         while [ $part_idx -lt $parts_count ]; do
@@ -283,8 +288,9 @@ parse_storage() {
 	done
 	echo \] >> $2
 
-	echo \} >> $2
+	echo -n \} >> $2
         idx=$((idx + 1 ))
+        disk_count=$((disk_count + 1 ))
     done
 
     echo \], >> $2
