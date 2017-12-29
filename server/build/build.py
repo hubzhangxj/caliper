@@ -134,6 +134,8 @@ class build_tool_thread(threading.Thread):
                 build_config = os.path.join(TEST_CASE_DIR, 'hosts')
                 log_name = "%s.log" % section
                 log_file = os.path.join('/tmp', log_name)
+                if not os.path.exists(build_dir):
+                    download_section(section)
                 os.chdir(build_dir)
                 try:
                     if self.host != '':
@@ -167,6 +169,25 @@ class build_tool_thread(threading.Thread):
 
         # reset_signals()
         return 0
+
+def download_section(section):
+    section_path = os.path.join(caliper_path.BENCHS_DIR, section)
+    if not os.path.exists(section_path):
+        try:
+            logging.debug('Download %s from ansible-galaxy' % section)
+            result = subprocess.call(
+                'ansible-galaxy install --roles-path %s %s.%s'
+                % (caliper_path.BENCHS_DIR, caliper_path.ansible_galaxy_name, section), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            if os.path.exists(os.path.join(caliper_path.BENCHS_DIR, '%s.%s' % (caliper_path.ansible_galaxy_name, section))):
+                shutil.copytree(
+                    os.path.join(caliper_path.BENCHS_DIR, '%s.%s' % (caliper_path.ansible_galaxy_name, section)),
+                    os.path.join(caliper_path.BENCHS_DIR, section)
+                )
+                shutil.rmtree(os.path.join(caliper_path.BENCHS_DIR, '%s.%s'%(caliper_path.ansible_galaxy_name,section)))
+        except Exception,e:
+            logging.info(e)
+            pass
+
 
 def copy_dic(src,dest,skip):
     try:
@@ -254,47 +275,6 @@ def insert_content_to_file(filename, index, value):
     contents = "".join(contents)
     f.write(contents)
     f.close()
-
-
-def generate_build(section_name, build_file, flag=0):
-    """
-    generate the final build.sh for each section in common_cases_def
-    :param config: the config file for selecting which test case will be run
-    :param section_name:the section in config
-    param: dir_name: indicate the directory name, like 'common', 'server' and
-                        others
-    param: build_file: means the final build.sh
-    """
-    """
-    we think that if we store the benchmarks in the directory of benchmarks,
-    we need not download the benchmark. if the benchmarks are in the root
-    directory of Caliper, we think it is temporarily, after compiling we will
-    delete them.
-    """
-
-    try:
-        tmp_build = section_name + '_build.sh'
-    except BaseException:
-        tmp_build = ""
-
-    """add the build file to the build.sh;  if the build option in it,
-    we add it; else we give up the build of it."""
-    location = -2
-    if tmp_build:
-        build_command = os.path.join(TEST_CASE_DIR, section_name, tmp_build)
-        file_path = "source " + build_command + "\n"
-        insert_content_to_file(build_file, location, file_path)
-    else:
-        # SPV when is this else part hit?
-        source_fp = open(build_file, "r")
-        all_text = source_fp.read()
-        source_fp.close()
-        func_name = 'build_' + section_name
-        if re.search(func_name, all_text):
-            value = func_name + "  \n"
-            insert_content_to_file(build_file, location, value)
-    return 0
-
 
 def getAllFilesRecursive(root):
     files = [os.path.join(root, f) for f in os.listdir(root) if os.path.isfile(os.path.join(root, f))]

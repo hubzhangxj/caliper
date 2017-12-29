@@ -12,7 +12,6 @@ import ConfigParser
 import getpass
 import yaml
 import optparse
-from argparse import ArgumentParser
 
 try:
     import caliper.common as common

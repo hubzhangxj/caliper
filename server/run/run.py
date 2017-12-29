@@ -32,6 +32,24 @@ def get_sections():
         dic[device] = tool_list
     return dic
 
+def download_section(section):
+    section_path = os.path.join(caliper_path.BENCHS_DIR, section)
+    if not os.path.exists(section_path):
+        try:
+            logging.debug('Download %s from ansible-galaxy' % section)
+            result = subprocess.call(
+                'ansible-galaxy install --roles-path %s %s.%s'
+                % (caliper_path.BENCHS_DIR, caliper_path.ansible_galaxy_name, section), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            if os.path.exists(os.path.join(caliper_path.BENCHS_DIR, '%s.%s' % (caliper_path.ansible_galaxy_name, section))):
+                shutil.copytree(
+                    os.path.join(caliper_path.BENCHS_DIR, '%s.%s' % (caliper_path.ansible_galaxy_name, section)),
+                    os.path.join(caliper_path.BENCHS_DIR, section)
+                )
+                shutil.rmtree(os.path.join(caliper_path.BENCHS_DIR, '%s.%s'%(caliper_path.ansible_galaxy_name,section)))
+        except Exception,e:
+            logging.info(e)
+            pass
+
 class run_case_thread(threading.Thread):
     def __init__(self, host, sections, run_case_list, num):
         threading.Thread.__init__(self)
@@ -48,6 +66,8 @@ class run_case_thread(threading.Thread):
             common.print_format()
             logging.info("Running %s" % section)
             bench = os.path.join(caliper_path.BENCHS_DIR, section, 'defaults')
+            if not os.path.exists(bench):
+                download_section(section)
             run_case_list = []
             if self.run_case_list == '':
                 case_list = yaml.load(fp.read())

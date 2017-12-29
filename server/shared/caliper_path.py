@@ -28,8 +28,6 @@ caliper_output = os.path.join(os.environ['HOME'], 'caliper_output', 'configurati
 caliper_config_file = os.path.join(caliper_output,'config')
 TIMP_STAMP = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
 
-
-
 # FETCHING THE TARGET HOST NAME AND ARCH FOR CREATING THE WORKSPACE
 def ConfigValue(path=None,section=None,key=None,action='get',value=None):
     config = ConfigParser.ConfigParser()
@@ -55,6 +53,11 @@ except:
 else:
     if not platForm_name:
         platForm_name = client_user
+
+try:
+    ansible_galaxy_name = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='ansible_galaxy',action='get')
+except:
+    ansible_galaxy_name = ''
 
 WORKSPACE = os.path.join(os.environ['HOME'], 'caliper_output', str(platForm_name) + '_WS_' + TIMP_STAMP)
 intermediate = 0
@@ -83,9 +86,7 @@ else:
     CALIPER_REPORT_HOME = CALIPER_TMP_DIR
     BENCHS_DIR = os.path.join(os.environ['HOME'], '.caliper', 'benchmarks')
 
-BUILD_FILE = 'build.sh'
 BUILD_TIME = os.path.join(CALIPER_DIR,"server","build","building_timing.yaml")
-SOURCE_BUILD_FILE = os.path.join(CALIPER_DIR, 'server', 'build', 'build.sh')
 TMP_DIR = os.path.join('/tmp', 'caliper.tmp'+ "_" + TIMP_STAMP)
 GEN_DIR = os.path.join(CALIPER_REPORT_HOME, 'binary')
 BUILD_LOGS = os.path.join(os.environ['HOME'],'.caliper_build_logs')

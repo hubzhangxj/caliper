@@ -44,24 +44,24 @@ def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_p
     output_file=dirpath+".zip"
     json_output_file = dirpath+"_json.zip"
 
+
+    # upload
+    register_openers()
+    login_upload = urllib2.Request('http://%s/data/cert?userName=%s&password=%s' % (server_url, server_user, server_password))
+    response = urllib2.urlopen(login_upload).read()
+    print response
+    if response != 'success':
+        print 'UAMS fail,please check your username and password'
+        sys.exit()
+
     encryption(json_file, json_output_file, server_password)
     # # remove json dir
     shutil.rmtree(json_file)
     encryption(dirpath, output_file, server_password)
     hash_output = calcHash(output_file)
     hash_log = calcHash(json_output_file)
-
-
     json_data = open(json_path, 'r')
     json_data = json_data.read()
-
-    # upload
-    register_openers()
-    login_upload = urllib2.Request('http://%s/data/cert?userName="%s"&password="%s"' % (server_url, server_user, server_password))
-    response = urllib2.urlopen(login_upload).read()
-    if response != 'success':
-        print 'upload fail,please check your username and password'
-        sys.exit()
     params = [
         ("output", open(output_file, 'rb')),
         ("log", open(json_output_file, 'rb')),
@@ -88,7 +88,7 @@ def calcHash(filepath):
     return hash
 
 def encryption(inputpath, outpath, password):
-    subprocess.call("cd %s && zip -rP %s %s %s" % (inputpath, password, outpath, '*'), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    subprocess.call("cd %s && zip -rP %s %s %s" % (inputpath, '123', outpath, '*'), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                     shell=True)  # 加密包
 
 def get_test_config():

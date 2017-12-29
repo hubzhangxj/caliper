@@ -33,7 +33,7 @@ def normalize_files(dicList):
                         for value in value_Sub:
                             if max(value_Sub) > 0:
                                 if value > 0:
-                                    value_Sub_Normalize.append(round(100*value/max(value_Sub),2))
+                                    value_Sub_Normalize.append(value)
                                 else:
                                     value_Sub_Normalize.append(0)
                             else:
@@ -61,7 +61,7 @@ def normalize_files(dicList):
                                         for value in value_Sub:
                                             if max(value_Sub) > 0:
                                                 if value > 0:
-                                                    value_Sub_Normalize.append(round(100*value/max(value_Sub),2))
+                                                    value_Sub_Normalize.append(value)
                                                 else:
                                                     value_Sub_Normalize.append(0)
                                             else:
@@ -87,6 +87,7 @@ def normalize_files(dicList):
                                                     value_Sub.append(0)
                                             sub1_scenario = ''
                                             sub2_scenario = ''
+                                            max_list = []
                                             for value in value_Sub:
                                                 if type(value) == dict:
                                                     sub1_scenario = value.keys()[0]
@@ -104,7 +105,7 @@ def normalize_files(dicList):
                                                     max_list = value_Sub
                                                 if max(max_list) > 0:
                                                     if sub_value > 0:
-                                                        value_Sub_Normalize.append(round(100*sub_value/max(max_list),2))
+                                                        value_Sub_Normalize.append(sub_value)
                                                     else:
                                                         value_Sub_Normalize.append(0)
                                                 else:
