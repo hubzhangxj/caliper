@@ -25,15 +25,6 @@ CALIPER_TMP_DIR = os.path.join(os.environ['HOME'], 'caliper_output')
 CALIPER_REPORT_HOME = CALIPER_TMP_DIR
 CALIPER_DIR = CURRENT_PATH
 
-
-def create_folder(folder, mode=0755):
-    if os.path.exists(folder):
-        shutil.rmtree(folder)
-    try:
-        os.mkdir(folder, mode)
-    except OSError:
-        os.makedirs(folder, mode)
-
 def _combine_dicts(list_dicts):
     result_dict = {}
     for d in list_dicts:
@@ -125,7 +116,7 @@ def run():
     if os.path.exists('build'):
         shutil.rmtree('build')
 
-    get_packages()
+    # get_packages()
 
 if __name__ == "__main__":
     run()

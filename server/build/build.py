@@ -218,7 +218,7 @@ def reset_binary_mapping():
         fp.write(yaml.dump(dic, default_flow_style=False))
         fp.close()
 
-def exit_gracefully(signum, frame):
+def exit_gracefully():
     # restore the original signal handler as otherwise evil things will happen
     # in raw_input when CTRL+C is pressed, and our signal handler is not re-entrant
     global original_sigint

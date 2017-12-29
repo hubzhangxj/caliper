@@ -30,7 +30,7 @@ from caliper.server.shared import send_mails
 from caliper.server import summary
 from caliper.server.parser_process import parser as parser_engine
 from caliper.server.parser_process import normalize
-from caliper.server.shared.caliper_path import intermediate
+# from caliper.server.shared.caliper_path import intermediate
 from caliper.server.shared.caliper_path import folder_ope as Folder
 from caliper.server.upload import upload
 
@@ -53,10 +53,10 @@ def run_caliper(test_node, f_option, sections, run_case_list, num):
     else:
         return result
 
-def parser_caliper_logs(f_option, sections, run_case_list):
+def parser_caliper_logs(sections, run_case_list):
     try:
         logging.debug("begining to Parse Caliper Logs")
-        result = parser_log.parser_caliper_tests(f_option, sections, run_case_list)
+        result = parser_log.parser_caliper_tests(sections, run_case_list)
     except Exception, e:
         print e
         logging.info("There is wrong when parsing Caliper")
@@ -362,6 +362,12 @@ if __name__=="__main__":
     if options.cleanbuild:
         clear = 1
 
+    if options.message:
+        message_file = Folder.caliper_message_file
+        mp = open(message_file, 'a+')
+        mp.write(options.message)
+        mp.close()
+
     if options.all:
         sections, run_case_list = get_run_sections('all')
         push_ssh_key()
@@ -381,7 +387,7 @@ if __name__=="__main__":
 
         # parser
         try:
-            result2 = parser_caliper_logs(f_option, sections, run_case_list)
+            result2 = parser_caliper_logs(sections, run_case_list)
             if result2:
                sys.exit()
             result2 = score.compute_caliper_logs(sections, run_case_list,1)
@@ -391,8 +397,8 @@ if __name__=="__main__":
         # score
         try:
             result2 = score.compute_caliper_logs(sections, run_case_list,2)
-            if intermediate:
-                parser_caliper(remote_host)
+            # if intermediate:
+            #     parser_caliper(remote_host)
         except Exception as e:
             print e
             pass
@@ -439,7 +445,7 @@ if __name__=="__main__":
         else:
             sections, run_case_list = get_run_sections('all')
         try:
-            result2 = parser_caliper_logs(f_option, sections, run_case_list)
+            result2 = parser_caliper_logs(sections, run_case_list)
             if result2:
                sys.exit()
             result2 = score.compute_caliper_logs(sections, run_case_list,1)
@@ -452,8 +458,8 @@ if __name__=="__main__":
             sections, run_case_list = get_run_sections('all')
         try:
             result2 = score.compute_caliper_logs(sections, run_case_list,2)
-            if intermediate:
-                parser_caliper(remote_host)
+            # if intermediate:
+            #     parser_caliper(remote_host)
         except Exception as e:
             print e
             pass
@@ -490,10 +496,7 @@ if __name__=="__main__":
                 print("\nCan't able to send the mail as '%s' file is not created\n" % result_name)
                 sys.exit()
 
-    if options.message:
-        message_file = Folder.caliper_message_file
-        mp = open(message_file, 'a+')
-        mp.write(options.message)
+
 
     if options.folder and options.send_email:
         result_path = os.path.join(caliper_path.folder_ope.workspace, caliper_path.folder_ope.name,

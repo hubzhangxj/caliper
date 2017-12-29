@@ -60,7 +60,7 @@ except:
     ansible_galaxy_name = ''
 
 WORKSPACE = os.path.join(os.environ['HOME'], 'caliper_output', str(platForm_name) + '_WS_' + TIMP_STAMP)
-intermediate = 0
+# intermediate = 0
 
 def create_folder(folder, mode=0755):
     if os.path.exists(folder):
@@ -90,17 +90,6 @@ BUILD_TIME = os.path.join(CALIPER_DIR,"server","build","building_timing.yaml")
 TMP_DIR = os.path.join('/tmp', 'caliper.tmp'+ "_" + TIMP_STAMP)
 GEN_DIR = os.path.join(CALIPER_REPORT_HOME, 'binary')
 BUILD_LOGS = os.path.join(os.environ['HOME'],'.caliper_build_logs')
-
-def get_caliper_num():
-    number = 0
-    files = os.listdir(CALIPER_REPORT_HOME)
-    for name in files:
-        if re.search('^output_\d+$', name):
-            num_tmp = int(re.search('_(\d+)$', name).group(1))
-            if num_tmp >= number:
-                number = num_tmp + 1
-    return number
-
 
 class Singleton(object):
 

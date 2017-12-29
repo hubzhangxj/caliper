@@ -26,8 +26,7 @@ TABLES = "tables"
 TABLE = "table"
 I_TABLE = "i_table"
 
-def parser_caliper_tests(flag, sections, run_case_list):
-    # f_option =1 if -f is used
+def parser_caliper_tests(sections, run_case_list):
     if not os.path.exists(Folder.exec_dir):
         print "Invalid Parser input Folder"
         return -1
