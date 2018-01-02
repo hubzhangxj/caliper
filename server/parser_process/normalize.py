@@ -211,12 +211,8 @@ def delete(dic, option):
 
 def save(dicList):
     for dic in dicList:
-        try:
-            dic['name']
-        except:
-            dic['name'] = caliper_path.platForm_name
-        outputyaml = open(os.path.join(Folder.yaml_dir, dic['name'] + "_score_post.yaml"),'w')
-        outputjson = open(os.path.join(Folder.yaml_dir , dic['name'] + "_score_post.json"),'w')
+        outputyaml = open(os.path.join(Folder.yaml_dir, caliper_path.platForm_name + "_score_post.yaml"),'w')
+        outputjson = open(os.path.join(Folder.yaml_dir , caliper_path.platForm_name + "_score_post.json"),'w')
         outputyaml.write(yaml.dump(dic, default_flow_style=False))
         outputjson.write(json.dumps(dic,indent=0,sort_keys=True))
         outputyaml.close()

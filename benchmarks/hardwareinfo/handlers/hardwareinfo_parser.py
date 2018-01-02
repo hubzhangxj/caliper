@@ -317,68 +317,27 @@ def update(dic,outfp):
 
 
 def hardware_info_parser(content,outfp):
-    category = {
-        '[CPU]' : dictionary.cpu,
-        '[DISK]' : dictionary.disk,
-        '[NETWORK]' : dictionary.network,
-        '[MEMORY]' : dictionary.memory,
-        '[KERNEL]' : dictionary.kernel,
-        '[OS]' : dictionary.os
-    }
     dic = {}
     dic_yaml = {}
     dic_yaml['Configuration'] = {}
     dic_yaml['name'] = {}
-    contents = content.split('\n\n\n')
-    for key,value in category.iteritems():
-        value(dic)
-    try:
-        os_populate(dic,contents)
-    except Exception as e:
-        pass
-    try:
-        cpu_populate(dic,contents)
-    except Exception as e:
-        pass
-    try:
-        memory_populate(dic,contents)
-    except Exception as e:
-        pass
-    try:
-        disk_populate(dic,contents)
-    except Exception as e:
-        pass
-    try:
-        kernel_populate(dic,contents)
-    except Exception as e:
-        pass
-    try:
-        network_populate(dic,contents)
-    except Exception as e:
-        pass
-    update(dic,outfp)
-    host = get_remote_host()
-    dic_yaml['Configuration']['CPU'] = dic['Hardware_Info']['CPU']['CPU_Cores']
-    dic_yaml['Configuration']['CPU_type'] = dic['Hardware_Info']['CPU']['Cpu_Type']
-    dic_yaml['Configuration']['Memory'] = dic['Hardware_Info']['MEMORY']['Main_Memory_Size']
-    dic_yaml['Configuration']['OS_Version'] = dic['Hardware_Info']['KERNEL']['Version']
-    dic_yaml['Configuration']['Byte_order'] = dic['Hardware_Info']['CPU']['Byte_Order']
-    dic_yaml['Configuration']['Hostname'] = caliper_path.platForm_name
-    dic_yaml['Configuration']['L1d_cache'] = dic['Hardware_Info']['MEMORY']['L1_D-Cache_Size']
-    dic_yaml['Configuration']['L1i_cache'] = dic['Hardware_Info']['MEMORY']['L1_I-Cache_Size']
-    dic_yaml['Configuration']['L2_cache'] = dic['Hardware_Info']['MEMORY']['L2_Cache_Size']
-    dic_yaml['Configuration']['L3_cache'] = dic['Hardware_Info']['MEMORY']['L3_Cache_Size']
-    dic_yaml['Configuration']['Machine_arch'] = dic['Hardware_Info']['CPU']['Architecture']
-    dic_yaml['name'] = dic_yaml['Configuration']['Hostname']
-    yaml_name = dic_yaml['Configuration']['Hostname'] + ".yaml"
-    yaml_path = os.path.join(Folder.yaml_dir,yaml_name)
+    with open(Folder.config_output_json, 'r') as fp:
+        dic = yaml.load(fp.read())
+    # outfp.write(dic)
+    dic_yaml['Configuration'] = dic
+    dic_yaml['name'] = dic['hostName']
+    yaml_name = caliper_path.platForm_name + ".yaml"
+    yaml_path = os.path.join(Folder.yaml_dir, yaml_name)
     with open(yaml_path,'w') as outfp:
-        outfp.write(yaml.dump(dic_yaml,default_flow_style = False))
-    yaml_name_hw = dic_yaml['Configuration']['Hostname'] + "_hw_info.yaml"
-    yaml_path_hw = os.path.join(Folder.yaml_dir,yaml_name_hw)
+        outfp.write(yaml.dump(dic_yaml, default_flow_style = False))
+    yaml_name_hw = caliper_path.platForm_name + "_hw_info.yaml"
+    yaml_path_hw = os.path.join(Folder.yaml_dir, yaml_name_hw)
     with open(yaml_path_hw,'w') as outfp:
         outfp.write(yaml.dump(dic,default_flow_style = False))
     return dic
+
+def hardwareinfo():
+    pass
 
 
 if __name__ == "__main__":

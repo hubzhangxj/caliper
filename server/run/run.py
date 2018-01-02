@@ -298,8 +298,6 @@ def run_caliper_tests(test_node, f_option, g_option, sections, run_case_list, nu
         os.mkdir(Folder.results_dir)
     if not os.path.exists(Folder.yaml_dir):
         os.mkdir(Folder.yaml_dir)
-    if not os.path.exists(Folder.html_dir):
-        os.mkdir(Folder.html_dir)
 
     flag = 0
     try:
@@ -320,4 +318,4 @@ def run_caliper_tests(test_node, f_option, g_option, sections, run_case_list, nu
     except error.CmdError:
         logging.info("There is wrong in running benchmarks")
         flag = 1
-    return flag
+

@@ -6,8 +6,7 @@ import stat
 import shutil
 import glob
 import sys
-from pwd import getpwnam  
-import logging
+from pwd import getpwnam
 try:
     import caliper.common as common
 except ImportError:
@@ -21,7 +20,7 @@ except ImportError:
 import server.setup
 
 CURRENT_PATH = os.path.dirname(sys.modules[__name__].__file__)
-CALIPER_TMP_DIR = os.path.join(os.environ['HOME'], 'caliper_output')
+CALIPER_TMP_DIR = os.path.join('/home', os.environ['SUDO_USER'], 'caliper_output')
 CALIPER_REPORT_HOME = CALIPER_TMP_DIR
 CALIPER_DIR = CURRENT_PATH
 
@@ -60,10 +59,10 @@ def recursive_file_permissions(path, mode, uid=-1, gid=-1):
                 print('File permissions on {0} not updated due to error.'.format(os.path.join(path, item)))
 
 def run():
-    caliper_data_dir = os.path.join(os.environ['HOME'], '.caliper')
+    caliper_data_dir = os.path.join('/home', os.environ['SUDO_USER'], '.caliper')
     caliper_tmp_dir = os.path.join(caliper_data_dir, 'benchmarks')
     get_hw_info_dir = os.path.join(caliper_data_dir, 'get_hw_info')
-    caliper_output = os.path.join(os.environ['HOME'], 'caliper_output')
+    caliper_output = os.path.join('/home', os.environ['SUDO_USER'], 'caliper_output')
     caliper_configuration = os.path.join(caliper_output,'configuration')
     caliper_config_file = os.path.join(caliper_configuration,'config')
     if os.path.exists(caliper_tmp_dir):
@@ -73,12 +72,19 @@ def run():
         shutil.rmtree(get_hw_info_dir)
 
     shutil.copytree(
-            os.path.join(os.getcwd(), 'benchmarks'),
-            caliper_tmp_dir
+            os.path.join(os.getcwd(), 'config'), caliper_config_file
             )
     shutil.copystat(
-            os.path.join(os.getcwd(), 'benchmarks'),
-            caliper_tmp_dir
+        os.path.join(os.getcwd(), 'config'), caliper_config_file
+    )
+
+    shutil.copytree(
+        os.path.join(os.getcwd(), 'benchmarks'),
+        caliper_tmp_dir
+    )
+    shutil.copystat(
+        os.path.join(os.getcwd(), 'benchmarks'),
+        caliper_tmp_dir
     )
     shutil.copytree(
         os.path.join(os.getcwd(), 'server', 'upload', 'get_hw_info'),
@@ -106,8 +112,8 @@ def run():
             install_requires=[
                 'pyYAML' ]
             )
-    os.chown(caliper_output,getpwnam(os.environ['HOME'].split('/')[-1]).pw_uid,-1)
-    recursive_file_permissions(path=caliper_output,mode=0775,uid=getpwnam(os.environ['HOME'].split('/')[-1]).pw_uid,gid=-1)
+    os.chown(caliper_output,getpwnam(os.environ['SUDO_USER']).pw_uid,-1)
+    recursive_file_permissions(path=caliper_output,mode=0775,uid=getpwnam(os.environ['SUDO_USER']).pw_uid,gid=-1)
 
     if os.path.exists('caliper.egg-info'):
         shutil.rmtree('caliper.egg-info')

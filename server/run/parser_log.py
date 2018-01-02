@@ -35,9 +35,11 @@ def parser_caliper_tests(sections, run_case_list):
         os.mkdir(Folder.results_dir)
     if not os.path.exists(Folder.yaml_dir):
         os.mkdir(Folder.yaml_dir)
-    if not os.path.exists(Folder.html_dir):
-        os.mkdir(Folder.html_dir)
     flag = 0
+    try:
+        get_test_config()
+    except Exception,e:
+        logging.info(e)
     try:
         logging.debug("beginnig to parse the test cases")
         test_result = parsing_run(sections, run_case_list)
@@ -48,6 +50,15 @@ def parser_caliper_tests(sections, run_case_list):
         if test_result:
             flag = test_result
     return flag
+
+def get_test_config():
+    if not os.path.exists(Folder.json_dir):
+        caliper_path.create_folder(Folder.json_dir)
+    sh_path = os.path.join(os.environ['HOME'], '.caliper', 'get_hw_info', 'tests')
+    os.chdir(sh_path)
+    hosts_path = os.path.join(caliper_path.caliper_config_file, 'hosts')
+    subprocess.call("ansible-playbook -i %s test.yml -e hosts=%s" % (hosts_path, caliper_path.sections[0]), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    shutil.copy('/tmp/config_output.json', os.path.join(Folder.json_dir, 'config_output.json'))
 
 def parsing_run(sections, run_case_list):
     dic = {}

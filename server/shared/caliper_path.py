@@ -108,7 +108,6 @@ class Folder(Singleton):
     caliper_log_file = ''
     summary_file = ''
     yaml_dir = ''
-    html_dir = ''
 
     def __init__(self, folder=""):
         if folder:
@@ -134,8 +133,8 @@ class Folder(Singleton):
                                             'results_summary.log')
         self.final_parser = os.path.join(self.workspace, self.name,'final_parsing_logs.yaml')
         self.yaml_dir = os.path.join(self.results_dir, 'yaml')
-        self.html_dir = os.path.join(self.results_dir, 'html')
         self.json_dir = os.path.join(self.results_dir, 'json')
+        self.config_output_json = os.path.join(self.json_dir, 'config_output.json')
         self.caliper_message_file = os.path.join(self.workspace, self.name,
                                                  'test_message.txt')
 
@@ -173,5 +172,3 @@ def create_dir():
         create_folder(folder_ope.results_dir)
     if not os.path.exists(folder_ope.yaml_dir):
         create_folder(folder_ope.yaml_dir)
-    if not os.path.exists(folder_ope.html_dir):
-        create_folder(folder_ope.html_dir)

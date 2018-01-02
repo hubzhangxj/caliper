@@ -18,7 +18,6 @@ def upload_result(dirpath,server_url, server_user, server_password):
     :param target: target machine running test
     :return: None
     '''
-    get_test_config()
 
     #dir path for score, for example: /home/fanxh/caliper_output/frontend/frontend/data_files/Normalised_Logs
     dir_score_path = Folder.yaml_dir
@@ -91,12 +90,6 @@ def encryption(inputpath, outpath, password):
     subprocess.call("cd %s && zip -rP %s %s %s" % (inputpath, '123', outpath, '*'), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                     shell=True)  # 加密包
 
-def get_test_config():
-    sh_path = os.path.join(os.environ['HOME'], '.caliper', 'get_hw_info', 'tests')
-    os.chdir(sh_path)
-    hosts_path = os.path.join(caliper_path.caliper_config_file, 'hosts')
-    subprocess.call("ansible-playbook -i %s test.yml -e hosts=%s" % (hosts_path, caliper_path.sections[0]), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    shutil.copy('/tmp/config_output.json', os.path.join(Folder.json_dir, 'config_output.json'))
 
 # example
 #dirpath = "C:\\Users\\yangtt\\Desktop\\fanxh-OptiPlex-3020_WS_17-08-07_11-03-46"

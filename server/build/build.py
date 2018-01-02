@@ -342,8 +342,6 @@ def build_for_target(test_node, target, g_option, f_option, clear, sections):
         create_folder(FOLDER.results_dir)
     if not os.path.exists(FOLDER.yaml_dir):
         create_folder(FOLDER.yaml_dir)
-    if not os.path.exists(FOLDER.html_dir):
-        create_folder(FOLDER.html_dir)
 
     # This call assign target_arch with target architecture. Call
     # "get_host_arch" looks to be confusing :(
