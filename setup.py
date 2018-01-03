@@ -71,6 +71,9 @@ def run():
     if os.path.exists(get_hw_info_dir):
         shutil.rmtree(get_hw_info_dir)
 
+    if os.path.exists(caliper_config_file):
+        shutil.rmtree(caliper_config_file)
+
     shutil.copytree(
             os.path.join(os.getcwd(), 'config'), caliper_config_file
             )
