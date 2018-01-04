@@ -1,10 +1,17 @@
 #!/usr/bin/python
 import yaml
 import os
+import shutil
 import caliper.server.shared.caliper_path as caliper_path
 from caliper.server.shared.caliper_path import folder_ope as Folder
 
 def hardware_info_parser(content,outfp):
+    try:
+        if not os.path.exists(Folder.json_dir):
+            os.mkdir(Folder.json_dir)
+        shutil.copy('/tmp/config_output.json', os.path.join(Folder.json_dir, 'config_output.json'))
+    except Exception,e:
+        pass
     dic = {}
     dic_yaml = {}
     dic_yaml['Configuration'] = {}
@@ -24,7 +31,7 @@ def hardware_info_parser(content,outfp):
         outfp.write(yaml.dump(dic,default_flow_style = False))
     return dic
 
-def hardwareinfo():
+def hardwareinfo(content,outfp):
     pass
 
 

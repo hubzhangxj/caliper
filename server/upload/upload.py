@@ -2,7 +2,7 @@
 
 from poster.encode import multipart_encode
 from poster.streaminghttp import register_openers
-
+import logging
 import hashlib
 import urllib2
 import shutil
@@ -38,24 +38,28 @@ def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_p
     if bin_file:
         shutil.rmtree(os.path.join(dirpath,"binary"))
     json_file = os.path.join(dirpath,"output", "results", "json")
+    config_json = os.path.join(json_file, 'config_output.json')
     json_path=os.path.join(dirpath,os.path.basename(json_path_source))
     shutil.copyfile(json_path_source,json_path)
     output_file=dirpath+".zip"
     json_output_file = dirpath+"_json.zip"
+    if not os.path.exists(config_json):
+        logging.info('no config_output.json file, please run hardwareinfo benchmark and upload again.')
+        sys.exit()
 
 
     # upload
     register_openers()
     login_upload = urllib2.Request('http://%s/data/cert?userName=%s&password=%s' % (server_url, server_user, server_password))
     response = urllib2.urlopen(login_upload).read()
-    print response
+    logging.info(response)
     if response != 'success':
-        print 'UAMS fail,please check your username and password'
+        logging.info('UAMS fail,please check your username and password')
         sys.exit()
 
     encryption(json_file, json_output_file, server_password)
     # # remove json dir
-    shutil.rmtree(json_file)
+    # shutil.rmtree(json_file)
     encryption(dirpath, output_file, server_password)
     hash_output = calcHash(output_file)
     hash_log = calcHash(json_output_file)
@@ -72,7 +76,7 @@ def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_p
     datagen, headers = multipart_encode(params)
     request = urllib2.Request('http://%s/data/upload' % server_url,datagen, headers)
     response = urllib2.urlopen(request).read()
-    print response
+    logging.info(response)
 
 def calcHash(filepath):
     '''

@@ -61,25 +61,21 @@ def recursive_file_permissions(path, mode, uid=-1, gid=-1):
 def run():
     caliper_data_dir = os.path.join('/home', os.environ['SUDO_USER'], '.caliper')
     caliper_tmp_dir = os.path.join(caliper_data_dir, 'benchmarks')
-    get_hw_info_dir = os.path.join(caliper_data_dir, 'get_hw_info')
     caliper_output = os.path.join('/home', os.environ['SUDO_USER'], 'caliper_output')
     caliper_configuration = os.path.join(caliper_output,'configuration')
     caliper_config_file = os.path.join(caliper_configuration,'config')
     if os.path.exists(caliper_tmp_dir):
         shutil.rmtree(caliper_tmp_dir)
 
-    if os.path.exists(get_hw_info_dir):
-        shutil.rmtree(get_hw_info_dir)
+    # if os.path.exists(caliper_config_file):
+    #     shutil.rmtree(caliper_config_file)
 
-    if os.path.exists(caliper_config_file):
-        shutil.rmtree(caliper_config_file)
-
-    shutil.copytree(
-            os.path.join(os.getcwd(), 'config'), caliper_config_file
-            )
-    shutil.copystat(
-        os.path.join(os.getcwd(), 'config'), caliper_config_file
-    )
+    # shutil.copytree(
+    #         os.path.join(os.getcwd(), 'config'), caliper_config_file
+    #         )
+    # shutil.copystat(
+    #     os.path.join(os.getcwd(), 'config'), caliper_config_file
+    # )
 
     shutil.copytree(
         os.path.join(os.getcwd(), 'benchmarks'),
@@ -88,18 +84,9 @@ def run():
     shutil.copystat(
         os.path.join(os.getcwd(), 'benchmarks'),
         caliper_tmp_dir
-    )
-    shutil.copytree(
-        os.path.join(os.getcwd(), 'server', 'upload', 'get_hw_info'),
-        get_hw_info_dir
-    )
-    shutil.copystat(
-        os.path.join(os.getcwd(), 'server', 'upload', 'get_hw_info'),
-        get_hw_info_dir
     )
     os.chmod(caliper_data_dir, stat.S_IRWXO + stat.S_IRWXU)
     os.chmod(caliper_tmp_dir, stat.S_IRWXO + stat.S_IRWXU)
-    os.chmod(get_hw_info_dir, stat.S_IRWXO + stat.S_IRWXU)
     setup(
             name='caliper',
             version=common.VERSION,

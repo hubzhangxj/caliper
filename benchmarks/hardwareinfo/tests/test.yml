@@ -1,5 +1,5 @@
 ---
-- hosts: localhost
+- hosts: '{{ hosts }}'
   remote_user: root
   roles:
-    - hardware_info
+    - ../../get_hw_info

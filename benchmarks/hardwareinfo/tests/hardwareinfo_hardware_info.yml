@@ -6,12 +6,20 @@
         path: /tmp/hardwareinfo_output.log
         state: absent
 
-    - name: run hardware_info
-      shell: cd /tmp && ./hw_info_run.sh
+    - name: remove json latest data
+      file:
+        path: /tmp/config_output.json
+        state: absent
+
+    - name: run config_info_run.sh
+      shell: cd /tmp && ./config_info_run.sh
       register: logdata
       ignore_errors: yes
+      become: true
+      become_method: sudo
+      become_user: root
 
-    - lineinfile: create=yes  dest=/tmp/hardwareinfo_output.log line="{{ logdata.stdout }}" state=present
+    - lineinfile: create=yes  dest=/tmp/hardwareinfo_output.log line="{{ logdata.stdout+'\n'+logdata.stderr }}" state=present
 
 
     - name: fetch result
@@ -19,3 +27,10 @@
         src: /tmp/hardwareinfo_output.log
         dest: /tmp/hardwareinfo_output.log
         flat: yes
+
+    - name: fetch json result
+      fetch:
+        src: /tmp/config_output.json
+        dest: /tmp/config_output.json
+        flat: yes
+
