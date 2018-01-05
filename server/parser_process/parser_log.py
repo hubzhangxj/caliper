@@ -218,7 +218,7 @@ def parser_case(bench_name, parser_file, parser, infile, outfile):
 def parser_json(bench_name, parser_file, infile):
     if not os.path.exists(Folder.json_dir):
         os.mkdir(Folder.json_dir)
-    outfile_name = bench_name +'_json.txt'
+    outfile_name = bench_name +'.json'
     outfile = os.path.join(Folder.json_dir, outfile_name)
     if not parser_file:
         pwd_file = bench_name + "_parser.py"

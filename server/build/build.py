@@ -21,7 +21,6 @@ except ImportError:
 
 import caliper.server.utils as server_utils
 import caliper.server.shared.utils as client_utils
-from caliper.server.shared import error
 from caliper.server.shared import caliper_path
 from caliper.server.shared.caliper_path import folder_ope as FOLDER
 from caliper.server.run.run import get_sections
@@ -138,18 +137,28 @@ class build_tool_thread(threading.Thread):
                     download_section(section)
                 os.chdir(build_dir)
                 try:
-                    if self.host != '':
+                    section_build_path = os.path.join(caliper_path.CALIPER_TMP_DIR, 'binary', section)
+                    run_path = os.path.join('/tmp', section)
+                    if caliper_path.client_ip in server_utils.get_local_ip() and os.path.exists(section_build_path):
+                        result = subprocess.call("echo '$$ %s build Successful' >> %s" % (section, log_file),
+                                                 shell=True)
+                        if not os.path.exists(run_path):
+                            shutil.copytree(section_build_path, run_path)
+                    else:
                         result = subprocess.call(
                             'ansible-playbook -i %s site.yml --extra-vars "hosts=%s" -u %s>> %s 2>&1'
                             % (build_config, self.host, getpass.getuser(), log_file), stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE, shell=True)
-                    else:
-                        result = subprocess.call(
-                            'ansible-playbook -i %s site.yml --extra-vars "hosts=Device" -u %s>> %s 2>&1'
-                            % (build_config, getpass.getuser(), log_file), stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE, shell=True)
                 except Exception as e:
                     result = e
+                else:
+                    if caliper_path.client_ip in server_utils.get_local_ip():
+                        try:
+                            if not os.path.exists(section_build_path):
+                                shutil.copytree(run_path, section_build_path)
+                        except Exception,e:
+                            pass
+
                 for k in range(len(case_list['network'])):
                     if section in case_list['network'][k]:
                         try:

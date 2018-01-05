@@ -9,14 +9,14 @@ def hardware_info_parser(content,outfp):
     try:
         if not os.path.exists(Folder.json_dir):
             os.mkdir(Folder.json_dir)
-        shutil.copy('/tmp/config_output.json', os.path.join(Folder.json_dir, 'config_output.json'))
+        shutil.copy('/tmp/hardwareinfo.json', os.path.join(Folder.json_dir, 'hardwareinfo.json'))
     except Exception,e:
         pass
     dic = {}
     dic_yaml = {}
     dic_yaml['Configuration'] = {}
     dic_yaml['name'] = {}
-    with open(Folder.config_output_json, 'r') as fp:
+    with open(Folder.hardwareinfo, 'r') as fp:
         dic = yaml.load(fp.read())
     # outfp.write(dic)
     dic_yaml['Configuration'] = dic

@@ -8,7 +8,7 @@
 
     - name: remove json latest data
       file:
-        path: /tmp/config_output.json
+        path: /tmp/hardwareinfo.json
         state: absent
 
     - name: run config_info_run.sh
@@ -30,7 +30,7 @@
 
     - name: fetch json result
       fetch:
-        src: /tmp/config_output.json
-        dest: /tmp/config_output.json
+        src: /tmp/hardwareinfo.json
+        dest: /tmp/hardwareinfo.json
         flat: yes
 

@@ -14,11 +14,8 @@
   apt: name=openjdk-8-jdk state=present
   when: ansible_distribution == 'Ubuntu'
 
-- name: tar file
-  shell: mkdir -p /tmp/scimarkJava
-
 - name: copy file
-  copy: src=scimark2lib.tar.gz dest=/tmp/scimark2lib.tar.gz mode=0777
+  copy: src=scimarkJava.tar.gz dest=/tmp/scimarkJava.tar.gz mode=0777
 
 - name: tar scimark2lib.tar.gz
-  shell: "cd /tmp && tar -xvf scimark2lib.tar.gz"
+  shell: "cd /tmp && tar -xvf scimarkJava.tar.gz"

@@ -20,9 +20,9 @@ except ImportError:
 import server.setup
 
 CURRENT_PATH = os.path.dirname(sys.modules[__name__].__file__)
-CALIPER_TMP_DIR = os.path.join('/home', os.environ['SUDO_USER'], 'caliper_output')
-CALIPER_REPORT_HOME = CALIPER_TMP_DIR
-CALIPER_DIR = CURRENT_PATH
+# CALIPER_TMP_DIR = os.path.join('/home', os.environ['SUDO_USER'], 'caliper_output')
+# CALIPER_REPORT_HOME = CALIPER_TMP_DIR
+# CALIPER_DIR = CURRENT_PATH
 
 def _combine_dicts(list_dicts):
     result_dict = {}

@@ -134,7 +134,7 @@ class Folder(Singleton):
         self.final_parser = os.path.join(self.workspace, self.name,'final_parsing_logs.yaml')
         self.yaml_dir = os.path.join(self.results_dir, 'yaml')
         self.json_dir = os.path.join(self.results_dir, 'json')
-        self.config_output_json = os.path.join(self.json_dir, 'config_output.json')
+        self.hardwareinfo = os.path.join(self.json_dir, 'hardwareinfo.json')
         self.caliper_message_file = os.path.join(self.workspace, self.name,
                                                  'test_message.txt')
 

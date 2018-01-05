@@ -97,7 +97,7 @@ def get_local_ip():
     if obtain_ip:
         return obtain_ip
     else:
-        return ['127.0.1.1']
+        return ['127.0.0.1']
 
 
 def get_config_value(config_name, section, key):

@@ -7,7 +7,7 @@
         state: absent
 
     - name: run scimarkJava
-      shell: cd /tmp/scimark2lib && java jnt.scimark2.commandline
+      shell: cd /tmp/scimarkJava && java jnt.scimark2.commandline
       register: logdata
       ignore_errors: yes
 

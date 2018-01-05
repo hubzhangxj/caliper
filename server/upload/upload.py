@@ -38,7 +38,7 @@ def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_p
     if bin_file:
         shutil.rmtree(os.path.join(dirpath,"binary"))
     json_file = os.path.join(dirpath,"output", "results", "json")
-    config_json = os.path.join(json_file, 'config_output.json')
+    config_json = os.path.join(json_file, 'hardwareinfo.json')
     json_path=os.path.join(dirpath,os.path.basename(json_path_source))
     shutil.copyfile(json_path_source,json_path)
     output_file=dirpath+".zip"
@@ -59,8 +59,11 @@ def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_p
 
     encryption(json_file, json_output_file, server_password)
     # # remove json dir
-    # shutil.rmtree(json_file)
+    shutil.copytree(json_file, os.path.join('/tmp', 'json'))
+    shutil.rmtree(json_file)
     encryption(dirpath, output_file, server_password)
+    shutil.copytree(os.path.join('/tmp', 'json'), json_file)
+    shutil.rmtree(os.path.join('/tmp', 'json'))
     hash_output = calcHash(output_file)
     hash_log = calcHash(json_output_file)
     json_data = open(json_path, 'r')

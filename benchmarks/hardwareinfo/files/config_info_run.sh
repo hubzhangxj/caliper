@@ -2,7 +2,7 @@
 # !!! this script must run as root !!!
 
 #the output file
-output_file=/tmp/config_output.json
+output_file=/tmp/hardwareinfo.json
 
 #the hw-functions must save in this base_dir
 base_dir=./

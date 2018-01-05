@@ -7,7 +7,7 @@
         state: absent
 
     - name: run netperf TCP_STREAM
-      shell: cd /tmp/netperf/src; ./netperf -H {{ groups['TestNode'][0] }} -l 60
+      shell: cd /tmp/netperf/src && ./netperf -H {{ groups['TestNode'][0] }} -l 60
       register: logdata
       ignore_errors: yes
 

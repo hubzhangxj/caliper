@@ -7,7 +7,7 @@
         state: absent
 
     - name: run coremark
-      shell: cd /tmp/coremark; ./coremark.exe
+      shell: cd /tmp/coremark && ./coremark.exe
       register: logdata
       ignore_errors: yes
 
