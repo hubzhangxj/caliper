@@ -3,7 +3,6 @@
 
 import os
 import yaml
-import json
 import logging
 import string
 import types
@@ -18,10 +17,9 @@ try:
 except Exception:
     import common
 
-from caliper.server.compute_model import scores_method
-from caliper.server.compute_model.scores_method import Scores_method
-from caliper.server.compute_model.scores_method import geometric_mean
-from caliper.server.shared import caliper_path
+from caliper.server.score import scores_method
+from caliper.server.score.scores_method import Scores_method
+from caliper.server.score.scores_method import geometric_mean
 from caliper.server.shared.caliper_path import folder_ope as Folder
 
 def compute_score(score_way, result_fp):

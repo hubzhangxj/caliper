@@ -4,7 +4,7 @@
 import re
 import string
 import json
-from caliper.server.run import parser_log
+from caliper.server.parser_process import parser_log
 
 tcp_bw_lat_label = ['qperf_tcp_bw_1B', 'qperf_tcp_bw_2B', 'qperf_tcp_bw_4B', 'qperf_tcp_bw_8B', 'qperf_tcp_bw_16B', 'qperf_tcp_bw_32B', 'qperf_tcp_bw_64B', 'qperf_tcp_bw_128B', 'qperf_tcp_bw_256B', 'qperf_tcp_bw_512B', 'qperf_tcp_bw_1K', 'qperf_tcp_bw_2K', 'qperf_tcp_bw_4K', 'qperf_tcp_bw_8K', 'qperf_tcp_bw_16K', 'qperf_tcp_bw_32K', 'qperf_tcp_bw_64K',
 'qperf_tcp_lat_1B', 'qperf_tcp_lat_2B', 'qperf_tcp_lat_4B', 'qperf_tcp_lat_8B', 'qperf_tcp_lat_16B', 'qperf_tcp_lat_32B', 'qperf_tcp_lat_64B', 'qperf_tcp_lat_128B', 'qperf_tcp_lat_256B', 'qperf_tcp_lat_512B', 'qperf_tcp_lat_1K', 'qperf_tcp_lat_2K', 'qperf_tcp_lat_4K', 'qperf_tcp_lat_8K', 'qperf_tcp_lat_16K', 'qperf_tcp_lat_32K', 'qperf_tcp_lat_64K']

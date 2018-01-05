@@ -20,15 +20,15 @@ except ImportError:
 
 from caliper.server.build import build
 from caliper.server.run import run
-from caliper.server.run import parser_log
-from caliper.server.run import score
+from caliper.server.parser_process import parser_log
+from caliper.server.score import score
 from caliper.server.run import write_results
 from caliper.server.shared.settings import settings
 from caliper.server.hosts import host_factory
 from caliper.server.shared import caliper_path
 from caliper.server.shared import send_mails
 from caliper.server import summary
-from caliper.server.parser_process import parser as parser_engine
+# from caliper.server.parser_process import parser as parser_engine
 from caliper.server.parser_process import normalize
 # from caliper.server.shared.caliper_path import intermediate
 from caliper.server.shared.caliper_path import folder_ope as Folder
@@ -64,13 +64,13 @@ def parser_caliper_logs(sections, run_case_list):
     else:
         return result
 
-def parser_caliper(remote_host):
-    try:
-        logging.debug("begining to parser the result of caliper")
-        parser_engine.parser_caliper(remote_host)
-    except Exception, e:
-        logging.info("There is wrong when parsering the caliper result")
-        raise
+# def parser_caliper(remote_host):
+#     try:
+#         logging.debug("begining to parser the result of caliper")
+#         parser_engine.parser_caliper(remote_host)
+#     except Exception, e:
+#         logging.info("There is wrong when parsering the caliper result")
+#         raise
 
 def upload_url(result_path):
     '''

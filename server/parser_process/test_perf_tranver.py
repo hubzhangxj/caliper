@@ -13,7 +13,7 @@ try:
 except ImportError:
     import common
 
-from caliper.server.compute_model.scores_method import geometric_mean
+from caliper.server.score.scores_method import geometric_mean
 import caliper.server.utils as server_utils
 
 point_str = 'Point_Scores'

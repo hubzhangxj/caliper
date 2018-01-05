@@ -1,7 +1,7 @@
 import re
 import yaml
 import json
-from caliper.server.run import parser_log
+from caliper.server.parser_process import parser_log
 
 def unixbench_parser(contents, outfp):
     seperators ={'ub_Dhrystone':'Dhrystone 2 using register variables',

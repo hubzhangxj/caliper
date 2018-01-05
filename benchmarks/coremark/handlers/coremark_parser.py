@@ -3,7 +3,7 @@
 import re
 import string
 import json
-from caliper.server.run import parser_log
+from caliper.server.parser_process import parser_log
 
 def coremark_parser(content, outfp):
     score = -1

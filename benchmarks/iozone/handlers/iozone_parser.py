@@ -1,7 +1,7 @@
 import re
 import pdb
 import json
-from caliper.server.run import parser_log
+from caliper.server.parser_process import parser_log
 
 def parser(content, outfp):
     score = 0

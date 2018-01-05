@@ -4,7 +4,7 @@
 import pdb
 import re
 import json
-from caliper.server.run import parser_log
+from caliper.server.parser_process import parser_log
 
 SYSBENCH_RESULT_NAME_LATENCY = 'sysbench latency'
 NA_UNIT = 'NA'

@@ -6,9 +6,7 @@ import sys
 import importlib
 import re
 import logging
-import subprocess
 import yaml
-import shutil
 try:
     import common
 except ImportError:
@@ -59,7 +57,7 @@ def parsing_run(sections, run_case_list):
         except Exception:
             raise AttributeError("The is no option value of parser")
 
-        common.print_format()
+        logging.info("=" * 55)
         logging.info("Parsing %s" % sections[i])
         bench = os.path.join(caliper_path.BENCHS_DIR, sections[i], 'defaults')
 
@@ -68,7 +66,7 @@ def parsing_run(sections, run_case_list):
         except Exception:
             logging.info("Parsing %s Exception" % sections[i])
             crash_handle.main()
-            common.print_format()
+            logging.info("=" * 55)
             run_flag = server_utils.get_fault_tolerance_config(
                 'fault_tolerance', 'run_error_continue')
             if run_flag == 1:
@@ -77,7 +75,7 @@ def parsing_run(sections, run_case_list):
                 return result
         else:
             logging.info("Parsing %s Finished" % sections[i])
-            common.print_format()
+            logging.info("=" * 55)
         try:
             logging.info("Parsing json %s" % sections[i])
             log_bench = os.path.join(Folder.exec_dir, sections[i])

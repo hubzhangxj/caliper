@@ -6,7 +6,7 @@ import yaml
 import logging
 import copy
 import json
-from caliper.server.run import parser_log
+from caliper.server.parser_process import parser_log
 
 def get_value(tags, key_tags, content, outfp):
     flag = -1

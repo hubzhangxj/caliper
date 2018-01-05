@@ -4,7 +4,7 @@ import re
 import string
 import pdb
 import json
-from caliper.server.run import parser_log
+from caliper.server.parser_process import parser_log
 
 def compute_mflops(content, outfp):
     score = 0

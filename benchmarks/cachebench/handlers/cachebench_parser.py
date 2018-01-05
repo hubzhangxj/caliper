@@ -3,7 +3,7 @@ import string
 import pdb
 import sys
 import json
-from caliper.server.run import parser_log
+from caliper.server.parser_process import parser_log
 
 def get_average_value(content, outfp, flag_str):
     score = -1

@@ -1,6 +1,6 @@
 import re
 import json
-from caliper.server.run import parser_log
+from caliper.server.parser_process import parser_log
 
 def whets_parser(content, outfp):
     score = -1

@@ -4,7 +4,7 @@ import re
 import yaml
 import copy
 import json
-from caliper.server.run import parser_log
+from caliper.server.parser_process import parser_log
 
 def parser(content, option, outfp):
     score = 0

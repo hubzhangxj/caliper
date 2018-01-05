@@ -5,7 +5,7 @@ import re
 import string
 import copy
 import json
-from caliper.server.run import parser_log
+from caliper.server.parser_process import parser_log
 
 def iperf_parser(content, outfp, tag):
     score = -1

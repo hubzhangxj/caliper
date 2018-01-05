@@ -258,24 +258,6 @@ def svn(*args):
     return subprocess.check_call(['svn'] + list(args))
 
 
-def insert_content_to_file(filename, index, value):
-    """
-    insert the content to the index lines
-    :param filename: the file will be modified
-    :param index: the location eill added the value
-    :param value: the content will be added
-    """
-    f = open(filename, "r")
-    contents = f.readlines()
-    f.close()
-
-    contents.insert(index, value)
-
-    f = open(filename, "w")
-    contents = "".join(contents)
-    f.write(contents)
-    f.close()
-
 def getAllFilesRecursive(root):
     files = [os.path.join(root, f) for f in os.listdir(root) if os.path.isfile(os.path.join(root, f))]
     dirs = [d for d in os.listdir(root) if os.path.isdir(os.path.join(root, d))]
@@ -381,64 +363,6 @@ def build_for_target(test_node, target, g_option, f_option, clear, sections):
     else:
         if result:
             return result
-
-    # Copy generated binaries to target machine
-    # result = copy_gen_to_target(target, target_arch)
     return result
 
-
-def copy_gen_to_target(target, target_arch):
-    try:
-        result = target.run("test -d caliper", ignore_status=True)
-    except error.ServRunError, e:
-        raise
-    else:
-        if not result.exit_status:
-            target.run("cd caliper; rm -fr *; cd")
-        else:
-            target.run("rm -fr caliper; mkdir caliper")
-        target.run("cd caliper;  mkdir -p binary")
-        remote_pwd = target.run("pwd").stdout
-        remote_pwd = remote_pwd.split("\n")[0]
-        remote_caliper_dir = os.path.join(remote_pwd, "caliper")
-        remote_gen_dir = os.path.join(remote_caliper_dir, "binary",
-                                        target_arch)
-        send_file_relative = ['server', 'common.py',  '__init__.py']
-        send_files = [os.path.join(CALIPER_DIR, i) for i in
-                send_file_relative]
-        send_gen_files = os.path.join(GEN_DIR, target_arch)
-
-        for i in range(0, len(send_files)):
-            try:
-                target.send_file(send_files[i], remote_caliper_dir)
-            except Exception, e:
-                logging.info("There is error when coping files to remote %s"
-                                % target.ip)
-                logging.info(e)
-                raise
-        target.send_file(send_gen_files, remote_gen_dir)
-        logging.info("finished the scp caliper to the remote host")
-        return 0
-
-def copy_gen_to_server(target, path):
-    try:
-        result = target.run("test -d caliper_server", ignore_status=True)
-    except error.ServRunError, e:
-        raise
-    else:
-        if result.exit_status:
-            target.run("mkdir -p caliper_server")
-
-        remote_pwd = target.run("pwd").stdout
-        remote_pwd = remote_pwd.split("\n")[0]
-        remote_caliper_dir = os.path.join(remote_pwd, "caliper_server")
-        try:
-            target.send_file(path, remote_caliper_dir)
-        except Exception, e:
-            logging.info("There is error when coping files to remote %s"
-                                % target.ip)
-            logging.info(e)
-            raise
-        logging.info("finished the scp server script to the remote host")
-        return 0
 

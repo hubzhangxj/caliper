@@ -1,6 +1,6 @@
 import re
 import json
-from caliper.server.run import parser_log
+from caliper.server.parser_process import parser_log
 
 def stress_ng_parser(content,outfp):
     result = 0

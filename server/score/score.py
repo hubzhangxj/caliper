@@ -11,7 +11,6 @@ try:
     import common
 except ImportError:
     import caliper.common as common
-from caliper.server import utils as server_utils
 from caliper.server.shared import caliper_path
 from caliper.server.run import write_results
 from caliper.server.shared.caliper_path import folder_ope as Folder
@@ -21,7 +20,7 @@ def compute_caliper_logs(sections, run_case_list, flag=1):
     # according the method in the config file, compute the score
     dic = yaml.load(open(caliper_path.folder_ope.final_parser, 'r'))
     for j in range(0, len(sections)):
-        common.print_format()
+        logging.info("=" * 55)
         if flag == 1:
             logging.info("Generation raw yaml for %s" % sections[j])
             bench = os.path.join(caliper_path.BENCHS_DIR, sections[j], 'defaults')

@@ -1,10 +1,7 @@
 import re
-import sys
-import math
-import yaml
 import json
 import copy
-from caliper.server.run import parser_log
+from caliper.server.parser_process import parser_log
 
 def tinyResult(content, outfp):
 	score = 0

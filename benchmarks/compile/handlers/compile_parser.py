@@ -4,7 +4,7 @@
 import time_parser
 import re
 import json
-from caliper.server.run import parser_log
+from caliper.server.parser_process import parser_log
 
 def compile_parser(content, outfp):
     return time_parser.time_parser(content, outfp)
