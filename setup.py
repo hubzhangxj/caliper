@@ -71,15 +71,15 @@ def run():
     if os.path.exists(caliper_tmp_dir):
         shutil.rmtree(caliper_tmp_dir)
 
-    # if os.path.exists(caliper_config_file):
-    #     shutil.rmtree(caliper_config_file)
-    #
-    # shutil.copytree(
-    #         os.path.join(os.getcwd(), 'config'), caliper_config_file
-    #         )
-    # shutil.copystat(
-    #     os.path.join(os.getcwd(), 'config'), caliper_config_file
-    # )
+    if os.path.exists(caliper_config_file):
+        shutil.rmtree(caliper_config_file)
+
+    shutil.copytree(
+            os.path.join(os.getcwd(), 'config'), caliper_config_file
+            )
+    shutil.copystat(
+        os.path.join(os.getcwd(), 'config'), caliper_config_file
+    )
 
     shutil.copytree(
         os.path.join(os.getcwd(), 'benchmarks'),
