@@ -59,12 +59,12 @@ def recursive_file_permissions(path, mode, uid=-1, gid=-1):
                 print('File permissions on {0} not updated due to error.'.format(os.path.join(path, item)))
 
 def run():
-    if os.environ['SUDO_USER'] == 'root':
-        caliper_data_dir = os.path.join(os.environ['HOME'], '.caliper')
-        caliper_output = os.path.join(os.environ['HOME'], 'caliper_output')
-    else:
+    try:
         caliper_data_dir = os.path.join('/home', os.environ['SUDO_USER'], '.caliper')
         caliper_output = os.path.join('/home', os.environ['SUDO_USER'], 'caliper_output')
+    except:
+        caliper_data_dir = os.path.join(os.environ['HOME'], '.caliper')
+        caliper_output = os.path.join(os.environ['HOME'], 'caliper_output')
     caliper_tmp_dir = os.path.join(caliper_data_dir, 'benchmarks')
     caliper_configuration = os.path.join(caliper_output,'configuration')
     caliper_config_file = os.path.join(caliper_configuration,'config')
@@ -106,8 +106,13 @@ def run():
             install_requires=[
                 'pyYAML' ]
             )
-    os.chown(caliper_output, getpwnam(os.environ['SUDO_USER']).pw_uid,-1)
-    recursive_file_permissions(path=caliper_output,mode=0775,uid=getpwnam(os.environ['SUDO_USER']).pw_uid,gid=-1)
+    try:
+        os.chown(caliper_output, getpwnam(os.environ['SUDO_USER']).pw_uid,-1)
+        recursive_file_permissions(path=caliper_output,mode=0775,uid=getpwnam(os.environ['SUDO_USER']).pw_uid,gid=-1)
+    except:
+        os.chown(caliper_output, getpwnam(os.environ['HOME'].split('/')[-1]).pw_uid, -1)
+        recursive_file_permissions(path=caliper_output, mode=0775,
+                                   uid=getpwnam(os.environ['HOME'].split('/')[-1]).pw_uid, gid=-1)
 
     if os.path.exists('caliper.egg-info'):
         shutil.rmtree('caliper.egg-info')
