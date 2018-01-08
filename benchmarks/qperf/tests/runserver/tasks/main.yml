@@ -1,0 +1,4 @@
+- name: start server
+  shell: "qperf &"
+  async: 5
+  ignore_errors: yes

@@ -18,7 +18,7 @@ def hardware_info_parser(content,outfp):
     dic_yaml['name'] = {}
     with open(Folder.hardwareinfo, 'r') as fp:
         dic = yaml.load(fp.read())
-    # outfp.write(dic)
+    outfp.write(yaml.dump(dic,default_flow_style = False))
     dic_yaml['Configuration'] = dic
     dic_yaml['name'] = dic['hostName']
     yaml_name = caliper_path.platForm_name + ".yaml"

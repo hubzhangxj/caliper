@@ -64,14 +64,6 @@ def parser_caliper_logs(sections, run_case_list):
     else:
         return result
 
-# def parser_caliper(remote_host):
-#     try:
-#         logging.debug("begining to parser the result of caliper")
-#         parser_engine.parser_caliper(remote_host)
-#     except Exception, e:
-#         logging.info("There is wrong when parsering the caliper result")
-#         raise
-
 def upload_url(result_path):
     '''
     upload test result to caliper server

@@ -1,3 +1,6 @@
+- hosts: TestNode
+  roles:
+  - runserver
 
 - hosts: '{{ hosts }}'
   tasks:

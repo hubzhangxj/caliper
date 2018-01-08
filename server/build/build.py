@@ -23,7 +23,7 @@ import caliper.server.utils as server_utils
 import caliper.server.shared.utils as client_utils
 from caliper.server.shared import caliper_path
 from caliper.server.shared.caliper_path import folder_ope as FOLDER
-from caliper.server.run.run import get_sections
+from caliper.server.run.run import get_section
 
 CALIPER_DIR = caliper_path.CALIPER_DIR
 GEN_DIR = caliper_path.GEN_DIR
@@ -144,6 +144,7 @@ class build_tool_thread(threading.Thread):
                                                  shell=True)
                         if not os.path.exists(run_path):
                             shutil.copytree(section_build_path, run_path)
+                        logging.info("%s is already build" % section)
                     else:
                         result = subprocess.call(
                             'ansible-playbook -i %s site.yml --extra-vars "hosts=%s" -u %s>> %s 2>&1'
@@ -157,15 +158,6 @@ class build_tool_thread(threading.Thread):
                             if not os.path.exists(section_build_path):
                                 shutil.copytree(run_path, section_build_path)
                         except Exception,e:
-                            pass
-
-                for k in range(len(case_list['network'])):
-                    if section in case_list['network'][k]:
-                        try:
-                            subprocess.Popen(
-                                'ansible-playbook -i %s runserver.yml -u %s' % (build_config, getpass.getuser()),
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-                        except Exception as e:
                             pass
                 if result:
                     logging.info("Building %s Failed" % section)
@@ -355,7 +347,7 @@ def build_for_target(test_node, target, g_option, f_option, clear, sections):
         # Build all caliper benchmarks for the target architecture
         if g_option == 1:
             # concurrent build
-            dic = get_sections()
+            dic = get_section()
         else:
             dic[test_node] = sections
         thread_list = []

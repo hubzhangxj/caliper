@@ -22,7 +22,7 @@ from caliper.server.shared import caliper_path
 from caliper.server.shared.caliper_path import folder_ope as Folder
 
 
-def get_sections():
+def get_section():
     dic = {}
     cf = ConfigParser.ConfigParser()
     cf.read(os.path.join(caliper_path.config_files.config_dir, 'hosts'))
@@ -220,6 +220,8 @@ class run_case_thread(threading.Thread):
             [out, returncode] = self.run_commands(bench_name, cmd_sec_name)
             fp.close()
             server_utils.file_copy(tmp_logfile, '/tmp/%s_output.log' % bench_name, 'a+')
+            if os.path.exists('/tmp/%s_output.log' % bench_name):
+                os.remove('/tmp/%s_output.log' % bench_name)
         except error.ServRunError, e:
             fp = open(tmp_logfile, "a+")
             fp.write("[status]: FAIL\n")
@@ -305,7 +307,7 @@ def run_caliper_tests(test_node, f_option, g_option, sections, run_case_list, nu
         logging.debug("beginnig to run the test cases")
         if g_option == 1:
             # concurrent run
-            dic = get_sections()
+            dic = get_section()
         else:
             dic[test_node] = sections
         thread_list = []
