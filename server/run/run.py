@@ -220,8 +220,8 @@ class run_case_thread(threading.Thread):
             [out, returncode] = self.run_commands(bench_name, cmd_sec_name)
             fp.close()
             server_utils.file_copy(tmp_logfile, '/tmp/%s_output.log' % bench_name, 'a+')
-            if os.path.exists('/tmp/%s_output.log' % bench_name):
-                os.remove('/tmp/%s_output.log' % bench_name)
+            # if os.path.exists('/tmp/%s_output.log' % bench_name):
+            #     os.remove('/tmp/%s_output.log' % bench_name)
         except error.ServRunError, e:
             fp = open(tmp_logfile, "a+")
             fp.write("[status]: FAIL\n")

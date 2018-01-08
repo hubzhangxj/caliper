@@ -145,6 +145,7 @@ class build_tool_thread(threading.Thread):
                         if not os.path.exists(run_path):
                             shutil.copytree(section_build_path, run_path)
                         logging.info("%s is already build" % section)
+                        continue
                     else:
                         result = subprocess.call(
                             'ansible-playbook -i %s site.yml --extra-vars "hosts=%s" -u %s>> %s 2>&1'
