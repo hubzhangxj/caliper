@@ -269,11 +269,6 @@ def ideal_dic(scoreFile_dic):
 
     for i in range(1,len(scoreFile_dic)):
         try:
-            func_dic = (scoreFile_dic[i])['results']['Functional']
-            populate_dic(dic_ideal['results']['Functional'], func_dic)
-        except Exception as e:
-            pass
-        try:
             perf_dic = (scoreFile_dic[i])['results']['Performance']
             populate_dic(dic_ideal['results']['Performance'], perf_dic)
         except Exception as e:
@@ -338,12 +333,6 @@ def delete_dic(dic_ideal, scoreFile_dic):
     # adding exception block to handile the exception during the html report generation
     #  when any one of Functional or Performance is missing in .yaml files
     for i in range(len(scoreFile_dic)):
-        try:
-            delete_dic_values(dic_ideal['results']['Functional'], (scoreFile_dic[i])['results']['Functional'])
-            if (scoreFile_dic[i])['results']['Functional'] == {}:
-                del (scoreFile_dic[i])['results']['Functional']
-        except Exception as e:
-            pass
         try:
             delete_dic_values(dic_ideal['results']['Performance'], (scoreFile_dic[i])['results']['Performance'])
             if (scoreFile_dic[i])['results']['Performance'] == {}:
@@ -457,11 +446,6 @@ def get_targets_data(outdir):
     return (yaml_files, json_files)
 
 def normalize_caliper():
-    # try:
-    #     for files in glob.glob(os.path.join(caliper_path.HTML_DATA_DIR_OUTPUT, "*")):
-    #         os.remove(files)
-    # except:
-    #     pass
     try:
         normalize_caliper_output(Folder.yaml_dir)
     except Exception, e:
@@ -483,7 +467,6 @@ def normalize_results(yaml_file):
     flag = 0
     results_str = 'results'
     perf_str = 'Performance'
-    func_str = 'Functional'
 
     yaml_file_post = yaml_file[0:-5] + "_post" + yaml_file[-5:]
     fileName = yaml_file_post.split('/')[-1]
@@ -501,9 +484,6 @@ def normalize_results(yaml_file):
     if perf_str in dic_[results_str].keys():
         perf_results = dic_[results_str][perf_str]
         dic_[results_str][perf_str] = normalize_score(perf_results)
-    if func_str in dic_[results_str].keys():
-        func_results = dic_[results_str][func_str]
-        dic_[results_str][func_str] = normalize_score(func_results)
     with open(yaml_file_post_output, 'w') as outfile:
         outfile.write(yaml.dump(dic_, default_flow_style=False))
         flag = 1

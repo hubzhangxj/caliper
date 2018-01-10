@@ -7,3 +7,10 @@
   apt: name=iperf3 state=present
   when: ansible_distribution == 'Ubuntu'
 
+- name: install iperf for CentOS
+  yum: name=iperf3 state=present disable_gpg_check=yes
+  when: ansible_distribution == 'CentOS'
+
+- name: install iperf for Debian
+  apt: name=iperf3 state=present
+  when: ansible_distribution == 'Debian'

@@ -9,8 +9,44 @@ import shutil
 import os
 import sys
 import subprocess
+from caliper.server.shared.settings import settings
 from caliper.server.shared import caliper_path
 from caliper.server.shared.caliper_path import folder_ope as Folder
+
+def upload_url(result_path):
+    '''
+    upload test result to caliper server
+    :param result_path: the result path
+    :return: none
+    '''
+    try:
+        server_num = settings.get_value('Caliperweb', 'server_num', type=int)
+    except Exception, e:
+        server_num = 0
+    for i in range(server_num):
+        try:
+            server_ip = settings.get_value('Caliperweb', 'server_ip%s' % int(i+1), type=str)
+        except Exception, e:
+            server_ip = None
+        try:
+            server_user = settings.get_value('Caliperweb', 'server_user%s' % int(i+1), type=str)
+        except Exception, e:
+            server_user = ""
+
+        try:
+            server_password = settings.get_value('Caliperweb', 'server_password%s' % int(i+1), type=str)
+        except Exception, e:
+            server_password = ""
+        print server_ip
+        if server_ip:
+            try:
+                logging.info("remote server %s upload start" % server_ip)
+                upload_result(result_path, server_ip, server_user, server_password)
+                logging.info("remote upload end")
+            except Exception as e:
+                logging.info(e)
+    if server_num == 0:
+        logging.info('no upload value,please set upload value at caliper_output/configuration/config/client_config.cfg file')
 
 def upload_result(dirpath,server_url, server_user, server_password):
     '''

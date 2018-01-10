@@ -1,3 +1,12 @@
+#install bzr
+- name: install bzr for redhat
+  yum: name=bzr state=present disable_gpg_check=yes
+  when: ansible_os_family == 'RedHat'
+
+- name: install bzr for ubuntu
+  apt: name=bzr state=present
+  when: ansible_distribution == 'Ubuntu'
+
 - name: copy sysbench.tar.gz
   copy: src=sysbench.tar.gz dest=/tmp/sysbench.tar.gz mode=0777
 
