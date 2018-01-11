@@ -6,6 +6,14 @@
   apt: name=numactl state=present
   when: ansible_distribution == 'Ubuntu'
 
+- name: install numactl for CentOS
+  yum: name=numactl state=present disable_gpg_check=yes
+  when: ansible_distribution == 'CentOS'
+
+- name: install numactl for Debian
+  apt: name=numactl state=present
+  when: ansible_distribution == 'Debian'
+
 - name: copy file
   copy: src=lmbench.build.tar.gz dest=/tmp/lmbench.build.tar.gz mode=0777
 

@@ -6,7 +6,7 @@
         path: /tmp/linpack_output.log
         state: absent
 
-    - name: run linpack sb
+    - name: run linpack sp
       shell: cd /tmp/linpack && ./linpack_sp && exit $[ $? - 1 ]
       register: logdata
       ignore_errors: yes

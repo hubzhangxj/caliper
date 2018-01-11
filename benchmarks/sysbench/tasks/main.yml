@@ -7,6 +7,14 @@
   apt: name=bzr state=present
   when: ansible_distribution == 'Ubuntu'
 
+- name: install bzr for CentOS
+  yum: name=bzr state=present disable_gpg_check=yes
+  when: ansible_distribution == 'CentOS'
+
+- name: install bzr for Debian
+  apt: name=bzr state=present
+  when: ansible_distribution == 'Debian'
+
 - name: copy sysbench.tar.gz
   copy: src=sysbench.tar.gz dest=/tmp/sysbench.tar.gz mode=0777
 

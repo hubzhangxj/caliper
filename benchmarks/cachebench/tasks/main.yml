@@ -6,3 +6,4 @@
 
 - name: run install
   shell: "cd /tmp/cachebench && ./install.sh"
+  ignore_errors: yes
