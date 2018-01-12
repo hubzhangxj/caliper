@@ -191,7 +191,7 @@ def push_ssh_key():
         for section in sections:
             if 'Device' not in section or 'TestNode' not in section:
                 continue
-            subprocess.call('ansible-playbook -i hosts push_sshkey.yml -e hosts=%s -u %s' % (section, getpass.getuser()), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            subprocess.call('ansible-playbook -i project_config.cfg push_sshkey.yml -e hosts=%s -u %s' % (section, getpass.getuser()), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     except Exception as e:
         logging.debug(e)
         logging.info('push ssh key fail')
