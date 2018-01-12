@@ -80,7 +80,7 @@ def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_p
     output_file=dirpath+".zip"
     json_output_file = dirpath+"_json.zip"
     if not os.path.exists(config_json):
-        logging.info('no config_output.json file, please run hardwareinfo benchmark and upload again.')
+        logging.info('no hardwareinfo.json file, please run hardwareinfo benchmark and upload again.')
         sys.exit()
 
 

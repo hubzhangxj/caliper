@@ -43,31 +43,6 @@ def traverse_caliper_output(hosts):
         if return_code != 1:
             logging.info("there is wrong when dealing the yaml file")
 
-def parser_caliper(host):
-    try:
-        traverse_caliper_output(host)
-    except Exception, e:
-        logging.info(e.args[0], e.args[1])
-        return
-
-    file_lists = []
-    (file_lists, json_files) = get_targets_data(
-                                caliper_path.folder_ope.results_dir)
-
-    if not os.path.exists(caliper_path.HTML_DATA_DIR_INPUT):
-        os.makedirs(caliper_path.HTML_DATA_DIR_INPUT)
-
-    if not os.path.exists(caliper_path.HTML_DATA_DIR_OUTPUT):
-        os.makedirs(caliper_path.HTML_DATA_DIR_OUTPUT)
-
-    if file_lists:
-        for yaml_file in file_lists:
-            shutil.copy(yaml_file, caliper_path.HTML_DATA_DIR_INPUT)
-
-    if json_files:
-        for json_file in json_files:
-            shutil.copy(json_file, caliper_path.HTML_DATA_DIR_INPUT)
-
 
 # def copy_file(host):
 #     '''

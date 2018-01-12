@@ -55,7 +55,7 @@ def get_host_name(host):
         if returncode == 0:
             output = arch_result.stdout
             try:
-                machine_name = settings.get_value('TARGET', 'Platform_name', type=str)
+                machine_name = settings.get_value('TARGET', 'testtask_name', type=str)
             except:
                 machine_name = output.split(" ")[1]
             return machine_name

@@ -47,7 +47,7 @@ client_user = user_list.split(' ')[0]
 sudo_password = user_list.split('"')[-2]
 
 try:
-    platForm_name = ConfigValue(path=os.path.join(caliper_output,'config','project_config.cfg'), section='TARGET', key='Platform_name',action='get')
+    platForm_name = ConfigValue(path=os.path.join(caliper_output,'config','project_config.cfg'), section='TARGET', key='testtask_name',action='get')
 except:
     platForm_name = str(client_user)
 else:

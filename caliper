@@ -22,7 +22,7 @@ from caliper.server.build import build
 from caliper.server.run import run
 from caliper.server.parser_process import parser_log
 from caliper.server.score import score
-from caliper.server.run import write_results
+from caliper.server.score import write_results
 from caliper.server.shared.settings import settings
 from caliper.server.hosts import host_factory
 from caliper.server.shared import caliper_path

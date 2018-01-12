@@ -12,7 +12,7 @@ try:
 except ImportError:
     import caliper.common as common
 from caliper.server.shared import caliper_path
-from caliper.server.run import write_results
+import write_results
 from caliper.server.shared.caliper_path import folder_ope as Folder
 
 
