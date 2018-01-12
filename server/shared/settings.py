@@ -18,7 +18,7 @@ class SettingsError(error.AutoError):
 class SettingsValueError(SettingsError):
     pass
 
-settings_filename = 'client_config.cfg'
+settings_filename = 'project_config.cfg'
 shadow_config_filename = 'shadow_config.cfg'
 
 settings_path_root = os.path.join(

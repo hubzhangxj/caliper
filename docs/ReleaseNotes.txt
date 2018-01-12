@@ -32,18 +32,18 @@ Installation:
 
 Usage:
 --------------
-1. 进入$HOME/caliper_output/configuration/config下，配置client_config.cfg。配置说明见后。
+1. 进入$HOME/caliper_output/configuration/config下，配置project_config.cfg。配置说明见后。
 2. 执行caliper -w进行测试
 3. 浏览网站：在浏览器中输入网址[hostip]:8000即可访问
 
 Comments：
 --------------
 1. 如果以前安装过caliper，重新安装前需要先执行sudo python pip uninstall caliper,并删除caliper_output下frontend文件夹后安装新的caliper。
-2. client_config.cfg，需要配置以下内容：
+2. project_config.cfg，需要配置以下内容：
  - Target设备的ip, user, password. 
  - TestNode的ip, user, password。以上2个设备需要完全一致。
  - Caliperweb: server_num, server_ip1, server_ip2...
-3. 默认情况下只执行单机测试。如果需要进行双机测试，需要修改$HOME/caliper_output/configuration/test_cases_cfg/server_cases_def.cfg，打开相应的测试选项，并修改$HOME/caliper_output/configuration/config/client_config.cfg, 配置 TestNode_ip_10g，和hosts文件的[TestNode]的配置，这两项都配置为server的IP地址。
+3. 默认情况下只执行单机测试。如果需要进行双机测试，需要修改$HOME/caliper_output/configuration/test_cases_cfg/server_cases_def.cfg，打开相应的测试选项，并修改$HOME/caliper_output/configuration/config/project_config.cfg, 配置 TestNode_ip_10g，和hosts文件的[TestNode]的配置，这两项都配置为server的IP地址。
 
 
 
@@ -85,7 +85,7 @@ Installation:
 
 Usage:
 --------------
-1. 进入$HOME/caliper_output/configuration/config下，配置client_config.cfg。配置说明见后。
+1. 进入$HOME/caliper_output/configuration/config下，配置project_config.cfg。配置说明见后。
 2. （Optional）如果需要改变执行的Benchmark，进入/home/hansy/caliper_output/configuration/test_cases_cfg下，修改common_cases_def.cfg、server_cases_def.cfg、application_cases_def.cfg，选择要跑的应用。
 3. 执行caliper -w进行测试
 4. 测试结束后进入~/caliper_output/xx/output/results打开test_results.tar.gz查看测试结果
@@ -95,7 +95,7 @@ Usage:
 Comments：
 --------------
 1.安装过caliper 0.0.1之前的版本需要先执行sudo python pip uninstall caliper,并删除caliper_output下frontend文件夹后安装新的caliper。
-2.client_config.cfg，需要配置以下内容：
+2.project_config.cfg，需要配置以下内容：
  - Target设备的ip, user, password. 
  - TestNode的ip, user, password。以上2个设备需要完全一致。
  - Caliperweb: server_num, server_ip1, server_ip2...

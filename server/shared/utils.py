@@ -115,7 +115,7 @@ def get_fault_tolerance_config(section, key):
     flag = 0
     logging.debug(caliper_path.config_files.config_dir)
     cfg_file = os.path.join(caliper_path.config_files.config_dir,
-                                    'execution_contl.cfg')
+                                    'project_config.cfg')
     try:
         tolerence_cfg = BaseCfg(cfg_file)
         value = tolerence_cfg.get_value(section, key)
@@ -129,7 +129,7 @@ def get_fault_tolerance_config(section, key):
         elif value == '':
             flag = 1
         else:
-            logging.info("Wrong configuration in config/execution_contl.cfg")
+            logging.info("Wrong configuration in config/project_config.cfg")
             flag = 0
         return flag
 

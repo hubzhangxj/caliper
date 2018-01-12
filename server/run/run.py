@@ -25,7 +25,7 @@ from caliper.server.shared.caliper_path import folder_ope as Folder
 def get_section():
     dic = {}
     cf = ConfigParser.ConfigParser()
-    cf.read(os.path.join(caliper_path.config_files.config_dir, 'hosts'))
+    cf.read(Folder.project_config)
     devices = cf.options('fasttest')
     for device in devices:
         tool_list = yaml.load(cf.get('fasttest', device))
@@ -263,7 +263,7 @@ class run_case_thread(threading.Thread):
                 os.chdir(test_case_dir)
                 result = subprocess.call(
                     'ansible-playbook -i %s %s.yml --extra-vars "hosts=%s" -u root>> %s 2>&1' %
-                    (os.path.join(caliper_path.config_files.config_dir, 'hosts'), cmd_sec_name, self.host, cmd_sec_name_tmp_file), stdout=subprocess.PIPE, shell=True)
+                    (Folder.project_config, cmd_sec_name, self.host, cmd_sec_name_tmp_file), stdout=subprocess.PIPE, shell=True)
                 subprocess.call("echo '$$ %s RUN STOP' >> %s"
                                 % (cmd_sec_name, cmd_sec_name_tmp_file), shell=True)
                 subprocess.call("echo '==================================' >> %s"

@@ -46,7 +46,7 @@ def upload_url(result_path):
             except Exception as e:
                 logging.info(e)
     if server_num == 0:
-        logging.info('no upload value,please set upload value at caliper_output/configuration/config/client_config.cfg file')
+        logging.info('no upload value,please set upload value at caliper_output/configuration/config/project_config.cfg file')
 
 def upload_result(dirpath,server_url, server_user, server_password):
     '''

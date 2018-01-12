@@ -130,7 +130,7 @@ class build_tool_thread(threading.Thread):
                 logging.info("=" * 55)
                 logging.info("Building %s" % section)
                 build_dir = os.path.join(caliper_path.BENCHS_DIR, section, 'tests')
-                build_config = os.path.join(TEST_CASE_DIR, 'hosts')
+                build_config = os.path.join(TEST_CASE_DIR, 'project_config.cfg')
                 log_name = "%s.log" % section
                 log_file = os.path.join('/tmp', log_name)
                 if not os.path.exists(build_dir):

@@ -37,8 +37,8 @@ def ConfigValue(path=None,section=None,key=None,action='get',value=None):
     else:
         return config.set(section,key,value)
 cf = ConfigParser.ConfigParser()
-host_path = os.path.join(caliper_config_file, 'hosts')
-cf.read(host_path)
+config_file_path = os.path.join(caliper_config_file, 'project_config.cfg')
+cf.read(config_file_path)
 sections = cf.sections()
 opts = cf.options(sections[0])[0].split(' ')
 client_ip = opts[0]
@@ -47,7 +47,7 @@ client_user = user_list.split(' ')[0]
 sudo_password = user_list.split('"')[-2]
 
 try:
-    platForm_name = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='Platform_name',action='get')
+    platForm_name = ConfigValue(path=os.path.join(caliper_output,'config','project_config.cfg'), section='TARGET', key='Platform_name',action='get')
 except:
     platForm_name = str(client_user)
 else:
@@ -55,7 +55,7 @@ else:
         platForm_name = client_user
 
 try:
-    ansible_galaxy_name = ConfigValue(path=os.path.join(caliper_output,'config','client_config.cfg'), section='TARGET', key='ansible_galaxy',action='get')
+    ansible_galaxy_name = ConfigValue(path=os.path.join(caliper_output,'config','project_config.cfg'), section='TARGET', key='ansible_galaxy',action='get')
 except:
     ansible_galaxy_name = ''
 
@@ -137,6 +137,7 @@ class Folder(Singleton):
         self.hardwareinfo = os.path.join(self.json_dir, 'hardwareinfo.json')
         self.caliper_message_file = os.path.join(self.workspace, self.name,
                                                  'test_message.txt')
+        self.project_config = os.path.join(self.workspace, 'config', 'project_config.cfg')
 
 folder_ope = Folder()
 folder_ope.set_up_path()
