@@ -1,4 +1,4 @@
-- hosts: TestNode
+- hosts: SlaveDevice
   roles:
   - runserver
 
@@ -10,7 +10,7 @@
         state: absent
 
     - name: run iperf3 UDP_sin_3_tx
-      shell: iperf3 -c {{ groups['TestNode'][0] }} -f M -ub 0 -i 1 -t 100 -P 3 -O 5 -w 256k
+      shell: iperf3 -c {{ groups['SlaveDevice'][0] }} -f M -ub 0 -i 1 -t 100 -P 3 -O 5 -w 256k
       register: logdata
       ignore_errors: yes
 

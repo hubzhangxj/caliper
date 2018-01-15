@@ -1,4 +1,4 @@
-- hosts: TestNode
+- hosts: SlaveDevice
   roles:
   - runserver
 
@@ -10,7 +10,7 @@
         state: absent
 
     - name: run iperf3 TCP_sin_1_rx
-      shell: iperf3 -c {{ groups['TestNode'][0] }} -f M -i 1 -O 5 -t 100 -w 256k -R
+      shell: iperf3 -c {{ groups['SlaveDevice'][0] }} -f M -i 1 -O 5 -t 100 -w 256k -R
       register: logdata
       ignore_errors: yes
 

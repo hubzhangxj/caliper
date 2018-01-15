@@ -1,6 +1,6 @@
 - hosts: '{{ hosts }}'
   roles:
   - ../../iperf
-- hosts: TestNode
+- hosts: SlaveDevice
   roles:
   - ../../iperf

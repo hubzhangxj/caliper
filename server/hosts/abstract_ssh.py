@@ -14,7 +14,7 @@ from caliper.server.hosts import remote_host
 from caliper.server.shared.settings import settings
 
 
-enable_master_ssh = settings.get_value('TestNode', 'enable_master_ssh',
+enable_master_ssh = settings.get_value('Common', 'enable_master_ssh',
                                         type=bool, default=False)
 
 

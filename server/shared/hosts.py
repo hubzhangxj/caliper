@@ -73,14 +73,14 @@ class Host(object):
         return self.run(command, *args, **dargs).stdout.rstrip()
 
     def disable_ipfilters(self):
-        self.run('iptables-save >/ tmp/iptable-rules')
+        self.run('iptables-save > /tmp/iptable-rules')
         self.run('iptables -P INPUT ACCEPT')
         self.run('iptables -P FORWARD ACCEPT')
         self.run('iptables -P OUTPUT ACCEPT')
 
     def enable_ipfilters(self):
         if self.path_exists('/tmp/iptables-runles'):
-            self.run('iptables-restore < /tmp/iptable-runles')
+            self.run('iptables-restore > /tmp/iptable-runles')
 
     def install(self, installableObject):
         installableObject.install(self)

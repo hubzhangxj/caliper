@@ -27,9 +27,9 @@ def get_section():
     dic = {}
     cf = ConfigParser.ConfigParser()
     cf.read(Folder.project_config)
-    devices = cf.options('fasttest')
+    devices = cf.options('FastTest')
     for device in devices:
-        tool_list = yaml.load(cf.get('fasttest', device))
+        tool_list = yaml.load(cf.get('FastTest', device))
         dic[device] = tool_list
     return dic
 

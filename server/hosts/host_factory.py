@@ -8,7 +8,7 @@ from caliper.server.hosts import ssh_host
 
 DEFAULT_FOLLOW_PATH = '/var/log/kern.log'
 DEFAULT_PATTERNS_PATH = 'console_patterns'
-SSH_ENGINE = settings.settings.get_value('TARGET', 'ssh_engine')
+SSH_ENGINE = settings.settings.get_value('Common', 'ssh_engine')
 _started_hostnames = set()
 
 

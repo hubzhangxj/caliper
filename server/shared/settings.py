@@ -163,7 +163,7 @@ class Settings(object):
             return conv_val
         except Exception:
             msg = ("Could not convert %s value in section %s to type %s" %
-                    (key, sval, section, value_type))
+                    (key, section, value_type))
             raise SettingsValueError(msg)
 
 # insure the class is a singleton. Now the symbol settings will point to the

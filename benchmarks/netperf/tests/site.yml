@@ -2,6 +2,6 @@
   roles:
   - ../../netperf
 
-- hosts: TestNode
+- hosts: SlaveDevice
   roles:
   - ../../netperf

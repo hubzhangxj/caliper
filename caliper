@@ -28,9 +28,7 @@ from caliper.server.hosts import host_factory
 from caliper.server.shared import caliper_path
 from caliper.server.shared import send_mails
 from caliper.server import summary
-# from caliper.server.parser_process import parser as parser_engine
 from caliper.server.parser_process import normalize
-# from caliper.server.shared.caliper_path import intermediate
 from caliper.server.shared.caliper_path import folder_ope as Folder
 from caliper.server.upload import upload
 
@@ -78,7 +76,7 @@ def get_remote_host():
     user_list = cf.get(sections[0], cf.options(sections[0])[0])
     user = user_list.split(' ')[0]
     port = 22
-    password = user_list.split('"')[-2]
+    password = user_list.split('"')[1]
     remote_host = host_factory.create_host(client_ip, user, password, port)
     return remote_host
 
@@ -148,9 +146,9 @@ def get_sections():
     case_list = yaml.load(fp.read())
     cf = ConfigParser.ConfigParser()
     cf.read(os.path.join(caliper_path.config_files.config_dir, 'project_config.cfg'))
-    devices = cf.options('fasttest')
+    devices = cf.options('FastTest')
     for device in devices:
-        tool_list = yaml.load(cf.get('fasttest', device))
+        tool_list = yaml.load(cf.get('FastTest', device))
         all_sections = all_sections + tool_list
     sections = list(set(all_sections))
     for section in sections:
@@ -189,7 +187,7 @@ def push_ssh_key():
         cf.read(os.path.join(caliper_path.config_files.config_dir, 'project_config.cfg'))
         sections = cf.sections()
         for section in sections:
-            if 'Device' not in section or 'TestNode' not in section:
+            if 'Device' not in section:
                 continue
             subprocess.call('ansible-playbook -i project_config.cfg push_sshkey.yml -e hosts=%s -u %s' % (section, getpass.getuser()), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     except Exception as e:

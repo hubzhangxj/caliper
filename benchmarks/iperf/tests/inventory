@@ -1,5 +1,5 @@
 [Device]
 127.0.0.1
-[TestNode]
+[SlaveDevice]
 127.0.0.1
 
