@@ -26,7 +26,7 @@ I_TABLE = "i_table"
 
 def parser_caliper_tests(sections, run_case_list):
     if not os.path.exists(Folder.exec_dir):
-        print "Invalid Parser input Folder"
+        logging.info("Invalid Parser input Folder")
         return -1
 
     if not os.path.exists(Folder.results_dir):
@@ -80,7 +80,12 @@ def parsing_run(sections, run_case_list):
             logging.info("Parsing json %s" % sections[i])
             log_bench = os.path.join(Folder.exec_dir, sections[i])
             logfile = log_bench + "_output.log"
-            parser_json(sections[i],  parser, logfile)
+            outfile_name = sections[i] + '.json'
+            outfile = os.path.join(Folder.json_dir, outfile_name)
+            if not os.path.exists(Folder.json_dir):
+                os.mkdir(Folder.json_dir)
+            parser_case(sections[i], parser, sections[i], logfile, outfile)
+            # parser_json(sections[i],  parser, logfile)
         except Exception as e:
             logging.info(e)
         else:
@@ -207,9 +212,12 @@ def parser_case(bench_name, parser_file, parser, infile, outfile):
                     # call the parser function to filter the output
                     logging.debug("Begining to parser the result of the case")
                     result = methodToCall(content, outfp)
-                except Exception, e:
-                    logging.info(e)
-                    return -5
+                except:
+                    try:
+                        result = methodToCall(infile, outfp)
+                    except Exception, e:
+                        logging.info(e)
+                        return -5
             outfp.close()
             infp.close()
     fp.close()

@@ -19,7 +19,7 @@
       become_method: sudo
       become_user: root
 
-    - lineinfile: create=yes  dest=/tmp/hardwareinfo_output.log line="{{ logdata.stdout+'\n'+logdata.stderr }}" state=present
+    - lineinfile: create=yes  dest=/tmp/hardwareinfo_output.log line="{{ logdata.stdout+'\n'+logdata.stderr }}" state=present mode=0755
 
 
     - name: fetch result

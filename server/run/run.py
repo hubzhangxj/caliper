@@ -11,6 +11,7 @@ import subprocess
 import ConfigParser
 import yaml
 import threading
+import getpass
 try:
     import common
 except ImportError:
@@ -262,8 +263,8 @@ class run_case_thread(threading.Thread):
                                 % (cmd_sec_name, cmd_sec_name_tmp_file),shell=True)
                 os.chdir(test_case_dir)
                 result = subprocess.call(
-                    'ansible-playbook -i %s %s.yml --extra-vars "hosts=%s" -u root>> %s 2>&1' %
-                    (Folder.project_config, cmd_sec_name, self.host, cmd_sec_name_tmp_file), stdout=subprocess.PIPE, shell=True)
+                    'ansible-playbook -i %s %s.yml --extra-vars "hosts=%s" -u %s>> %s 2>&1' %
+                    (Folder.project_config, cmd_sec_name, self.host, getpass.getuser(), cmd_sec_name_tmp_file), stdout=subprocess.PIPE, shell=True)
                 subprocess.call("echo '$$ %s RUN STOP' >> %s"
                                 % (cmd_sec_name, cmd_sec_name_tmp_file), shell=True)
                 subprocess.call("echo '==================================' >> %s"
