@@ -84,7 +84,7 @@ def parsing_run(sections, run_case_list):
             outfile = os.path.join(Folder.json_dir, outfile_name)
             if not os.path.exists(Folder.json_dir):
                 os.mkdir(Folder.json_dir)
-            parser_case(sections[i], parser, sections[i], logfile, outfile)
+            parser_case(sections[i], parser, sections[i], logfile, outfile, 'json')
             # parser_json(sections[i],  parser, logfile)
         except Exception as e:
             logging.info(e)
@@ -149,7 +149,7 @@ def parse_all_cases(kind_bench, bench_name, parser_file, dic, run_case_list):
                 outfp.close()
                 parser_result = parser_case(bench_name, parser_file,
                                             parser, tmp_log_file,
-                                            tmp_parser_file)
+                                            tmp_parser_file, 'parser')
                 dic[bench_name][section]["type"] = type(parser_result)
                 dic[bench_name][section]["value"] = parser_result
             except Exception, e:
@@ -172,7 +172,7 @@ def parse_all_cases(kind_bench, bench_name, parser_file, dic, run_case_list):
             i += 1
             continue
 
-def parser_case(bench_name, parser_file, parser, infile, outfile):
+def parser_case(bench_name, parser_file, parser, infile, outfile, option):
     if not os.path.exists(infile):
         return -1
     fp = open(outfile, 'a+')
@@ -205,62 +205,25 @@ def parser_case(bench_name, parser_file, parser, infile, outfile):
         else:
             infp = open(infile, "r")
             outfp = open(outfile, 'a+')
-            contents = infp.read()
-            for content in re.findall("BEGIN TEST(.*?)\[status\]", contents,
-                                      re.DOTALL):
+            if option == 'json':
                 try:
-                    # call the parser function to filter the output
-                    logging.debug("Begining to parser the result of the case")
-                    result = methodToCall(content, outfp)
-                except:
+                    result = methodToCall(infile, outfp)
+                except Exception, e:
+                    logging.info(e)
+            else:
+                contents = infp.read()
+                for content in re.findall("BEGIN TEST(.*?)\[status\]", contents,
+                                          re.DOTALL):
                     try:
-                        result = methodToCall(infile, outfp)
+                        # call the parser function to filter the output
+                        logging.debug("Begining to parser the result of the case")
+                        result = methodToCall(content, outfp)
                     except Exception, e:
                         logging.info(e)
                         return -5
             outfp.close()
             infp.close()
     fp.close()
-    return result
-
-def parser_json(bench_name, parser_file, infile):
-    if not os.path.exists(Folder.json_dir):
-        os.mkdir(Folder.json_dir)
-    outfile_name = bench_name +'.json'
-    outfile = os.path.join(Folder.json_dir, outfile_name)
-    if not parser_file:
-        pwd_file = bench_name + "_parser.py"
-        parser_file = os.path.join(caliper_path.BENCHS_DIR, bench_name, 'handlers', pwd_file)
-    else:
-        parser_file = os.path.join(caliper_path.BENCHS_DIR, bench_name, 'handlers', parser_file)
-    rel_path = bench_name + "_parser.py"
-    parser_name = rel_path.replace('.py', '')
-    handlers_path = os.path.join(caliper_path.BENCHS_DIR, bench_name, 'handlers')
-    sys.path.append(handlers_path)
-
-    result = 0
-    if os.path.isfile(parser_file):
-        try:
-            # import the parser module import_module
-            parser_module = importlib.import_module(parser_name)
-        except ImportError, e:
-            logging.info(e)
-            return -3
-        try:
-            methodToCall = getattr(parser_module, bench_name)
-        except Exception, e:
-            logging.info(e)
-            return -4
-        else:
-            outfp = open(outfile, 'a+')
-            try:
-                # call the parser function to filter the output
-                logging.debug("Begining to parser the result of the case")
-                result = methodToCall(infile, outfp)
-            except Exception, e:
-                logging.info(e)
-                return -5
-            outfp.close()
     return result
 
 def parseData(filePath):
