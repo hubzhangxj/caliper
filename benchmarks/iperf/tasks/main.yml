@@ -14,3 +14,7 @@
 - name: install iperf for Debian
   apt: name=iperf3 state=present
   when: ansible_distribution == 'Debian'
+
+- name: install iperf for SLES
+  apt: name=iperf3 state=present
+  when: ansible_distribution == 'SLES'

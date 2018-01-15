@@ -14,6 +14,10 @@
   apt: name=numactl state=present
   when: ansible_distribution == 'Debian'
 
+- name: install numactl for SLES
+  apt: name=numactl state=present
+  when: ansible_distribution == 'SLES'
+
 - name: copy file
   copy: src=lmbench.build.tar.gz dest=/tmp/lmbench.build.tar.gz mode=0777
 
