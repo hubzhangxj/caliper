@@ -71,16 +71,13 @@ def setup_ssh_key(hostname, user, password, port=22):
     try:
         public_key = get_public_key()
         # remote_login is need to be realize
-        print '111111111111111111111'
         session = remote.remote_login(client='ssh', host=hostname, port=port, username=user, password=password, prompt=r'[$#%]')
         session.cmd_output('mkdir -p ~/.ssh')
         session.cmd_output('chmod 700 ~/.ssh')
         session.cmd_output("echo '%s' >> ~/.ssh/authorized_keys" % public_key)
         session.cmd_output('chmod 600 ~/.ssh/authorized_keys')
         logging.debug('SSH key setup complete.')
-        print '222222222222222222222222'
     except Exception as err:
-        print '33333333333333333333333'
         logging.debug('SSH key setup has failed: %s', err)
         try:
             session.close()
