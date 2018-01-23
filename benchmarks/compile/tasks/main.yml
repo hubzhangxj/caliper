@@ -3,6 +3,7 @@
 
 - name: download kernel-dev.tar.gz
   shell: cd /tmp/compile && wget -c www.estuarydev.org/caliper/kernel-dev.tar.gz
+  ignore_errors: yes
 
 - name: copy file
   copy: src=compile_test.sh dest=/tmp/compile/compile_test.sh mode=0777

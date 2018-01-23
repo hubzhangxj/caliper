@@ -11,6 +11,16 @@
   when: ansible_distribution == 'Ubuntu'
   ignore_errors: yes
 
+- name: install jq for SLES
+  zypper: name=jq state=present
+  when: ansible_distribution == 'SLES'
+  ignore_errors: yes
+
+- name: install jq for CentOS
+  yum: name=jq state=present disable_gpg_check=yes
+  when: ansible_distribution == 'CentOS'
+  ignore_errors: yes
+
 - name: install ethtool for redhat
   yum: name=ethtool state=present disable_gpg_check=yes
   when: ansible_os_family == 'RedHat'
@@ -19,6 +29,16 @@
 - name: install ethtool for ubuntu
   apt: name=ethtool state=present
   when: ansible_distribution == 'Ubuntu'
+  ignore_errors: yes
+
+- name: install ethtool for SLES
+  zypper: name=ethtool state=present
+  when: ansible_distribution == 'SLES'
+  ignore_errors: yes
+
+- name: install ethtool for CentOS
+  yum: name=ethtool state=present disable_gpg_check=yes
+  when: ansible_distribution == 'CentOS'
   ignore_errors: yes
 
 - name: install lshw for redhat
@@ -31,6 +51,16 @@
   when: ansible_distribution == 'Ubuntu'
   ignore_errors: yes
 
+- name: install lshw for SLES
+  zypper: name=lshw state=present
+  when: ansible_distribution == 'SLES'
+  ignore_errors: yes
+
+- name: install lshw for CentOS
+  yum: name=lshw state=present disable_gpg_check=yes
+  when: ansible_distribution == 'CentOS'
+  ignore_errors: yes
+
 - name: install lsblk for redhat
   yum: name=lsblk state=present disable_gpg_check=yes
   when: ansible_os_family == 'RedHat'
@@ -41,6 +71,11 @@
   when: ansible_distribution == 'Ubuntu'
   ignore_errors: yes
 
+- name: install lsblk for CentOS
+  yum: name=lsblk state=present disable_gpg_check=yes
+  when: ansible_distribution == 'CentOS'
+  ignore_errors: yes
+
 - name: install dmidecode for redhat
   yum: name=dmidecode state=present disable_gpg_check=yes
   when: ansible_os_family == 'RedHat'
@@ -49,6 +84,16 @@
 - name: install dmidecode for ubuntu
   apt: name=dmidecode state=present
   when: ansible_distribution == 'Ubuntu'
+  ignore_errors: yes
+
+- name: install dmidecode for SLES
+  zypper: name=dmidecode state=present
+  when: ansible_distribution == 'SLES'
+  ignore_errors: yes
+
+- name: install dmidecode for CentOS
+  yum: name=dmidecode state=present disable_gpg_check=yes
+  when: ansible_distribution == 'CentOS'
   ignore_errors: yes
 
 - name: copy config_info_run.sh file

@@ -16,8 +16,10 @@
   when: ansible_distribution == 'Debian'
 
 - name: install bzr for SLES
-  apt: name=bzr state=present
+  copy: src=bzr-2.5.1-14.el7.aarch64.rpm dest=/tmp/bzr-2.5.1-14.el7.aarch64.rpm mode=0777
+  shell: cd /tmp && rpm -ivh bzr-2.5.1-14.el7.aarch64.rpm
   when: ansible_distribution == 'SLES'
+  ignore_errors: yes
 
 - name: copy sysbench.tar.gz
   copy: src=sysbench.tar.gz dest=/tmp/sysbench.tar.gz mode=0777

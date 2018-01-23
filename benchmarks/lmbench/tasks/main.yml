@@ -1,22 +1,27 @@
 - name: install numactl for redhat
   yum: name=numactl state=present disable_gpg_check=yes
   when: ansible_os_family == 'RedHat'
+  ignore_errors: yes
 
 - name: install numactl for ubuntu
   apt: name=numactl state=present
   when: ansible_distribution == 'Ubuntu'
+  ignore_errors: yes
 
 - name: install numactl for CentOS
   yum: name=numactl state=present disable_gpg_check=yes
   when: ansible_distribution == 'CentOS'
+  ignore_errors: yes
 
 - name: install numactl for Debian
   apt: name=numactl state=present
   when: ansible_distribution == 'Debian'
+  ignore_errors: yes
 
 - name: install numactl for SLES
-  apt: name=numactl state=present
+  zypper: name=numactl state=present
   when: ansible_distribution == 'SLES'
+  ignore_errors: yes
 
 - name: copy file
   copy: src=lmbench.build.tar.gz dest=/tmp/lmbench.build.tar.gz mode=0777
