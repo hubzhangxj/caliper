@@ -168,10 +168,14 @@ def write_info_for_tools(filename):
         write_file(filename, exec_info)
 
 
-def output_summary_info(target, summary_file, interval):
+def output_summary_info(config_json, summary_file, interval):
     if os.path.exists(summary_file):
         os.remove(summary_file)
-    hardware_info = server_utils.get_host_hardware_info(target)
+    try:
+        fp = open(config_json, 'r')
+        hardware_info = yaml.load(fp)
+    except:
+        hardware_info = {}
     write_yaml_file(hardware_info, summary_file)
     used_time = "Total used time: %.4s minutes" % (interval/60.0)
     write_file(summary_file, used_time)

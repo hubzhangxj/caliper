@@ -335,7 +335,9 @@ if __name__=="__main__":
         interval = end_time - start_time
         try:
             summary_path = os.path.join(caliper_path.folder_ope.workspace, 'output', 'results_summary.log')
-            summary.output_summary_info(remote_host, summary_path, interval.seconds)
+            json_file = os.path.join(caliper_path.folder_ope.workspace, "output", "results", "json",
+                                     'hardwareinfo.json')
+            summary.output_summary_info(json_file, summary_path, interval.seconds)
         except Exception, e:
             logging.info(e)
             pass
@@ -389,7 +391,8 @@ if __name__=="__main__":
             interval = end_time - start_time
             try:
                 summary_path = os.path.join(caliper_path.folder_ope.workspace, 'output', 'results_summary.log')
-                summary.output_summary_info(remote_host, summary_path, interval.seconds)
+                json_file = os.path.join(caliper_path.folder_ope.workspace, "output", "results", "json", 'hardwareinfo.json')
+                summary.output_summary_info(json_file, summary_path, interval.seconds)
             except Exception, e:
                 logging.info(e)
                 pass
