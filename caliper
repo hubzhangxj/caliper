@@ -331,17 +331,6 @@ if __name__=="__main__":
         # run
         result2 = run_caliper(test_node, f_option, sections, run_case_list, num)
 
-        end_time = datetime.datetime.now()
-        interval = end_time - start_time
-        try:
-            summary_path = os.path.join(caliper_path.folder_ope.workspace, 'output', 'results_summary.log')
-            json_file = os.path.join(caliper_path.folder_ope.workspace, "output", "results", "json",
-                                     'hardwareinfo.json')
-            summary.output_summary_info(json_file, summary_path, interval.seconds)
-        except Exception, e:
-            logging.info(e)
-            pass
-
         # parser
         try:
             result2 = parser_caliper_logs(sections, run_case_list)
@@ -358,6 +347,17 @@ if __name__=="__main__":
             #     parser_caliper(remote_host)
         except Exception as e:
             print e
+            pass
+
+        end_time = datetime.datetime.now()
+        interval = end_time - start_time
+        try:
+            summary_path = os.path.join(caliper_path.folder_ope.workspace, 'output', 'results_summary.log')
+            json_file = os.path.join(caliper_path.folder_ope.workspace, "output", "results", "json",
+                                     'hardwareinfo.json')
+            summary.output_summary_info(json_file, summary_path, interval.seconds)
+        except Exception, e:
+            logging.info(e)
             pass
 
         # upload
@@ -387,16 +387,6 @@ if __name__=="__main__":
             sections, run_case_list = get_run_sections(options.run)
             result2 = run_caliper(test_node, f_option, sections, run_case_list, num)
 
-            end_time = datetime.datetime.now()
-            interval = end_time - start_time
-            try:
-                summary_path = os.path.join(caliper_path.folder_ope.workspace, 'output', 'results_summary.log')
-                json_file = os.path.join(caliper_path.folder_ope.workspace, "output", "results", "json", 'hardwareinfo.json')
-                summary.output_summary_info(json_file, summary_path, interval.seconds)
-            except Exception, e:
-                logging.info(e)
-                pass
-
     if options.parse:
         if options.run:
             sections, run_case_list = get_run_sections(options.run)
@@ -409,6 +399,7 @@ if __name__=="__main__":
             result2 = score.compute_caliper_logs(sections, run_case_list,1)
         except Exception:
             raise
+
     if options.score:
         if options.run:
             sections, run_case_list = get_run_sections(options.run)
@@ -423,6 +414,16 @@ if __name__=="__main__":
             pass
 
     if options.upload:
+        end_time = datetime.datetime.now()
+        interval = end_time - start_time
+        try:
+            summary_path = os.path.join(caliper_path.folder_ope.workspace, 'output', 'results_summary.log')
+            json_file = os.path.join(caliper_path.folder_ope.workspace, "output", "results", "json",
+                                     'hardwareinfo.json')
+            summary.output_summary_info(json_file, summary_path, interval.seconds)
+        except Exception, e:
+            logging.info(e)
+            pass
         try:
             # filter all the test cases to get only the common test cases passed in all the plaforms. other test cases marked as INVALID.
             flag = write_results.yaml_filter(Folder.yaml_dir)
