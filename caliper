@@ -177,9 +177,9 @@ def push_ssh_key():
     :return: 
     '''
     TEST_CASE_DIR = caliper_path.config_files.config_dir
-    ssh_key_path = os.path.join(os.environ['HOME'], '.ssh', 'id_dsa.pub')
+    ssh_key_path = os.path.join(os.environ['HOME'], '.ssh', 'id_rsa.pub')
     if not os.path.exists(ssh_key_path):
-        os.system("ssh-keygen -t dsa -P '' -f '%s/.ssh/id_dsa'"% os.environ['HOME'])
+        os.system("ssh-keygen -t rsa -P '' -f '%s/.ssh/id_rsa'"% os.environ['HOME'])
     try:
         logging.info('Begining to push ssh key for the test host')
         os.chdir(TEST_CASE_DIR)
