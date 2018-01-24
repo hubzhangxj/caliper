@@ -1,25 +1,9 @@
-#install iperf
-- name: install iperf for redhat
-  yum: name=iperf3 state=present disable_gpg_check=yes
-  when: ansible_os_family == 'RedHat'
-  ignore_errors: yes
+- name: copy file
+  copy: src=iperf.tar.gz dest=/tmp/iperf.tar.gz mode=0777
 
-- name: install iperf for ubuntu
-  apt: name=iperf3 state=present
-  when: ansible_distribution == 'Ubuntu'
-  ignore_errors: yes
+- name: tar file
+  shell: cd /tmp && tar xvf iperf.tar.gz && rm -rf iperf.tar.gz
 
-- name: install iperf for CentOS
-  yum: name=iperf3 state=present disable_gpg_check=yes
-  when: ansible_distribution == 'CentOS'
-  ignore_errors: yes
-
-- name: install iperf for Debian
-  apt: name=iperf3 state=present
-  when: ansible_distribution == 'Debian'
-  ignore_errors: yes
-
-- name: install iperf for SLES
-  zypper: name=iperf3 state=present
-  when: ansible_distribution == 'SLES'
+- name: run install
+  shell: "cd /tmp/iperf && ./install.sh"
   ignore_errors: yes

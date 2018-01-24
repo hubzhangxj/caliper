@@ -9,7 +9,8 @@
         path: /tmp/iperf_output.log
         state: absent
 
-    - name: run iperf3 {{ groups['SlaveDevice'][0] }} -f M -ub 0 -i 1 -t 100 -P 10 -O 5 -w 256k
+    - name: run iperf_UDP_sin_10_tx
+      shell: cd /tmp/iperf/src && ./iperf3 {{ groups['SlaveDevice'][0] }} -f M -ub 0 -i 1 -t 100 -P 10 -O 5 -w 256k
       register: logdata
       ignore_errors: yes
 
