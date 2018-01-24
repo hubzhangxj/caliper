@@ -2,11 +2,12 @@
 - name: mkdir /tmp/sdb/
   shell: mkdir -p /tmp/sdb/
 
-- name: install fio for redhat
-  yum: name=fio state=present disable_gpg_check=yes
-  when: ansible_os_family == 'RedHat'
+- name: copy file
+  copy: src=fio.tar.gz dest=/tmp/fio.tar.gz mode=0777
 
-- name: install fio for ubuntu
-  apt: name=fio state=present
-  when: ansible_distribution == 'Ubuntu'
+- name: tar file
+  shell: cd /tmp && tar xvf fio.tar.gz && rm -rf fio.tar.gz
+
+- name: run install
+  shell: "cd /tmp/fio && ./install.sh"
 

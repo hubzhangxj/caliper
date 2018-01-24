@@ -42,8 +42,8 @@ def get_public_key():
         print "RSA keypair found, using it"
         public_key_path = rsa_public_key_path
     else:
-        print "Neither RSA or DSA keypair found, creating DSA ssh key pair "
-        os.system('ssh-keygen -t dsa -q -N "" -f %s' % dsa_private_key_path)
+        print "Neither RSA or DSA keypair found, creating RSA ssh key pair "
+        os.system('ssh-keygen -t rsa -q -N "" -f %s' % rsa_private_key_path)
         public_key_path = dsa_public_key_path
 
     public_key = open(public_key_path, 'r')
@@ -83,3 +83,4 @@ def setup_ssh_key(hostname, user, password, port=22):
             session.close()
         except:
             pass
+        pass
