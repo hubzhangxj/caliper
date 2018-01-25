@@ -1,5 +1,5 @@
 ---
-- hosts: multiclient
+- hosts: MasterDevice
   tasks:
     - name: remove latest data
       file:
@@ -10,23 +10,21 @@
       become_user: root
     
     - name: create {{ home }}/caliper_output/caliper/benchmarks/redis/
-      file: path={{ home }}/caliper_output/caliper/benchmarks/redis/  state="directory"
+      file: path=/tmp/redis/  state="directory"
 
     - name: copy redis
       copy:
-        src: "{{ home }}/caliper_output/caliper/benchmarks/redis/"
-        dest: "{{ home }}/caliper_output/caliper/benchmarks/redis/"
+        src: "~/.caliper/benchmarks/redis/"
+        dest: "/tmp/redis/"
         mode: 0755
         backup: yes
-
-    - name: diff redis
-      shell: "echo {{ groups['SlaveDevice'][0] }} >> /tmp/redis_output.log"
-      
+ 
     - name: test redis benchmark on client
-      shell: "{{ home }}/caliper_output/caliper/benchmarks/redis/run_client.sh {{ groups['multiserver'][0] }}"                        
+      shell: "/tmp/redis/run_client.sh {{ groups['SlaveDevice'][0] }}"
+      ignore_error: yes                        
       become: true
       become_method: sudo
-#      become_user: root
+      become_user: root
 
     - name: fetch result
       fetch:
@@ -38,7 +36,7 @@
       become_user: root
 
     - name: del redis on client
-      shell: "rm -rf {{ home}}/caliper_output"
+      shell: "rm -rf /tmp/redis/"
       become: true
       become_method: sudo
       become_user: root

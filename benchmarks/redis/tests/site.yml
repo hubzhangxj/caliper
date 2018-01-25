@@ -1,6 +1,6 @@
 ---
 - name: install redis on server
-  hosts: multiserver
+  hosts: SlaveDevice
   roles:
     - redis
   become: true
@@ -8,7 +8,7 @@
   become_user: root
 
 - name: start redis on server
-  hosts: multiserver
+  hosts: SlaveDevice
   roles:
     - redis-server
   become: true
@@ -16,7 +16,7 @@
   become_user: root
 
 - name: install redis on client
-  hosts: multiclient
+  hosts: MasterDevice
   roles:
     - redis
   become: true

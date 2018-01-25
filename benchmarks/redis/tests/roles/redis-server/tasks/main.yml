@@ -1,16 +1,16 @@
 ---
-- name: create ~/caliper_output/caliper/benchmarks/redis/
-  file: path=~/caliper_output/caliper/benchmarks/redis/ state="directory"
+- name: create /tmp/redis/
+  file: path=/tmp/redis/ state="directory"
 
 - name: copy redis scripts
   copy:
-    src: ~/caliper_output/caliper/benchmarks/redis/
-    dest: ~/caliper_output/caliper/benchmarks/redis/
+    src: ~/.caliper/benchmarks/redis/
+    dest: /tmp/redis/
     mode: 0755
     backup: yes
 
 - name: start redis-server on server
-  command: "{{ home }}/caliper_output/caliper/benchmarks/redis/run_server.sh"
+  command: "/tmp/redis/run_server.sh"
   become: true
   become_method: sudo
   become_user: root

@@ -1,14 +1,14 @@
 ---
-- name: create ~/caliper_output/caliper/benchmarks/nginx
-  file: path={{ home }}/caliper_output/caliper/benchmarks/nginx state="directory"
+- name: create /tmp/nginx
+  file: path=/tmp/nginx state="directory"
   become: true
   become_method: sudo
   become_user: root
 
 - name: copy nginx test
   copy:
-    src: "{{ home }}/caliper_output/caliper/benchmarks/nginx/"
-    dest: "{{ home }}/caliper_output/caliper/benchmarks/nginx/"
+    src: "~/.caliper/benchmarks/nginx/"
+    dest: "/tmp/nginx/"
     mode: 0755
     backup: yes
   become: true
@@ -16,7 +16,7 @@
   become_user: root
       
 - name: build nginx-client on client
-  command: sh {{ home }}/caliper_output/caliper/benchmarks/nginx/build-client.sh
+  command: sh /tmp/nginx/build-client.sh
   become: true
   become_method: sudo
   become_user: root

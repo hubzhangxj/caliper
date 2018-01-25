@@ -11,5 +11,10 @@
     - redis-server
   when: ansible_distribution == "Ubuntu" 
 
+- name: install redis for Centos
+  yum: name=redis state=present
+  when: ansible_distribution == "CentOS" 
 
-
+- name: install redis for SLSE
+  zypper: name=redis state=present
+  when: ansible_distribution == "SLSE" 

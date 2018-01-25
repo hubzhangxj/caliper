@@ -15,7 +15,7 @@ setup_webserver()
 
 setup_webserver
 
-start nginx
+#start nginx
 $NGINX_PATH/sbin/nginx -s stop
 sleep 1
 $NGINX_PATH/sbin/nginx -c $NGINX_PATH/conf/$CONF_FILE

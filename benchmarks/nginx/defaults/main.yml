@@ -4,4 +4,6 @@ nginx:
   nginx_run:
     category: 'Performance application nginx_32_core_local_wrps'
     scores_way: 'compute_speed_score 1'
+    no_of_clients: '1'
+    command: 'run'
     parser: 'nginx_parser'

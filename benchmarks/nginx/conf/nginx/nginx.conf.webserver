@@ -19,8 +19,8 @@ http {
 
     log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                       '$status $body_bytes_sent "$http_referer" '
-                      '"$http_user_agent" "$http_x_forwarded_for"'
-		  '"$ssl_client_s_dn" "$ssl_client_serial" "$ssl_client_verify"';
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+#		  '"$ssl_client_s_dn" "$ssl_client_serial" "$ssl_client_verify"';
 
 #    access_log  logs/access.log  main;
 
@@ -46,25 +46,25 @@ http {
         }
     }
 
-    server {
-        listen       44301 ssl;
-        server_name  nginx-server;
-
-	ssl_certificate nginx.crt;
-	ssl_certificate_key nginx.key;
-
-        #charset koi8-r;
-
-        location / {
-            root   html;
-            index  index.html index.htm;
-        }
-
-        # redirect server error pages to the static page /50x.html
-        #
-        error_page   500 502 503 504  /50x.html;
-        location = /50x.html {
-            root   html;
-        }
-    }
+#    server {
+#        listen       44301 ssl;
+#        server_name  nginx-server;
+#
+#	ssl_certificate nginx.crt;
+#	ssl_certificate_key nginx.key;
+#
+#        #charset koi8-r;
+#
+#        location / {
+#            root   html;
+#            index  index.html index.htm;
+#       # }
+#
+#        # redirect server error pages to the static page /50x.html
+#        #
+#        error_page   500 502 503 504  /50x.html;
+#        location = /50x.html {
+#            root   html;
+#        }
+#    }
 }

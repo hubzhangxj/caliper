@@ -1,9 +1,9 @@
 ---
-- hosts: multiclient
+- hosts: MasterDevice
   roles:
   - build-client
 
-- hosts: multiserver
+- hosts: SlaveDevice
   roles:
   - build-server
   - start-server
