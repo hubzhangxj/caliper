@@ -5,3 +5,9 @@
   become_method: sudo
   become_user: root
 
+- name: stop nginx
+  shell: "killall -9 nginx"
+  become: true
+  become_method: sudo 
+  become_user: root
+  ignore_error: yes
