@@ -221,8 +221,6 @@ class run_case_thread(threading.Thread):
             [out, returncode] = self.run_commands(bench_name, cmd_sec_name)
             fp.close()
             server_utils.file_copy(tmp_logfile, '/tmp/%s_output.log' % bench_name, 'a+')
-            # if os.path.exists('/tmp/%s_output.log' % bench_name):
-            #     os.remove('/tmp/%s_output.log' % bench_name)
         except error.ServRunError, e:
             fp = open(tmp_logfile, "a+")
             fp.write("[status]: FAIL\n")
@@ -246,6 +244,8 @@ class run_case_thread(threading.Thread):
             fp.write("<<<END>>>\n")
             fp.write("%%%%%% test_end %%%%%%\n\n")
         fp.close()
+        if os.path.exists('/tmp/%s_output.log' % bench_name):
+            os.remove('/tmp/%s_output.log' % bench_name)
         return flag
 
     def run_commands(self, bench_name, cmd_sec_name):
