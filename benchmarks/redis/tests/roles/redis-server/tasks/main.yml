@@ -9,8 +9,16 @@
     mode: 0755
     backup: yes
 
-- name: start redis-server on server
+- name: start redis-server in ubuntu 
+  command: "/tmp/redis/run_server_ubuntu.sh"
+  when: ansible_distribution == "Ubuntu"  
+  become: true
+  become_method: sudo
+  become_user: root
+
+- name: start redis-server in not_ubuntu
   command: "/tmp/redis/run_server.sh"
+  when: ansible_distribution != "Ubuntu"  
   become: true
   become_method: sudo
   become_user: root
