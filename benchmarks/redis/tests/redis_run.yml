@@ -41,5 +41,25 @@
       become_method: sudo
       become_user: root
 
+- hosts: SlaveDevice
+  tasks:
+    - name: stop redis-server
+      shell: "/etc/init.d/redis-server stop"
+      become: true
+      become_method: sudo
+      become_user: root
+      ignore_error: yes                        
 
-
+    - name: stop redis-sentinel 
+      shell: "/etc/init.d/redis-sentinel stop"
+      become: true
+      become_method: sudo
+      become_user: root
+      ignore_error: yes
+              
+    - name: stop redis-server
+      shell: "killall -9 redis-server"
+      become: true
+      become_method: sudo
+      become_user: root
+      ignore_error: yes                        
