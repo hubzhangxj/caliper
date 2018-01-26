@@ -21,3 +21,8 @@
         src: /tmp/qperf_output.log
         dest: /tmp/qperf_output.log
         flat: yes
+
+- hosts: SlaveDevice
+  tasks:
+    - name: stop server
+      shell: killall qperf
