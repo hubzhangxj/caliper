@@ -26,3 +26,4 @@
   tasks:
     - name: stop server
       shell: killall netserver
+      ignore_errors: yes

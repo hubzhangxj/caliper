@@ -25,3 +25,4 @@
   tasks:
     - name: stop server
       shell: killall iperf3
+      ignore_errors: yes

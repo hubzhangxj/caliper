@@ -21,7 +21,9 @@
         src: /tmp/iperf_output.log
         dest: /tmp/iperf_output.log
         flat: yes
+
 - hosts: SlaveDevice
   tasks:
     - name: stop server
       shell: killall iperf3
+      ignore_errors: yes
