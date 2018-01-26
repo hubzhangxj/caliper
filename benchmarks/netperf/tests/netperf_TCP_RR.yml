@@ -21,3 +21,8 @@
         src: /tmp/netperf_output.log
         dest: /tmp/netperf_output.log
         flat: yes
+
+- hosts: SlaveDevice
+  tasks:
+    - name: stop server
+      shell: killall netserver
