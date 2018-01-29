@@ -131,25 +131,3 @@ def scp_remote_escape(filename):
             new_name.append(char)
 
     return sh_escape("".join(new_name))
-
-
-def parse_machine(machine, user='root', password='', port=22, profile=''):
-    """
-    Parser the machine string user:password@host:port and return it separately
-    """
-    if '@' in machine:
-        user, machine = machine.split('@', 1)
-    if ':' in user:
-        user, password = user.split(':', 1)
-    if ':' in machine:
-        machine, port = machine.split(':', 1)
-        try:
-            port = int(port)
-        except ValueError:
-            port, profile = machine.split('#', 1)
-            port = int(port)
-    if '#' in machine:
-        machine, profile = machine.split('#', 1)
-    if not machine or not user:
-        return ValueError
-    return machine, user, password, port, profile

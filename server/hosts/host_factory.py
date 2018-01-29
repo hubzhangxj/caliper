@@ -18,8 +18,10 @@ def create_host(hostname, ssh_user, ssh_pass, ssh_port):
     # here, ssh_user, ssh_pass and ssh_port are injected in he namespace
     # pylint: disable=E0602
     args = {}
-    hostname, args['user'], args['password'], args['port'], args['profile'] = (
-            utils.parse_machine(hostname, ssh_user, ssh_pass, ssh_port))
+    args['user'] = ssh_user
+    args['password'] = ssh_pass
+    args['port'] = ssh_port
+    args['profile'] = ''
 
     # by fault, assume we use SSH support
     if SSH_ENGINE == "paramiko":
