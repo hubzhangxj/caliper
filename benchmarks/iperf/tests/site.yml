@@ -1,6 +1,9 @@
-- hosts: '{{ hosts }}'
+- name: Install iperf on Client
+  hosts: '{{ hosts }}'
   roles:
-  - ../../iperf
-- hosts: SlaveDevice
+    - { role: ../../iperf, install_iperf: true, run_server: no}
+
+- name: Install iperf on SlaveDevice
+  hosts: SlaveDevice
   roles:
-  - ../../iperf
+    - { role: ../../iperf, install_iperf: true, run_server: no}

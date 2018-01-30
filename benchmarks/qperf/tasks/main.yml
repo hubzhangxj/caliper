@@ -1,9 +1,5 @@
-- name: copy file
-  copy: src=qperf-0.4.9.tar.gz dest=/tmp/qperf-0.4.9.tar.gz mode=0777
+- include: install_qperf.yml
+  when: install_qperf | bool
 
-- name: tar file
-  shell: cd /tmp && tar xvf qperf-0.4.9.tar.gz && rm -rf qperf-0.4.9.tar.gz
-
-- name: run install
-  shell: "cd /tmp/qperf-0.4.9 && ./install.sh"
-  ignore_errors: yes
+- include: run_qperf_server.yml
+  when: run_server | bool

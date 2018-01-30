@@ -1,9 +1,5 @@
-- name: copy file
-  copy: src=netperf.tar.gz dest=/tmp/netperf.tar.gz mode=0777
+- include: install_netperf.yml
+  when: install_netperf | bool
 
-- name: tar file
-  shell: cd /tmp && tar xvf netperf.tar.gz && rm -rf netperf.tar.gz
-
-- name: run install
-  shell: "cd /tmp/netperf && ./install_netperf.sh"
-  ignore_errors: yes
+- include: run_netperf_server.yml
+  when: run_server | bool

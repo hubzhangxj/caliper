@@ -1,6 +1,8 @@
-- hosts: SlaveDevice
+- name: run netperf on SlaveDevice
+  hosts: SlaveDevice
   roles:
-  - runserver
+    - { role: ../../netperf, install_netperf: no, run_server: true }
+
 
 - hosts: '{{ hosts }}'
   tasks:

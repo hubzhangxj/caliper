@@ -1,6 +1,7 @@
-- hosts: SlaveDevice
+- name: run iperf on SlaveDevice
+  hosts: SlaveDevice
   roles:
-  - runserver
+    - { role: ../../iperf, install_iperf: no, run_server: true }
 
 - hosts: '{{ hosts }}'
   tasks:
