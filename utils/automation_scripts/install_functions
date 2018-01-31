@@ -411,8 +411,8 @@ install_all_pip()
 install_caliper()
 {
     tmp_log="/tmp/caliper_tmp.log"
-    cd /tmp/Caliper/caliper/
-    setup_py="/tmp/Caliper/caliper/setup.py"
+    cd /tmp/caliper/
+    setup_py="/tmp/caliper/setup.py"
     sudo python $setup_py install > $tmp_log 2>&1
     echo "caliper install success" >> $log 2>&1 
     cd - >> $tmp_log
