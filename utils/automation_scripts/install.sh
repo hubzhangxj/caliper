@@ -4,8 +4,8 @@
 # cat caliper.install caliper-[ver].tar.gz > caliper-[ver].install
 ARCHIVE=`awk '/^__ARCHIVE_BELOW__/ {print NR+1; exit 0}' "$0"`
 
-env_config="/tmp/Caliper/environment.config"
-depend_json="/tmp/Caliper/dependency.json" 
+env_config="/tmp/caliper/utils/automation_scripts/environment.config"
+depend_json="/tmp/caliper/utils/automation_scripts/dependency.json" 
 
 ## main 
 main()
@@ -58,7 +58,7 @@ main()
 	exit 1	
     fi
 
-    . /tmp/Caliper/install_functions
+    . /tmp/caliper/utils/automation_scripts/install_functions
 
 ##	3. create log file
    
@@ -74,7 +74,7 @@ main()
 
 ##	4. write the new version number to the log file 
     
-    new_version=`cat /tmp/Caliper/caliper/common.py | grep -owP "VERSION=\K\S+" | sed 's/\"//g'`
+    new_version=`cat /tmp/caliper/common.py | grep -owP "VERSION=\K\S+" | sed 's/\"//g'`
     write_log "[caliper]" $log
     write_log "version=$new_version" $log 
 
@@ -267,10 +267,10 @@ main()
     {
     if [ ! -f $HOME/caliper_output/uninstall.sh ]
     then
-        sudo cp /tmp/Caliper/uninstall.sh $HOME/caliper_output/
+        sudo cp /tmp/caliper/utils/automation_scripts/uninstall.sh $HOME/caliper_output/
     else 
         sudo rm $HOME/caliper_output/uninstall.sh
-        sudo cp /tmp/Caliper/uninstall.sh $HOME/caliper_output/
+        sudo cp /tmp/caliper/utils/automation_scripts/uninstall.sh $HOME/caliper_output/
     fi
     } | whiptail --title "Caliper installation" --gauge "copy uninstall.sh to $HOME/caliper_output" 7 55 95
 
