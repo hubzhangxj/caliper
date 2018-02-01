@@ -53,7 +53,7 @@ main()
 
     tail -n+$ARCHIVE "$0" | tar xzm -C /tmp
 
-    if [ ! -d /tmp/Caliper ]; then
+    if [ ! -d /tmp/caliper ]; then
 	whiptail --title "Error" --msgbox "Could not find install file. exit" 9 50
 	exit 1	
     fi
