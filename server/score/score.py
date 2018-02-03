@@ -50,7 +50,7 @@ def compute_caliper_logs(sections, run_case_list, flag=1):
                 try:
                     logging.debug("Computing the score of the result of command: %s"
                                   % section)
-                    flag_compute = compute_case_score(sections[j],dic[sections[j]][section]["value"], category,
+                    flag_compute = compute_case_score(sections[j], dic[sections[j]][section]["value"], category,
                                                       scores_way, flag)
                 except Exception, e:
                     logging.info("Error while computing the result of \"%s\"" % section)
