@@ -240,9 +240,8 @@ class run_case_thread(threading.Thread):
         end = time.time()
         interval = end - start
         fp.write("Time in Seconds: %.3fs\n" % interval)
-        if not re.search('redis', bench_name):
-            fp.write("<<<END>>>\n")
-            fp.write("%%%%%% test_end %%%%%%\n\n")
+        fp.write("<<<END>>>\n")
+        fp.write("%%%%%% test_end %%%%%%\n\n")
         fp.close()
         if os.path.exists('/tmp/%s_output.log' % bench_name):
             try:

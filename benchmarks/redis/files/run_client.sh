@@ -82,5 +82,4 @@ let "cur_inst++"
 done
 
 echo "Enable unused CPU after test ..."
-echo "--------------------------------------------------" >> /tmp/redis_output.log
 #${APP_CUR_DIR}/files/enable_cpus.sh 32 64 1
