@@ -230,7 +230,7 @@
     {
       "redis":
         {
-          "redis_run":["disable" ,"1" ]
+          "redis_Instance_01":["disable" ,"1" ]
         }
     }
     ]

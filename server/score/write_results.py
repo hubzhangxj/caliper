@@ -80,6 +80,7 @@ def write_dic(sections, result, tmp, score_way, yaml_file, file_flag):
 
 def write_sin_dic(sections, result, tmp, score_way, yaml_file, file_flag):
     flag = 0
+    geo_mean = 0
     for key in result.keys():
         if type(result[key]) == list:
             sublist = result[key]
@@ -90,6 +91,17 @@ def write_sin_dic(sections, result, tmp, score_way, yaml_file, file_flag):
             geo_mean = result[key]
         elif type(result[key]) is types.IntType:
             geo_mean = result[key]
+        elif type(result[key]) == dict:
+            for sub_key in result[key].keys():
+                if type(result[key][sub_key]) == list:
+                    sublist = result[key][sub_key]
+                    geo_mean = scores_method.geometric_mean(sublist)
+                elif type(result[key][sub_key]) is types.StringType:
+                    geo_mean = string.atof(result[key][sub_key])
+                elif type(result[key][sub_key]) is types.FloatType:
+                    geo_mean = result[key][sub_key]
+                elif type(result[key][sub_key]) is types.IntType:
+                    geo_mean = result[key][sub_key]
         else:
             return -4
         tmp.append(key)

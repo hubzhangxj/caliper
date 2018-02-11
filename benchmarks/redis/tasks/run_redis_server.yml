@@ -2,22 +2,15 @@
 - name: create /tmp/redis/
   file: path=/tmp/redis/ state="directory"
 
-- name: copy redis scripts
-  copy:
-    src: ~/.caliper/benchmarks/redis/
-    dest: /tmp/redis/
-    mode: 0755
-    backup: yes
-
 - name: start redis-server in ubuntu 
-  command: "/tmp/redis/run_server_ubuntu.sh"
+  command: "/tmp/redis/files/run_server_ubuntu.sh"
   when: ansible_distribution == "Ubuntu"  
   become: true
   become_method: sudo
   become_user: root
 
 - name: start redis-server in not_ubuntu
-  command: "/tmp/redis/run_server.sh"
+  command: "/tmp/redis/files/run_server.sh"
   when: ansible_distribution != "Ubuntu"  
   become: true
   become_method: sudo

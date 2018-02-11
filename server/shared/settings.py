@@ -6,6 +6,10 @@
 #
 
 import os
+import subprocess
+import logging
+import yaml
+import getpass
 import ConfigParser
 from caliper.server.shared import error
 from caliper.server.shared import caliper_path
@@ -165,6 +169,122 @@ class Settings(object):
             msg = ("Could not convert %s value in section %s to type %s" %
                     (key, section, value_type))
             raise SettingsValueError(msg)
+
+    def read_config(self):
+        '''
+        :return: tool list and run case list
+        '''
+        config_files = os.path.join(caliper_path.config_files.config_dir, 'cases_config.json')
+        fp = open(config_files, 'r')
+        tool_list = []
+        run_case_list = []
+        case_list = yaml.load(fp.read())
+        for dimension in case_list:
+            for i in range(len(case_list[dimension])):
+                for tool in case_list[dimension][i]:
+                    for case in case_list[dimension][i][tool]:
+                        if case_list[dimension][i][tool][case][0] == 'enable':
+                            tool_list.append(tool)
+                            run_case_list.append(case)
+        sections = list(set(tool_list))
+        return sections, run_case_list
+
+    def get_config(self, option):
+        '''
+        :return: tool list and run case list
+        '''
+        config_files = os.path.join(caliper_path.config_files.config_dir, 'cases_config.json')
+        fp = open(config_files, 'r')
+        tool_list = []
+        run_case_list = []
+        case_list = yaml.load(fp.read())
+        dimension_list = case_list.keys()
+        tool_dic = {}
+        for key, value in case_list.items():
+            for va in value:
+                for toolkey, toolvalue in va.items():
+                    tool_dic[toolkey] = []
+                    for casekey, casevalue in toolvalue.items():
+                        tool_dic[toolkey].append(casekey)
+        sections = []
+        if option != 'all':
+            if option in dimension_list:
+                for i in range(len(case_list[option])):
+                    for tool in case_list[option][i]:
+                        for case in case_list[option][i][tool]:
+                            tool_list.append(tool)
+                            run_case_list.append(case)
+                sections = list(set(tool_list))
+            else:
+                if option in tool_dic:
+                    sections.append(option)
+                    run_case_list = tool_dic[option]
+                else:
+                    run_case_list.append(option)
+                    for tool in tool_dic:
+                        if option in tool_dic[tool]:
+                            sections.append(tool)
+        else:
+            sections, run_case_list = self.read_config()
+        return sections, run_case_list
+
+    def get_sections(self, dimension_list):
+        all_sections = []
+        config_files = os.path.join(caliper_path.config_files.config_dir, 'cases_config.json')
+        fp = open(config_files, 'r')
+        run_case_list = []
+        case_list = yaml.load(fp.read())
+        cf = ConfigParser.ConfigParser()
+        cf.read(DEFAULT_CONFIG_FILE)
+        devices = cf.options('FastTest')
+        for device in devices:
+            tool_list = yaml.load(cf.get('FastTest', device))
+            all_sections = all_sections + tool_list
+        sections = list(set(all_sections))
+        for section in sections:
+            for dimension in dimension_list:
+                for i in range(len(case_list[dimension])):
+                    try:
+                        for case in case_list[dimension][i][section]:
+                            run_case_list.append(case)
+                    except:
+                        pass
+        return sections, run_case_list
+
+    def get_run_sections(self, c_option, dimension_list, option):
+        if c_option == 1:
+            sections, run_case_list = self.get_sections(dimension_list)
+        else:
+            if 'all' in option:
+                sections, run_case_list = self.get_config('all')
+            else:
+                sections, run_case_list = self.get_config(option)
+        return sections, run_case_list
+
+    def push_ssh_key(self):
+        '''
+        use ansible push ssh key to test host
+        :return: 
+        '''
+        TEST_CASE_DIR = caliper_path.config_files.config_dir
+        ssh_key_path = os.path.join(os.environ['HOME'], '.ssh', 'id_rsa.pub')
+        if not os.path.exists(ssh_key_path):
+            os.system("ssh-keygen -t rsa -P '' -f '%s/.ssh/id_rsa'" % os.environ['HOME'])
+        try:
+            logging.info('Begining to push ssh key for the test host')
+            os.chdir(TEST_CASE_DIR)
+            cf = ConfigParser.ConfigParser()
+            cf.read(DEFAULT_CONFIG_FILE)
+            sections = cf.sections()
+            for section in sections:
+                if 'Device' not in section:
+                    continue
+                subprocess.call('ansible-playbook -i project_config.cfg push_sshkey.yml -e hosts=%s -u %s' % (
+                section, getpass.getuser()), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        except Exception as e:
+            logging.debug(e)
+            logging.info('push ssh key fail')
+            pass
 
 # insure the class is a singleton. Now the symbol settings will point to the
 # one and only one instance pof the class
