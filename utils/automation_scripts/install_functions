@@ -155,13 +155,15 @@ check_version()
 {
     if [ $# -ne 1 ]; then return 0; fi
     new_version=$1
-#1. is it exist /opt/Caliper: if not, then install, otherwise compare versions
+#1. is it exist caliper: if not, then install, otherwise compare versions
     which caliper
     ret=$?
-    if [ $ret -eq 0 -a -d "/opt/Caliper" ]
+#    if [ $ret -eq 0 -a -d "/opt/Caliper" ]
+    if [ $ret -eq 0 -a ]
     then 
 #2. compare versions: get the old version number, the new version higher than the old version to upgrade
-        old_version=`cat /opt/Caliper/caliper/common.py | grep -owP "VERSION=\K\S+" | sed 's/\"//g'`
+#        old_version=`cat /opt/Caliper/caliper/common.py | grep -owP "VERSION=\K\S+" | sed 's/\"//g'`
+        old_version=`caliper -v`
 	if [ "x$old_version" = "x" ]; then
 	    return 0
 	fi
