@@ -9,18 +9,11 @@
       become_method: sudo
       become_user: root
     
-    - name: create {{ home }}/caliper_output/caliper/benchmarks/redis/
+    - name: create ~/caliper_output/caliper/benchmarks/redis/
       file: path=/tmp/redis/  state="directory"
-
-    - name: copy redis
-      copy:
-        src: "~/.caliper/benchmarks/redis/"
-        dest: "/tmp/redis/"
-        mode: 0755
-        backup: yes
  
     - name: test redis benchmark on client
-      shell: "/tmp/redis/run_client.sh {{ groups['SlaveDevice'][0] }}"
+      shell: "/tmp/redis/files/run_client.sh {{ groups['SlaveDevice'][0] }}"
       ignore_error: yes                        
       become: true
       become_method: sudo

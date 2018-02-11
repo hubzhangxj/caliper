@@ -17,4 +17,10 @@
 
 - name: install redis for SLSE
   zypper: name=redis state=present
-  when: ansible_distribution == "SLSE" 
+  when: ansible_distribution == "SLSE"
+
+- name: copy redis scripts
+  copy:
+    src: ../../redis/
+    dest: /tmp/redis/
+    mode: 0755

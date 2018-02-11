@@ -8,4 +8,4 @@ start_cpu_num=1
 inst_num=2
 end_cpu_num=$[$start_cpu_num+$inst_num-1]
 
-scripts/start_server_ubuntu.sh $start_cpu_num $end_cpu_num
+/tmp/redis/files/start_server_ubuntu.sh $start_cpu_num $end_cpu_num
