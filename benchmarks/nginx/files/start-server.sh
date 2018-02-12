@@ -5,4 +5,4 @@ cd $TOPDIR
 
 #sh scripts/start-nginx-lb.sh
 #sh scripts/start-nginx-proxy.sh
-scripts/start-nginx-webserver.sh
+/tmp/nginx/files/scripts/start-nginx-webserver.sh

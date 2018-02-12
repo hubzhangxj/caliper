@@ -1,4 +1,3 @@
----
 - name: create /tmp/nginx
   file: path=/tmp/nginx state="directory"
   become: true
@@ -7,16 +6,16 @@
 
 - name: copy nginx test
   copy:
-    src: "~/.caliper/benchmarks/nginx/"
+    src: "../../nginx/"
     dest: "/tmp/nginx/"
     mode: 0755
     backup: yes
   become: true
   become_method: sudo
   become_user: root
-      
+
 - name: build nginx-client on client
-  command: sh /tmp/nginx/build-client.sh
+  command: sh /tmp/nginx/files/build-client.sh
   become: true
   become_method: sudo
   become_user: root
