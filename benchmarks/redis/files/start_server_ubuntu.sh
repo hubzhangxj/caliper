@@ -33,7 +33,7 @@ do
     portid=`expr 7000 + ${start_cpu_num}`
     echo "Try to start redis-server associated with cpu${start_cpu_num} and port-${portid}"
     #taskset -c ${start_cpu_num} redis-server ${REDIS_CFG_DIR}/redis_cpu${start_cpu_num}_port${portid}.conf
-    redis-server ../config/redis_ubuntu_cpu${start_cpu_num}_port${portid}.conf
+    redis-server /tmp/redis/files/config/redis_ubuntu_cpu${start_cpu_num}_port${portid}.conf
 
     let "start_cpu_num++"
     let "redis_inst++"
