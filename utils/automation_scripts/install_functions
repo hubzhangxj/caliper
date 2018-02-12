@@ -159,7 +159,7 @@ check_version()
     which caliper
     ret=$?
 #    if [ $ret -eq 0 -a -d "/opt/Caliper" ]
-    if [ $ret -eq 0 -a ]
+    if [ $ret -eq 0 ]
     then 
 #2. compare versions: get the old version number, the new version higher than the old version to upgrade
 #        old_version=`cat /opt/Caliper/caliper/common.py | grep -owP "VERSION=\K\S+" | sed 's/\"//g'`
