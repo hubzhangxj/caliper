@@ -98,6 +98,8 @@
 
 - name: copy config_info_run.sh file
   copy: src=config_info_run.sh dest=/tmp/config_info_run.sh mode=0755
+- name: copy netinfo.py file
+  copy: src=netinfo.py dest=/tmp/netinfo.py mode=0755
 - name: copy hw-functions file
   copy: src=hw-functions dest=/tmp/hw-functions mode=0755
 
