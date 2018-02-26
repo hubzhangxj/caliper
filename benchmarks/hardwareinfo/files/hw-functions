@@ -2,28 +2,51 @@
 
 #get basic info of config from ansible -m setup
 parse_baseconfig() {
-    config_hostname=`jq .ansible_facts.ansible_hostname $1`
-    config_kernel=`jq .ansible_facts.ansible_kernel $1`
-    config_os=`jq .ansible_facts.ansible_lsb.description $1`
+    config_hostname=`hostname`
+    config_kernel=`uname -r`
+    config_os=`cat /etc/os-release|grep ^PRETTY_NAME| awk -F'\"' '{print $2}'`
     
-    echo \"hostName\" : $config_hostname, >> $2
-    echo \"kernel\" : $config_kernel, >> $2
-    echo \"os\" : $config_os, >> $2
+    echo \"hostName\" : \"$config_hostname\", >> $2
+    echo \"kernel\" : \"$config_kernel\", >> $2
+    echo \"os\" : \"$config_os\", >> $2
 }
 
 #get system info from ansible -m setup
 parse_system() {
-    system_name=`jq .ansible_facts.ansible_product_name $1`
-    system_manufactor=`jq .ansible_facts.ansible_system_vendor $1`
-    system_version=`jq .ansible_facts.ansible_product_version $1`
+    inBase=0
+    cat $1 | while read line
+    do
+      if [ "x$line" = "xSystem Information" ]; then
+         inBase=1
+      fi
+    
+      if [ $inBase -eq 1 ]; then
+        key=`echo $line | awk -F ':' '{gsub(/^[ \t]+/,"",$2);print $1}'`
+        value=`echo $line | awk -F ':' '{gsub(/^[ \t]+/,"",$2);print $2}'`
+        case "$key" in
+          "Manufacturer")
+            baseboard_manufacturer=$value
+          ;;
+          "Product Name")
+            baseboard_name=$value
+          ;;
+          "Version")
+            baseboard_version=$value
+          ;;
+        esac
 
-    echo \"system\": \{ >> $2
-    echo "    \"name\" :" $system_name, >> $2
-    echo "    \"manufacturer\" :" $system_manufactor, >> $2
-    echo "    \"version\" :" $system_version >> $2
-    echo \}, >> $2
+        if [ "x$line" = "x" ]; then
+            echo \"system\": \{ >> $2
+            echo "    \"name\" :" \"$baseboard_name\", >> $2
+            echo "    \"manufacturer\" :" \"$baseboard_manufacturer\", >> $2
+            echo "    \"version\" :" \"$baseboard_version\" >> $2
+            echo \}, >> $2
+
+            break
+        fi
+      fi
+    done
 }
-
 parse_baseboard() {
     inBase=0
     cat $1 | while read line
@@ -300,22 +323,18 @@ parse_network() {
     echo \"netInfo\": \[ >> $2
 
     idx=0
-    network_interfaces=`jq -r .ansible_facts.ansible_interfaces[] $1`
-    for interface in $network_interfaces; do
+
+    for interface in $(ls /sys/class/net/); do
         if [ $interface = "lo" ]; then continue; fi
-        echo $interface | grep virbr > /dev/null
+        echo $interface | grep -E 'virbr|docker' > /dev/null
         if [ $? -eq 0 ]; then continue; fi
-        netinfo_interface=`jq -r .ansible_facts.ansible_$interface.device $1`
-        #if [ $netinfo_interface = "lo" ]; then continue; fi
-        netinfo_bandWidth=`ethtool $interface | grep "Speed:" |  awk '{print $2}'`
-        netinfo_driver=`jq -r .ansible_facts.ansible_$interface.module $1`
+
+        netinfo_interface=$interface
+        netinfo_bandWidth=`cat /sys/class/net/$interface/speed`
+        netinfo_driver_tmp=`readlink /sys/class/net/$interface/device/driver/module`
+        netinfo_driver=`basename $netinfo_driver_tmp`
         netinfo_driverVersion=`modinfo $netinfo_driver|grep ^version| awk '{print $2}'`
-        netinfo_address=`jq -r .ansible_facts.ansible_$interface.ipv4.address $1`
-        netinfo_broadcast=`jq -r .ansible_facts.ansible_$interface.ipv4.broadcast $1`
-        netinfo_netmask=`jq -r .ansible_facts.ansible_$interface.ipv4.netmask $1`
-        netinfo_network=`jq -r .ansible_facts.ansible_$interface.ipv4.network $1`
-        netinfo_ip6address=`jq -r .ansible_facts.ansible_$interface.ipv6[0].address $1`
-        netinfo_mac=`jq -r .ansible_facts.ansible_$interface.macaddress $1`
+        netinfo_mac=`cat /sys/class/net/$interface/address`
 
 	if [ $idx -gt 0 ]; then
 	    echo "," >> $2
@@ -326,12 +345,8 @@ parse_network() {
 	echo "  \"driver\" : \"$netinfo_driver\"," >> $2
 	echo "  \"driverVersion\" : \"$netinfo_driverVersion\"," >> $2
 	echo "  \"protocolType\" : \"ipv4\"," >> $2
-	echo "  \"address\" : \"$netinfo_address\"," >> $2
-	echo "  \"broadcast\" : \"$netinfo_broadcast\"," >> $2
-	echo "  \"netmask\" : \"$netinfo_netmask\"," >> $2
-	echo "  \"network\" : \"$netinfo_network\"," >> $2
 	echo "  \"mac\" : \"$netinfo_mac\"," >> $2
-	echo "  \"ip6address\" : \"$netinfo_ip6address\"" >> $2
+        python netinfo.py $interface >> $2
 	echo -n \} >> $2
 
 	idx=$((idx + 1 ))

@@ -25,10 +25,10 @@ generate_files() {
     lshw -json > $lshw_file
     lsblk -O -J | sed 's/log-sec/logsec/g' > $lsblk_file
 
-    ansible localhost -m setup > $ansible_file.tmp
-    echo "{" > $ansible_file
-    sed '1d' $ansible_file.tmp >> $ansible_file
-    rm $ansible_file.tmp
+    #ansible localhost -m setup > $ansible_file.tmp
+    #echo "{" > $ansible_file
+    #sed '1d' $ansible_file.tmp >> $ansible_file
+    #rm $ansible_file.tmp
 }
 
 init_outputfile() {
@@ -45,7 +45,7 @@ generate_files
 init_outputfile $output_file
 
 parse_baseconfig $ansible_file $output_file
-parse_system $ansible_file $output_file
+parse_system $dmidecode_file $output_file
 parse_baseboard $dmidecode_file $output_file
 parse_cpu $dmidecode_file $output_file
 parse_memory $dmidecode_file $output_file
