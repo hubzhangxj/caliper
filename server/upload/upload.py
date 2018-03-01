@@ -114,7 +114,7 @@ def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_p
     ]
     datagen, headers = multipart_encode(params)
     request = urllib2.Request('http://%s/data/upload' % server_url,datagen, headers)
-    response = urllib2.urlopen(request).read()
+    response = urllib2.urlopen(request, timeout=180).read()
     logging.info(response)
 
 def calcHash(filepath):
