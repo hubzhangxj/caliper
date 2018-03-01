@@ -87,12 +87,7 @@ def upload_and_savedb(dirpath,json_path_source,server_url, server_user, server_p
 
     # upload
     register_openers()
-    # login_upload = urllib2.Request('http://%s/data/cert?userName=%s&password=%s' % (server_url, server_user, server_password))
-    # response = urllib2.urlopen(login_upload).read()
-    server_url = "caliper.com:8001"
-    server_user = "root"
-    server_password = "Huawei12#$"
-    url = 'http://%s/data/cert?' % (server_url) + urlencode({"username": server_user, "password": server_password})
+    url = 'http://%s/data/cert?' % (server_url) + urlencode({"userName": server_user, "password": server_password})
     login_upload = urllib2.Request(url)
     response = urllib2.urlopen(login_upload).read()
     logging.info(response)
