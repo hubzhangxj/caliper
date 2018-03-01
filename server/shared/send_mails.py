@@ -21,12 +21,12 @@ class EmailContext(object):
     htmltext = ''
     attach = ''
 
-    def __init__(self, fro, to, subject, plaintext, htmltext, attach):
+    def __init__(self, fro, to, subject, plaintext, attach):
         self.fro = fro
         self.to = to
         self.subject = subject
         self.plaintext = plaintext
-        self.htmltext = htmltext
+        # self.htmltext = htmltext
         self.attach = attach
 
     def _construct_attach_(self, msg):
@@ -35,10 +35,9 @@ class EmailContext(object):
         maintype, subtype = contype.split('/')
 
         # read the attach file and format
-        data = open(self.attach)
+        data = open(self.attach, 'rb').read()
         file_msg = MIMEBase(maintype, subtype)
-        file_msg.set_payload(data.read())
-        data.close()
+        file_msg.set_payload(data)
         encode_base64(file_msg)
 
         # set the title of the attach
@@ -97,20 +96,20 @@ class EmailSender(object):
 
 
 def send_mails(files):
-    server = utils.get_config_value('project_config.cfg', 'login_info', 'server')
-    user = utils.get_config_value('project_config.cfg', 'login_info', 'user')
-    password = utils.get_config_value('project_config.cfg', 'login_info',
+    user = utils.get_config_value('project_config.cfg', 'email_info', 'user')
+    server = 'smtp.' + user.split('@')[-1]
+    password = utils.get_config_value('project_config.cfg', 'email_info',
                                         'password')
     auth_info = AuthInfo(server, user, password)
-    fro = utils.get_config_value('project_config.cfg', 'email_info', 'from')
+    fro = utils.get_config_value('project_config.cfg', 'email_info', 'user')
     to = utils.get_config_value('project_config.cfg', 'email_info', 'to')
     subject = utils.get_config_value('project_config.cfg', 'email_info',
                                     'subject')
     plain = utils.get_config_value('project_config.cfg', 'email_info',
-                                    'plaintext')
-    html = utils.get_config_value('project_config.cfg', 'email_info', 'htmltext')
+                                    'content')
+    # html = utils.get_config_value('project_config.cfg', 'email_info', 'htmltext')
     emailTo = [item for item in to.split(",")]
-    email = EmailContext(fro, emailTo, subject, plain, html, files)
+    email = EmailContext(fro, emailTo, subject, plain, files)
 
     emailSender = EmailSender()
     emailSender.send_mail(auth_info, email)
