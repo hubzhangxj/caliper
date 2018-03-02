@@ -5,21 +5,30 @@
       file:
         path: /tmp/sysbench_output.log
         state: absent
+
     - name: install bzr for redhat
-      yum: name='bzr,libmysqlclient-devel' state=present disable_gpg_check=yes
+      yum: name='bzr' state=present disable_gpg_check=yes
+      when: ansible_os_family == 'RedHat'
+
+    - name: install libmysqlclient-devel for redhat
+      yum: name='libmysqlclient-devel' state=present disable_gpg_check=yes
       when: ansible_os_family == 'RedHat'
 
     - name: install bzr for ubuntu
-      apt: name='bzr,libmysqlclient-dev' state=present
+      apt: name='bzr' state=present
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: install libmysqlclient-dev for ubuntu
+      apt: name='libmysqlclient-dev' state=present
       when: ansible_distribution == 'Ubuntu'
 
     - name: install bzr for CentOS
-      yum: name='bzr,libmysqlclient-devel' state=present disable_gpg_check=yes
+      yum: name='bzr' state=present disable_gpg_check=yes
       when: ansible_distribution == 'CentOS'
 
-    - name: install bzr for Debian
-      apt: name='bzr,libmysqlclient-dev' state=present
-      when: ansible_distribution == 'Debian'
+    - name: install libmysqlclient-devel for CentOS
+      yum: name='libmysqlclient-devel' state=present disable_gpg_check=yes
+      when: ansible_distribution == 'CentOS'
 
     - name: install libmysqlclient-devel for SLES
       zypper: name=libmysqlclient-devel state=present
