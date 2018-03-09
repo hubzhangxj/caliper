@@ -1,16 +1,28 @@
-- name: install stressng for redhat
-  yum: name=stress-ng state=present disable_gpg_check=yes
-  when: ansible_os_family == 'RedHat'
+- name: copy file
+  copy: src=stress-1.0.4.tar.gz dest=/tmp/stress-1.0.4.tar.gz mode=0777
 
-- name: install stressng for ubuntu
-  apt: name=stress-ng state=present
-  when: ansible_distribution == 'Ubuntu'
+- name: tar file
+  shell: cd /tmp && tar xvf stress-1.0.4.tar.gz && rm -rf stress-1.0.4.tar.gz
 
-- name: install stress for redhat
-  yum: name=stress state=present disable_gpg_check=yes
-  when: ansible_os_family == 'RedHat'
+- name: run install stress
+  shell: cd /tmp/stress-1.0.4 && ./configure && make && make install
+  become: true
+  become_method: sudo
+  become_user: root
+  ignore_errors: yes
 
-- name: install stress for ubuntu
-  apt: name=stress state=present
-  when: ansible_distribution == 'Ubuntu'
+- name: copy stress-ng.zip file
+  copy: src=stress-ng.zip dest=/tmp/stress-ng.zip mode=0777
+
+- name: tar file
+  shell: cd /tmp && unzip stress-ng.zip && rm -rf stress-ng.zip
+
+- name: run install stress
+  shell: cd /tmp/stress-ng-master && make && make install
+  become: true
+  become_method: sudo
+  become_user: root
+  ignore_errors: yes
+
+
 

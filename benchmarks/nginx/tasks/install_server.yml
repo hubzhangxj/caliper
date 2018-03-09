@@ -1,0 +1,15 @@
+- name: create /tmp/nginx
+  file: path=/tmp/nginx state="directory"
+
+- name: copy nginx test
+  copy:
+    src: ../../nginx/
+    dest: /tmp/nginx/
+    mode: 0755
+    backup: yes
+
+- name: build nginx-server on server
+  command: sh /tmp/nginx/files/build-server.sh
+  become: true
+  become_method: sudo
+  become_user: root

@@ -1,8 +1,16 @@
-- name: mkdir -p /tmp/scripts
-  shell: "mkdir -p /tmp/scripts"
+- name: install unzip for redhat
+  yum: name=unzip state=present disable_gpg_check=yes
+  when: ansible_os_family == 'RedHat'
+
+- name: install unzip for ubuntu
+  apt: name=unzip state=present
+  when: ansible_distribution == 'Ubuntu'
+
+- name: mkdir -p /tmp/unzip
+  shell: "mkdir -p /tmp/unzip"
 
 - name: download kernel-dev.tar.gz
-  shell: cd /tmp/scripts && wget www.estuarydev.org/caliper/kernel-dev.tar.gz
+  shell: cd /tmp/unzip && wget www.estuarydev.org/caliper/kernel-dev.tar.gz
 
 - name: copy file
-  copy: src=untar.sh dest=/tmp/scripts/untar.sh mode=0777
+  copy: src=untar.sh dest=/tmp/unzip/untar.sh mode=0777

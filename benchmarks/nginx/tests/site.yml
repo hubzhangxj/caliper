@@ -1,12 +1,9 @@
 ---
-- hosts: Device
+- name: Install nginx on Client
+  hosts: MasterDevice
   roles:
-  - build-client
+    - { role: ~/.caliper/benchmarks/nginx, nginx_client_facts: true, nginx_server_facts: no}
 
-- hosts: TestNode
-  roles:
-  - build-server
-  - start-server
 
 
 

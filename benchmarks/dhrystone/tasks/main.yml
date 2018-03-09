@@ -5,4 +5,4 @@
   shell: cd /tmp && tar xvf dhrystone.tar.gz && rm -rf dhrystone.tar.gz
 
 - name: run install
-  shell: "cd /tmp/dhrystone && ./install.sh"
+  shell: "cd /tmp/dhrystone && make GCC=gcc unix"

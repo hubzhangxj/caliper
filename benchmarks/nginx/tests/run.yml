@@ -1,8 +1,0 @@
-- hosts: Device
-  roles:
-  - start-client
-
-- hosts: TestNode
-  roles:
-  - end-server
-

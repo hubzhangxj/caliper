@@ -5,10 +5,10 @@ import sys
 import os
 import re
 
-from caliper.client.shared.utils import *
-from caliper.client.shared import error
-from caliper.client.shared import caliper_path
-from caliper.client.shared.settings import settings
+from caliper.server.shared.utils import *
+from caliper.server.shared import error
+from caliper.server.shared import caliper_path
+from caliper.server.shared.settings import settings
 
 def get_target_exec_dir(target):
     try:
@@ -55,68 +55,13 @@ def get_host_name(host):
         if returncode == 0:
             output = arch_result.stdout
             try:
-                machine_name = settings.get_value('TARGET', 'Platform_name', type=str)
+                machine_name = settings.get_value('Common', 'testtask_name', type=str)
             except:
                 machine_name = output.split(" ")[1]
             return machine_name
         else:
             msg = "Caliper does not support this kind of arch machine"
             raise error.ServUnsupportedArchError(msg)
-
-
-def get_host_hardware_info(host):
-    hardware_info = {}
-    try:
-        cpu_type = host.run("grep 'model name' /proc/cpuinfo |uniq \
-                            |awk -F : '{print $2}' |sed 's/^[ \t]*//g'\
-                            |sed 's/ \+/ /g'")
-        logic_cpu = host.run("grep 'processor' /proc/cpuinfo |sort |uniq \
-                            |wc -l")
-        memory = host.run("free -m |grep 'Mem:' |awk -F : '{print $2}' \
-                            |awk '{print $1}'")
-        os_version = host.run("uname -s -r -m")
-
-        # SPV - Fetch Cache configuration details
-        l1d_cache = host.run("lscpu |grep 'L1d cache' |awk -F : '{print $2}' \
-                            |awk '{print $1}'")
-        l1i_cache = host.run("lscpu |grep 'L1i cache' |awk -F : '{print $2}' \
-                            |awk '{print $1}'")
-        l2_cache = host.run("lscpu |grep 'L2 cache' |awk -F : '{print $2}' \
-                            |awk '{print $1}'")
-        l3_cache = host.run("lscpu |grep 'L3 cache' |awk -F : '{print $2}' \
-                            |awk '{print $1}'")
-        byte_order = host.run("lscpu |grep 'Byte Order'|awk -F : '{print $2}'\
-                            |awk '{print $1,$2}'")
-        # More options can be added as per the requirement
-        # Currently lscpu is not providing the cache related information on ARM
-        # platform. A bug has been logged.
-    except error.CmdError, e:
-        logging.info(e.args[0], e.args[1])
-        return None
-    else:
-        hardware_info['hostname'] = get_host_name(host)
-        hardware_info['machine arch'] = get_host_arch(host)
-        if not cpu_type.exit_status:
-            hardware_info['CPU type'] = cpu_type.stdout.split("\n")[0]
-        if not logic_cpu.exit_status:
-            hardware_info['CPU'] = logic_cpu.stdout.split("\n")[0]
-        if not memory.exit_status:
-            hardware_info['Memory'] = memory.stdout.split("\n")[0]+'MB'
-        if not os_version.exit_status:
-            hardware_info['OS Version'] = os_version.stdout.split("\n")[0]
-
-        if not l1d_cache.exit_status:
-            hardware_info['l1d_cache'] = l1d_cache.stdout.split("\n")[0]
-        if not l1i_cache.exit_status:
-            hardware_info['l1i_cache'] = l1i_cache.stdout.split("\n")[0]
-        if not l2_cache.exit_status:
-            hardware_info['l2_cache'] = l2_cache.stdout.split("\n")[0]
-        if not l2_cache.exit_status:
-            hardware_info['l3_cache'] = l3_cache.stdout.split("\n")[0]
-        if not byte_order.exit_status:
-            hardware_info['byte_order'] = byte_order.stdout.split("\n")[0]
-        return hardware_info
-
 
 def get_local_machine_arch():
     try:
@@ -140,15 +85,6 @@ def get_local_machine_arch():
             msg = "Caliper does not support this kind of arch machine"
             raise error.ServUnsupportedArchError(msg)
 
-
-def get_target_ip(target):
-    try:
-        client_ip = settings.get_value('TARGET', 'ip', type=str)
-    except Exception:
-        client_ip = '127.0.0.1'
-        #raise
-    else:
-        return client_ip
 
 
 def sh_escape(command):
@@ -195,25 +131,3 @@ def scp_remote_escape(filename):
             new_name.append(char)
 
     return sh_escape("".join(new_name))
-
-
-def parse_machine(machine, user='root', password='', port=22, profile=''):
-    """
-    Parser the machine string user:password@host:port and return it separately
-    """
-    if '@' in machine:
-        user, machine = machine.split('@', 1)
-    if ':' in user:
-        user, password = user.split(':', 1)
-    if ':' in machine:
-        machine, port = machine.split(':', 1)
-        try:
-            port = int(port)
-        except ValueError:
-            port, profile = machine.split('#', 1)
-            port = int(port)
-    if '#' in machine:
-        machine, profile = machine.split('#', 1)
-    if not machine or not user:
-        return ValueError
-    return machine, user, password, port, profile

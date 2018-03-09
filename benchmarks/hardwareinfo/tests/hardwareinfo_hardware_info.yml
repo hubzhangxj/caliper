@@ -1,0 +1,36 @@
+
+- hosts: '{{ hosts }}'
+  tasks:
+    - name: remove latest data
+      file:
+        path: /tmp/hardwareinfo_output.log
+        state: absent
+
+    - name: remove json latest data
+      file:
+        path: /tmp/hardwareinfo.json
+        state: absent
+
+    - name: run config_info_run.sh
+      shell: cd /tmp && ./config_info_run.sh
+      register: logdata
+      ignore_errors: yes
+      become: true
+      become_method: sudo
+      become_user: root
+
+    - lineinfile: create=yes  dest=/tmp/hardwareinfo_output.log line="{{ logdata.stdout+'\n'+logdata.stderr }}" state=present mode=0755
+
+
+    - name: fetch result
+      fetch:
+        src: /tmp/hardwareinfo_output.log
+        dest: /tmp/hardwareinfo_output.log
+        flat: yes
+
+    - name: fetch json result
+      fetch:
+        src: /tmp/hardwareinfo.json
+        dest: /tmp/hardwareinfo.json
+        flat: yes
+

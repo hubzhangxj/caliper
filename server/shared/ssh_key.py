@@ -42,8 +42,8 @@ def get_public_key():
         print "RSA keypair found, using it"
         public_key_path = rsa_public_key_path
     else:
-        print "Neither RSA or DSA keypair found, creating DSA ssh key pair "
-        os.system('ssh-keygen -t dsa -q -N "" -f %s' % dsa_private_key_path)
+        print "Neither RSA or DSA keypair found, creating RSA ssh key pair "
+        os.system('ssh-keygen -t rsa -q -N "" -f %s' % rsa_private_key_path)
         public_key_path = dsa_public_key_path
 
     public_key = open(public_key_path, 'r')
@@ -71,13 +71,11 @@ def setup_ssh_key(hostname, user, password, port=22):
     try:
         public_key = get_public_key()
         # remote_login is need to be realize
-        session = remote.remote_login(client='ssh', host=hostname, port=port,
-                                        username=user, portword=password,
-                                        prompt=r'[$#%]')
+        session = remote.remote_login(client='ssh', host=hostname, port=port, username=user, password=password, prompt=r'[$#%]')
         session.cmd_output('mkdir -p ~/.ssh')
         session.cmd_output('chmod 700 ~/.ssh')
         session.cmd_output("echo '%s' >> ~/.ssh/authorized_keys" % public_key)
-        session.cmd_output('cmd 600 ~/.ssh/authorized_keys')
+        session.cmd_output('chmod 600 ~/.ssh/authorized_keys')
         logging.debug('SSH key setup complete.')
     except Exception as err:
         logging.debug('SSH key setup has failed: %s', err)
@@ -85,3 +83,4 @@ def setup_ssh_key(hostname, user, password, port=22):
             session.close()
         except:
             pass
+        pass

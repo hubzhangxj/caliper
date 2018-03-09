@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 
 # need to specify the location
-from caliper.client.shared import hosts
+from caliper.server.shared import hosts
 from caliper.server import utils
 
 class Host(hosts.Host):

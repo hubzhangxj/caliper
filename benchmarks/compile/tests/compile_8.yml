@@ -7,11 +7,11 @@
         state: absent
 
     - name: run compile 8
-      shell: "cd /tmp/scripts && ./compile_test.sh 8"
+      shell: "cd /tmp/compile && ./compile_test.sh 8"
       register: logdata
       ignore_errors: yes
 
-    - lineinfile: create=yes  dest=/tmp/compile_output.log line="{{ logdata.stdout+logdata.stderr }}" state=present
+    - lineinfile: create=yes  dest=/tmp/compile_output.log line="{{ logdata.stdout+logdata.stderr }}" state=present mode=0755
 
 
     - name: fetch result

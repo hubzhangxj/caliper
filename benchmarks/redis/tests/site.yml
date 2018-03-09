@@ -1,25 +1,15 @@
 ---
-- name: install redis on server
-  hosts: TestNode
+- name: Install redis on Client
+  hosts: MasterDevice
+  remote_user: root
   roles:
-    - redis
-  become: true
-  become_method: sudo
-  become_user: root
+    - { role: ../../redis, redis_local_facts: no }
 
-- name: start redis on server
-  hosts: TestNode
-  roles:
-    - redis-server
-  become: true
-  become_method: sudo
-  become_user: root
 
-- name: install redis on client
-  hosts: Device
+- name: Install redis on Server
+  hosts: SlaveDevice
+  remote_user: root
   roles:
-    - redis
-  become: true
-  become_method: sudo
-  become_user: root
+    - { role: ../../redis, redis_local_facts: true }
+
 

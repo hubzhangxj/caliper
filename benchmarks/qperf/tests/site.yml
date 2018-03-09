@@ -1,8 +1,11 @@
-- hosts: '{{ hosts }}'
+- name: Install qperf on Client
+  hosts: '{{ hosts }}'
   roles:
-  - ../../qperf
-- hosts: TestNode
+    - { role: ../../qperf, install_qperf: true, run_server: no}
+
+- name: Install qperf on SlaveDevice
+  hosts: SlaveDevice
   roles:
-  - ../../qperf
+    - { role: ../../qperf, install_qperf: true, run_server: no}
 
 

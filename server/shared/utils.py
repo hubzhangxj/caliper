@@ -23,10 +23,10 @@ import ConfigParser
 import fcntl
 import errno
 
-from caliper.client.shared import error, logging_manager
-from caliper.client.shared.settings import settings
-from caliper.client.shared import caliper_path
-from caliper.client.shared.tests_setting import BaseCfg
+from caliper.server.shared import error, logging_manager
+from caliper.server.shared.settings import settings
+from caliper.server.shared import caliper_path
+from caliper.server.shared.tests_setting import BaseCfg
 
 
 class SimpleFlock:
@@ -97,7 +97,7 @@ def get_local_ip():
     if obtain_ip:
         return obtain_ip
     else:
-        return ['127.0.1.1']
+        return ['127.0.0.1']
 
 
 def get_config_value(config_name, section, key):
@@ -115,7 +115,7 @@ def get_fault_tolerance_config(section, key):
     flag = 0
     logging.debug(caliper_path.config_files.config_dir)
     cfg_file = os.path.join(caliper_path.config_files.config_dir,
-                                    'execution_contl.cfg')
+                                    'project_config.cfg')
     try:
         tolerence_cfg = BaseCfg(cfg_file)
         value = tolerence_cfg.get_value(section, key)
@@ -129,7 +129,7 @@ def get_fault_tolerance_config(section, key):
         elif value == '':
             flag = 1
         else:
-            logging.info("Wrong configuration in config/execution_contl.cfg")
+            logging.info("Wrong configuration in config/project_config.cfg")
             flag = 0
         return flag
 

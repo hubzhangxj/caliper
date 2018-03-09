@@ -1,3 +1,19 @@
+- name: install glibc-static for redhat and centos
+  yum: name='glibc-static' state=present disable_gpg_check=yes
+  when: ansible_os_family == 'RedHat' or ansible_os_family == 'CentOS'
+
+- name: install libc6-dev for ubuntu
+  apt: name='libc6-dev' state=present
+  when: ansible_distribution == 'Ubuntu'
+
+- name: install libc6-dev for Debian
+  apt: name='libc6-dev' state=present
+  when: ansible_distribution == 'Debian'
+
+- name: install libmysqlclient-devel for SLES
+  zypper: name='glibc-devel-static' state=present
+  when: ansible_distribution == 'SLES'
+
 - name: copy file
   copy: src=nbench.tar.gz dest=/tmp/nbench.tar.gz mode=0777
 

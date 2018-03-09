@@ -1,0 +1,4 @@
+- name: start server
+  shell: "cd /tmp/build.qperf/src && ./qperf &"
+  async: 5
+  ignore_errors: yes

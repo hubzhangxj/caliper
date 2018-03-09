@@ -1,2 +1,4 @@
----
-# tasks file for redis
+- include: install_redis.yml 
+
+- include: run_redis_server.yml
+  when: redis_local_facts|bool

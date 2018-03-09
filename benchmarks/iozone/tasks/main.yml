@@ -2,7 +2,7 @@
   copy: src=iozone.tar.gz dest=/tmp/iozone.tar.gz mode=0777
 
 - name: tar file
-  shell: cd /tmp && mkdir -p /tmp/sdb && tar xvf iozone.tar.gz && rm -rf iozone.tar.gz
+  shell: cd /tmp && tar xvf iozone.tar.gz && rm -rf iozone.tar.gz && mkdir -p /tmp/iozone/sdb/
 
 - name: run install
   shell: "cd /tmp/iozone && ./install.sh"

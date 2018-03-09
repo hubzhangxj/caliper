@@ -7,7 +7,7 @@
         state: absent
 
     - name: run iozone
-      shell: cd /tmp/iozone && ./iozone -s1g -r5M -f /tmp/sdb/iozone
+      shell: cd /tmp/iozone && ./iozone -s1g -r5M -f /tmp/iozone/sdb/iozone
       register: logdata
       ignore_errors: yes
 

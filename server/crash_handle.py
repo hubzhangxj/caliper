@@ -10,9 +10,10 @@ try:
 except ImportError:
     import common
 
-from caliper.client.shared import error
-from caliper.client.shared import utils
-from caliper.client.shared.settings import settings
+from caliper.server.shared import error
+from caliper.server.shared import utils
+from caliper.server.shared import caliper_path
+from caliper.server.shared.settings import settings
 from caliper.server.hosts import host_factory
 
 
@@ -73,7 +74,7 @@ def judge_target_crash():
     result = -1
     try:
         try:
-            client = settings.get_value('TARGET', 'ip', type=str)
+            client = caliper_path.client_ip
         except:
             client = '127.0.0.1'
         commands = 'ping -c 10 %s' % client

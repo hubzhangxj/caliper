@@ -1,8 +1,9 @@
 - name: mkdir scripts
-  shell: "mkdir -p /tmp/scripts"
+  shell: "mkdir -p /tmp/compile"
 
 - name: download kernel-dev.tar.gz
-  shell: cd /tmp/scripts && rm -rf kernel-dev.tar.g* && wget www.estuarydev.org/caliper/kernel-dev.tar.gz
+  shell: cd /tmp/compile && wget -c www.estuarydev.org/caliper/kernel-dev.tar.gz
+  ignore_errors: yes
 
 - name: copy file
-  copy: src=compile_test.sh dest=/tmp/scripts/compile_test.sh mode=0777
+  copy: src=compile_test.sh dest=/tmp/compile/compile_test.sh mode=0777

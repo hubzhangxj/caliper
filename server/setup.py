@@ -48,11 +48,12 @@ def _get_data_files(path):
 
 def get_packages():
     return ['caliper.server.build',
-            'caliper.server.compute_model',
+            'caliper.server.score',
             'caliper.server.hosts',
             'caliper.server.parser_process',
             'caliper.server.run',
             'caliper.server.shared',
+            'caliper.server.upload',
             'caliper.server',
             'caliper']
 

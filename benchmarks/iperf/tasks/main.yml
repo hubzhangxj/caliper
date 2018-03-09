@@ -1,9 +1,5 @@
-#install iperf
-- name: install iperf for redhat
-  yum: name=iperf3 state=present disable_gpg_check=yes
-  when: ansible_os_family == 'RedHat'
+- include: install_iperf.yml
+  when: install_iperf | bool
 
-- name: install iperf for ubuntu
-  apt: name=iperf3 state=present
-  when: ansible_distribution == 'Ubuntu'
-
+- include: run_iperf_server.yml
+  when: run_server | bool

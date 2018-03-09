@@ -5,7 +5,7 @@ import os
 import ConfigParser
 import logging
 
-from caliper.client.shared import error
+from caliper.server.shared import error
 import caliper_path
 
 class ConfigError(error.AutoError):

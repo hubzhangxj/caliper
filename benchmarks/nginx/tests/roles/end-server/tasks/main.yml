@@ -1,7 +1,0 @@
----
-- name: del nginx on server
-  shell: "rm -rf /tmp/nginx/"
-  become: true
-  become_method: sudo
-  become_user: root
-

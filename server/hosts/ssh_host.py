@@ -6,7 +6,7 @@ import logging
 import subprocess
 import re
 
-from caliper.client.shared import error, ssh_key
+from caliper.server.shared import error, ssh_key
 from caliper.server import utils
 from caliper.server.hosts import abstract_ssh
 

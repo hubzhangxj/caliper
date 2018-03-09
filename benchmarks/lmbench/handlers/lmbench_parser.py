@@ -4,7 +4,9 @@ import pdb
 import sys
 import yaml
 import logging
-
+import copy
+import json
+from caliper.server.parser_process import parser_log
 
 def get_value(tags, key_tags, content, outfp):
     flag = -1
@@ -365,33 +367,6 @@ def lmbench_lat_parser(content, outfp):
                         save = subline.split()[1]
                     except Exception:
                         continue
-
-             #       if re.search('0.00098', subline):
-             #           if (lat_mem_rd_type == 1):
-             #               dic_mem_lat[mem_lat_dic['lat_l1']] = save
-             #       else:
-             #           if re.search('0.12500', subline):
-             #               if (lat_mem_rd_type == 1):
-             #                   dic_mem_lat[mem_lat_dic['lat_l2']] = save
-             #   if (size < 0.8):
-             #      logging.info('$file: No 8MB memory latency,using $size\n')
-             #   if (lat_mem_rd_type == 1):
-             #       dic_mem_lat[mem_lat_dic['lat_mem']] = save
-
-            # if re.search('^"stride=16', line):
-            #    size = 0
-            #    save = 0
-            #    for subline in orig_block.splitlines():
-            #        try:
-            #            size = subline.split()[0]
-            #            save = subline.split()[1]
-            #        except Exception:
-            #            continue
-            #    if (size < 0.8):
-            #        logging.info('$file: No 8MB memory latency,
-            #                      using $size\n')
-            #    if (lat_mem_rd_type == 2):
-            #        dic_mem_lat[mem_lat_dic['lat_mem_rand']] = save
     if dic_int:
         dic['cpu_sincore']['sincore_int'] = dic_int
     if dic_float:
@@ -777,15 +752,198 @@ def lmbench_bandwidth_parser_new(content, outfp):
                     break
     return dic
 
+def lmbench(filePath, outfp):
+    cases = parser_log.parseData(filePath)
+    result = []
+    for case in cases:
+        caseDict = {}
+        caseDict[parser_log.BOTTOM] = parser_log.getBottom(case)
+        tables = []
+        content_dict = {}
+        titleGroup = re.search("\[test:([\s\S]+?)\]", case)
+        if titleGroup != None:
+            caseDict[parser_log.TOP] = titleGroup.group(0)
+            tool = titleGroup.groups()[0].strip()
+            if tool == "lmbench lat":
+                tableGroup = re.search("Simple syscall([\s\S]+)lat_pagefault:[\s\S]+?\n", case)
+                if tableGroup is not None:
+                    centerTopGroup = re.search("\[lmbench([\s\S]+)\[VERSION([\s\S]+?)\]", case)
+                    if centerTopGroup != None:
+                        content_dict[parser_log.CENTER_TOP] = centerTopGroup.group(0)
+                    tableGroupContent = tableGroup.group(0)
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(tableGroupContent, ":")
+                    tables.append(copy.deepcopy(content_dict))
+
+                mappingGroup = re.search("\"mappings([\s\S]+?)\"File", case)
+                if mappingGroup is not None:
+                    content_dict[parser_log.CENTER_TOP] = "mappings"
+                    mappingGroupContent = mappingGroup.groups()[0]
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(mappingGroupContent, " ")
+                    tables.append(copy.deepcopy(content_dict))
+
+                fsLatencyGroup = re.search("\"File system latency([\s\S]+?)UDP latency", case)
+                if fsLatencyGroup is not None:
+                    content_dict[parser_log.CENTER_TOP] = "File system latency"
+                    fsLatencyGroupContent = fsLatencyGroup.groups()[0]
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(fsLatencyGroupContent, "\\s{1,}|\t")
+                    tables.append(copy.deepcopy(content_dict))
+                    # UDP latency
+                udpLatencyGroup = re.search("UDP latency([\s\S]+?)[\n\r]{3,}", case)
+                if udpLatencyGroup is not None:
+                    content_dict[parser_log.CENTER_TOP] = ""
+                    udpLatencyGroupContent = udpLatencyGroup.group(0)
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(udpLatencyGroupContent, ":")
+                    tables.append(copy.deepcopy(content_dict))
+
+                sizeGroups = re.findall("\"(size=[\s\S]+?\n)([\s\S]+?)\\n{2,}", case)
+                for sizeGroup in sizeGroups:
+                    content_dict[parser_log.CENTER_TOP] = sizeGroup[0]
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(sizeGroup[1], " ")
+                    tables.append(copy.deepcopy(content_dict))
+
+                # Memory load parallelism
+                memoryLoadGroup = re.search("STREAM copy[\s\S]+STREAM2[\s\S]+?\n", case)
+                if memoryLoadGroup is not None:
+                    content_dict[parser_log.CENTER_TOP] = "Memory load parallelism"
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(memoryLoadGroup.group(0), ":")
+                    tables.append(copy.deepcopy(content_dict))
+                # Memory load latency
+                mlLatencyContentGroups = re.search("Memory load latency([\s\S]+?)[\n\r]{3,}", case)
+                if mlLatencyContentGroups is not None:
+                    mlLatencyContent = mlLatencyContentGroups.group(0)
+                    mlLatencyGroups = re.findall("\"(stride=[\s\S]+?\n)([\s\S]+?)[\n\r]{2,}", mlLatencyContent)
+                    for index, mlLatencyGroup in enumerate(mlLatencyGroups):
+                        if index == 0:
+                            content_dict[parser_log.CENTER_TOP] = "Memory load latency\n" + mlLatencyGroup[0]
+                        else:
+                            content_dict[parser_log.CENTER_TOP] = mlLatencyGroup[0]
+                        content_dict[parser_log.I_TABLE] = parser_log.parseTable(mlLatencyGroup[1], " ")
+                        tables.append(copy.deepcopy(content_dict))
+                # Random load latency
+                rlLatencyContentGroups = re.search("Random load latency([\s\S]+?)[\n\r]{3,}", case)
+                if rlLatencyContentGroups is not None:
+                    rlLatencyContent = rlLatencyContentGroups.group(0)
+                    rlLatencyGroups = re.findall("\"(stride=[\s\S]+?\n)([\s\S]+?)[\n\r]{2,}", rlLatencyContent)
+                    for index, rlLatencyGroup in enumerate(rlLatencyGroups):
+                        if index == 0:
+                            content_dict[parser_log.CENTER_TOP] = "Random load latency\n" + rlLatencyGroup[0]
+                        else:
+                            content_dict[parser_log.CENTER_TOP] = rlLatencyGroup[0]
+                        content_dict[parser_log.I_TABLE] = parser_log.parseTable(rlLatencyGroup[1], " ")
+                        tables.append(copy.deepcopy(content_dict))
+                caseDict[parser_log.TABLES] = tables
+            if tool == "lmbench bandwidth":
+                tableGroup = re.search("File([\s\S]+)lat_pagefault:[\s\S]+?\n", case)
+                if tableGroup is not None:
+                    centerTopGroup = re.search("\[lmbench([\s\S]+)\[VERSION([\s\S]+?)\]", case)
+                    if centerTopGroup != None:
+                        content_dict[parser_log.CENTER_TOP] = centerTopGroup.group(0)
+                    tableGroupContent = tableGroup.group(0)
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(tableGroupContent, ":")
+                    tables.append(copy.deepcopy(content_dict))
+                mappingGroup = re.search("\"mappings([\s\S]+?)\"File", case)
+                if mappingGroup is not None:
+                    content_dict[parser_log.CENTER_TOP] = "mappings"
+                    mappingGroupContent = mappingGroup.groups()[0]
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(mappingGroupContent, " ")
+                    tables.append(copy.deepcopy(content_dict))
+
+                fsLatencyGroup = re.search("\"File system latency([\s\S]+?)[\n\r]{2,}", case)
+                if fsLatencyGroup is not None:
+                    content_dict[parser_log.CENTER_TOP] = "File system latency"
+                    fsLatencyGroupContent = fsLatencyGroup.groups()[0]
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(fsLatencyGroupContent, "\\s{1,}|\t")
+                    tables.append(copy.deepcopy(content_dict))
+                # UDP latency
+                udpLatencyGroup = re.search("UDP latency([\s\S]+?)[\n\r]{2,}", case)
+                if udpLatencyGroup is not None:
+                    content_dict[parser_log.CENTER_TOP] = ""
+                    udpLatencyGroupContent = udpLatencyGroup.group(0)
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(udpLatencyGroupContent, ":")
+                    tables.append(copy.deepcopy(content_dict))
+
+                # Socket bandwidth using localhost
+                sbGroups = re.search("Socket bandwidth using localhost([\s\S]+?)[\n\r]{2,}", case)
+                if sbGroups is not None:
+                    sbGroupContent = sbGroups.groups()[0]
+                    content_dict[parser_log.CENTER_TOP] = "11111"
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(sbGroupContent, "\\s{1,}", 1)
+                    tables.append(copy.deepcopy(content_dict))
+                # Avg xfer
+                sbGroups = re.search("Avg xfer([\s\S]+?)[\n\r]{2,}", case)
+                if sbGroups is not None:
+                    sbGroupContent = sbGroups.group(0)
+                    content_dict[parser_log.CENTER_TOP] = ""
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(sbGroupContent, ":")
+                    tables.append(copy.deepcopy(content_dict))
+
+                sizeGroups = re.findall("\"(read[\s\S]+?\n)([\s\S]+?)[\n\r]{2,}", case)
+                for sizeGroup in sizeGroups:
+                    content_dict[parser_log.CENTER_TOP] = sizeGroup[0]
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(sizeGroup[1], " ")
+                    tables.append(copy.deepcopy(content_dict))
+
+                sizeGroups = re.findall("\"(Mmap[\s\S]+?\n)([\s\S]+?)[\n\r]{2,}", case)
+                for sizeGroup in sizeGroups:
+                    content_dict[parser_log.CENTER_TOP] = sizeGroup[0]
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(sizeGroup[1], " ")
+                    tables.append(copy.deepcopy(content_dict))
+
+                sizeGroups = re.findall("\"(libc[\s\S]+?\n)([\s\S]+?)[\n\r]{2,}", case)
+                for sizeGroup in sizeGroups:
+                    content_dict[parser_log.CENTER_TOP] = sizeGroup[0]
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(sizeGroup[1], " ")
+                    tables.append(copy.deepcopy(content_dict))
+
+                sizeGroups = re.findall("(Memory[\s\S]+?\n)([\s\S]+?)[\n\r]{2,}", case)
+                for sizeGroup in sizeGroups:
+                    content_dict[parser_log.CENTER_TOP] = sizeGroup[0]
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(sizeGroup[1], " ")
+                    tables.append(copy.deepcopy(content_dict))
+
+                sizeGroups = re.findall("\"(unrolled[\s\S]+?\n)([\s\S]+?)[\n\r]{2,}", case)
+                for sizeGroup in sizeGroups:
+                    content_dict[parser_log.CENTER_TOP] = sizeGroup[0]
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(sizeGroup[1], " ")
+                    tables.append(copy.deepcopy(content_dict))
+                caseDict[parser_log.TABLES] = tables
+            if tool == "lmbench latency local_die_1_core":
+                groups = re.search("Local memory[\s\S]+\"stride=([\s\S]+?)[\n]", case)
+                if groups is not None:
+                    content_dict[parser_log.CENTER_TOP] = groups.group(0)
+                sizeGroups = re.findall("\"(stride[\s\S]+?\n)([\s\S]+?)[\n\r]{2,}", case)
+                for sizeGroup in sizeGroups:
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(sizeGroup[1], " ")
+                    tables.append(copy.deepcopy(content_dict))
+                caseDict[parser_log.TABLES] = tables
+
+            if tool == "lmbench latency local_die_4_core":
+                groups = re.search("Local memory[\s\S]+\"stride=([\s\S]+?)[\n]", case)
+                if groups is not None:
+                    content_dict[parser_log.CENTER_TOP] = groups.group(0)
+                sizeGroups = re.findall("\"(stride[\s\S]+?\n)([\s\S]+?)[\n\r]{2,}", case)
+                for sizeGroup in sizeGroups:
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(sizeGroup[1], " ")
+                    tables.append(copy.deepcopy(content_dict))
+                caseDict[parser_log.TABLES] = tables
+
+            if tool == "lmbench bandwidth local_die_1_core" or tool == "lmbench bandwidth local_die_4_core" \
+                    or tool == "lmbench bandwidth local_die_16_core" or tool == "lmbench bandwidth local_die_32_core" \
+                    or tool == "lmbench bandwidth local_die_64_core":
+                sizeGroups = re.findall("\"([\s\S]+?\\nCommand[\s\S]+?\\n)([\s\S]+?\\n)", case)
+                for sizeGroup in sizeGroups:
+                    content_dict[parser_log.CENTER_TOP] = sizeGroup[0]
+                    content_dict[parser_log.I_TABLE] = parser_log.parseTable(sizeGroup[1], " ")
+                    tables.append(copy.deepcopy(content_dict))
+                caseDict[parser_log.TABLES] = tables
+        result.append(caseDict)
+    outfp.write(json.dumps(result))
+    return result
+
 if __name__ == "__main__":
-    infp = open(sys.argv[1], 'r')
-    outfp = open("tmp.log", "w+")
-    content = infp.read()
-    # syscall_latency_parser(content, outfp)
-    # network_latency_parser(content, outfp)
-    # memory_speed_parser(content, outfp)
-    pdb.set_trace()
-    lmbench_lat_parser(content, outfp)
-    #lmbench_bandwidth_parser(content, outfp)
+    infile = "lmbench_output.log"
+    outfile = "lmbench_json.txt"
+    outfp = open(outfile, "a+")
+    lmbench(infile, outfp)
+    # parser1(content, outfp)
     outfp.close()
-    infp.close()

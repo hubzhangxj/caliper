@@ -1,2 +1,9 @@
----
-# tasks file for nginx
+- include: install_client.yml
+  when: nginx_client_facts|bool
+
+- include: install_server.yml
+  when: nginx_server_facts|bool
+
+- include: start_nginx_server.yml
+  when: nginx_server_facts|bool
+

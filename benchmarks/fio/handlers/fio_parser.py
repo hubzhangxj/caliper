@@ -3,6 +3,8 @@
 import re
 import pdb
 import string
+import json
+from caliper.server.parser_process import parser_log
 
 def bw_parser(content, outfp):
     score = 0
@@ -35,12 +37,36 @@ def iops_parser(content, outfp):
     score = pat_search.group(1)
     return score
 
+def fio(filePath, outfp):
+    cases = parser_log.parseData(filePath)
+    result = []
+    for case in cases:
+        caseDict = {}
+        caseDict[parser_log.BOTTOM] = parser_log.getBottom(case)
+        titleGroup = re.search('\[test:([\s\S]+)\.\.\.', case)
+        if titleGroup != None:
+            caseDict[parser_log.TOP] = titleGroup.group(0)
+            caseDict[parser_log.BOTTOM] = parser_log.getBottom(case)
+        tables = []
+        tableContent = {}
+        centerTopGroup = re.search("(fio\-[\s\S]+\s20\d\d\n)", case)
+        tableContent[parser_log.CENTER_TOP] = centerTopGroup.groups()[0]
+
+        tableGroup = re.search("\s20\d\d\n([\s\S]+)\[status\]", case)
+        if tableGroup is not None:
+            tableGroupContent = tableGroup.groups()[0].strip()
+            tableGroupContent_temp = re.sub("(clat percentiles[\s\S]+\]\n)", "", tableGroupContent)
+            table = parser_log.parseTable(tableGroupContent_temp, ":{1,}")
+            tableContent[parser_log.I_TABLE] = table
+        tables.append(tableContent)
+        caseDict[parser_log.TABLES] = tables
+        result.append(caseDict)
+    outfp.write(json.dumps(result))
+    return result
+
 if __name__ == "__main__":
-    infp = open("fio_output.log", 'r')
-    outfp = open("tmp.log", "w+")
-    content = infp.read()
-    pdb.set_trace()
-    bw_parser(content, outfp)
-    iops_parser(content, outfp)
+    infile = "fio_output.log"
+    outfile = "fio_json.txt"
+    outfp = open(outfile, "a+")
+    fio(infile, outfp)
     outfp.close()
-    infp.close()

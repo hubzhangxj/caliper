@@ -3,7 +3,8 @@
 import re
 import string
 import pdb
-
+import json
+from caliper.server.parser_process import parser_log
 
 def compute_mflops(content, outfp):
     score = 0
@@ -40,18 +41,54 @@ def linpack_sp_parser(content, outfp):
         score = compute_mflops(content, outfp)
     return score
 
+def linpack(filePath, outfp):
+    file = open(filePath)
+    filecontent = file.read()
+    file.close()
+    result = []
+    cases = re.findall('<<<BEGIN TEST>>>([\s\S]+?)<<<END>>>', filecontent)
+    for case in cases:
+        caseDict = {}
+        titleGroup = re.search('Memory required:([\s\S]+)performance:', case)
+        if titleGroup != None:
+            caseDict[parser_log.TOP] = titleGroup.group(0)
+
+        endGroup = re.search('\[status\]([\s\S]+)Time in Seconds([\s\S]+)s', case)
+        if endGroup != None:
+            caseDict[parser_log.BOTTOM] = endGroup.group(0)
+
+        my_regex = '%s([\s\S]+)\[status\]:' % (caseDict["top"])
+        center = re.search(my_regex, case)
+        table_contents = []
+        if center != None:
+            tableDict = {}
+            data = center.group(1).strip()
+            lines = data.splitlines()
+            table = []
+            for index in range(len(lines)):
+                line = lines[index]
+                newline = line.strip()
+                if newline != '':
+                    td = []
+                    cells = newline.split(" ")
+                    for table_title in cells:
+                        title = table_title.strip()
+                        if title != '':
+                            td.append(title)
+                    if len(td) > 1:
+                        table.append(td)
+            tableDict[parser_log.TABLE] = table
+            table_contents.append(tableDict)
+            caseDict[parser_log.TABLES] = table_contents
+        result.append(caseDict)
+    result = json.dumps(result)
+    outfp.write(result)
+    return result
 
 if __name__ == "__main__":
-    infp = open("2.txt", "r")
-    outfp = open("3.txt", "a+")
-    content = infp.read()
-    pdb.set_trace()
-    linpack_dp_parser(content, outfp)
+    infile = "linpack_output.log"
+    outfile = "linpack_json.txt"
+    outfp = open(outfile, "a+")
+    linpack(infile, outfp)
+    # parser1(content, outfp)
     outfp.close()
-    infp.close()
-    infp = open("1.txt", "r")
-    outfp = open("4.txt", "a+")
-    content = infp.read()
-    linpack_sp_parser(content, outfp)
-    outfp.close()
-    infp.close()
