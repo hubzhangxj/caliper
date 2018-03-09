@@ -1,6 +1,0 @@
----
-- name: start nginx-server on server
-  command: sh /tmp/nginx/files/start-server.sh
-  become: true
-  become_method: sudo
-  become_user: root

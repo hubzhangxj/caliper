@@ -1,7 +1,0 @@
----
-# defaults file for ansible-redis
-redis:
-  redis_Instance_01:
-    category: 'Performance application redis_Instance_01'
-    scores_way: 'compute_speed_score 3'
-    parser: 'redis_parser'

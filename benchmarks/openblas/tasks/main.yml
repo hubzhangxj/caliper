@@ -1,8 +1,0 @@
-- name: copy file
-  copy: src=openblas.tar.gz dest=/tmp/openblas.tar.gz mode=0777
-
-- name: tar file
-  shell: cd /tmp && tar xvf openblas.tar.gz && rm -rf openblas.tar.gz
-
-- name: run install
-  shell: "cd /tmp/openblas && ./install.sh"

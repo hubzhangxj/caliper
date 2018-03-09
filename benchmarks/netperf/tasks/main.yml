@@ -1,5 +1,0 @@
-- include: install_netperf.yml
-  when: install_netperf | bool
-
-- include: run_netperf_server.yml
-  when: run_server | bool

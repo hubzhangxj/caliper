@@ -1,9 +1,0 @@
-- name: Install netperf on Client
-  hosts: '{{ hosts }}'
-  roles:
-    - { role: ../../netperf, install_netperf: true, run_server: no}
-
-- name: Install netperf on SlaveDevice
-  hosts: SlaveDevice
-  roles:
-    - { role: ../../netperf, install_netperf: true, run_server: no}

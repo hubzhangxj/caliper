@@ -1,4 +1,0 @@
-- name: start server
-  shell: "cd /tmp/netperf/src && ./netserver &"
-  async: 5
-  ignore_errors: yes

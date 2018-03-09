@@ -1,5 +1,0 @@
-openssl:
-  openssl_speed:
-    category: 'Performance algorithm'
-    scores_way: 'compute_speed_score 2'
-    parser: 'get_openssl_dic'

@@ -1,5 +1,0 @@
-unixbench:
-  unixbench_unixbench:
-    category: 'Performance'
-    scores_way: 'compute_speed_score 0'
-    parser: 'unixbench_parser'

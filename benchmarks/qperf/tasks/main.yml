@@ -1,5 +1,0 @@
-- include: install_qperf.yml
-  when: install_qperf | bool
-
-- include: run_qperf_server.yml
-  when: run_server | bool

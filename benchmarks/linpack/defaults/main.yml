@@ -1,9 +1,0 @@
-linpack:
-  linpack_dp:
-    category: 'Performance cpu_sincore sincore_double linpack_dp'
-    scores_way: 'compute_speed_score 4'
-    parser: 'linpack_dp_parser'
-  linpack_sp:
-    category: 'Performance cpu_sincore sincore_float linpack_sp'
-    scores_way: 'compute_speed_score 4'
-    parser: 'linpack_sp_parser'

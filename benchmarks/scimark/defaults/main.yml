@@ -1,5 +1,0 @@
-scimark:
-  scimark_scimark:
-    category: 'Performance cpu_sincore sincore_float scimark'
-    scores_way: 'compute_speed_score 1'
-    parser: 'scimark_parser'
