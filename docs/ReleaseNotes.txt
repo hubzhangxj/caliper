@@ -42,7 +42,7 @@ Comments：
 2. project_config.cfg，需要配置以下内容：
  - Target设备的ip, user, password. 
  - SlaveDevice的ip, user, password。以上2个设备需要完全一致。
- - Caliperweb: server_num, server_ip1, server_ip2...
+ - Caliperweb: server_num, server_url, server_url2...
 3. 默认情况下只执行单机测试。如果需要进行双机测试，需要修改$HOME/caliper_output/configuration/test_cases_cfg/server_cases_def.cfg，打开相应的测试选项，并修改$HOME/caliper_output/configuration/config/project_config.cfg, 配置 SlaveDevice_ip_10g，和hosts文件的[SlaveDevice]的配置，这两项都配置为server的IP地址。
 
 
@@ -98,4 +98,4 @@ Comments：
 2.project_config.cfg，需要配置以下内容：
  - Target设备的ip, user, password. 
  - SlaveDevice的ip, user, password。以上2个设备需要完全一致。
- - Caliperweb: server_num, server_ip1, server_ip2...
+ - Caliperweb: server_num, server_url1, server_url2...

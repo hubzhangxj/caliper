@@ -26,7 +26,7 @@ def upload_url(result_path):
         server_num = 0
     for i in range(server_num):
         try:
-            server_ip = settings.get_value('Caliperweb', 'server_ip%s' % int(i+1), type=str)
+            server_ip = settings.get_value('Caliperweb', 'server_url%s' % int(i+1), type=str)
         except Exception, e:
             server_ip = None
         try:
