@@ -36,11 +36,11 @@ def get_packages():
             'caliper.server.run',
             'caliper.server.shared',
             'caliper.server.upload',
-            'caliper.benchmarks',
+            #'caliper.benchmarks',
             'caliper.server',
-            'caliper.config',
-            'caliper.utils',
-            'caliper.docs',
+            #'caliper.config',
+            #'caliper.utils',
+            #'caliper.docs',
             'caliper']
 
 def get_package_data():
@@ -56,6 +56,7 @@ def get_scripts():
             'config/push_sshkey.yml']
 
 def get_package_dirs():
+    #return { 'caliper.server': 'server'}  
     return {'caliper': 'server/..', 'caliper.server': 'server'}  
 
 setup(
