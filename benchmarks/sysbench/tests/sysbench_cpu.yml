@@ -8,11 +8,11 @@
 
     - name: install bzr for redhat
       yum: name='bzr' state=present disable_gpg_check=yes
-      when: ansible_os_family == 'RedHat'
+      when: ansible_distribution == 'RedHat'
 
     - name: install libmysqlclient-devel for redhat
       yum: name='libmysqlclient-devel' state=present disable_gpg_check=yes
-      when: ansible_os_family == 'RedHat'
+      when: ansible_distribution == 'RedHat'
 
     - name: install bzr for ubuntu
       apt: name='bzr' state=present
@@ -27,7 +27,15 @@
       when: ansible_distribution == 'CentOS'
 
     - name: install libmysqlclient-devel for CentOS
-      yum: name='libmysqlclient-devel' state=present disable_gpg_check=yes
+      yum: name='mysql' state=present disable_gpg_check=yes
+      when: ansible_distribution == 'CentOS'
+
+    - name: install libmysqlclient-devel for CentOS
+      yum: name='libtool' state=present disable_gpg_check=yes
+      when: ansible_distribution == 'CentOS'
+
+    - name: install mariadb-devel for CentOS
+      yum: name='mariadb-devel' state=present disable_gpg_check=yes
       when: ansible_distribution == 'CentOS'
 
     - name: install libmysqlclient-devel for SLES
