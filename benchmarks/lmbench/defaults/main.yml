@@ -1,77 +1,10 @@
 lmbench:
-  lmbench_bandwidth:
+  lmbench_bw:
     category: 'Performance'
     scores_way: 'compute_speed_score 3'
-    parser: 'lmbench_bandwidth_parser'
-  lmbench_bandwidth_cross_die_16_core:
-    category: 'Performance memory lb_bw_cross_16_core'
-    scores_way: 'compute_speed_score 3'
-    parser: 'lmbench_bandwidth_parser_new'
-  lmbench_bandwidth_cross_die_1_core:
-    category: 'Performance memory lb_bw_cross_01_core'
-    scores_way: 'compute_speed_score 3'
-    parser: 'lmbench_bandwidth_parser_new'
-  lmbench_bandwidth_cross_die_4_core:
-    category: 'Performance memory lb_bw_cross_04_core'
-    scores_way: 'compute_speed_score 3'
-    parser: 'lmbench_bandwidth_parser_new'
-  lmbench_bandwidth_local_die_16_core:
-    category: 'Performance memory lb_bw_local_16_core'
-    scores_way: 'compute_speed_score 3'
-    parser: 'lmbench_bandwidth_parser_new'
-  lmbench_bandwidth_local_die_1_core:
-    category: 'Performance memory lb_bw_local_01_core'
-    scores_way: 'compute_speed_score 3'
-    parser: 'lmbench_bandwidth_parser_new'
-  lmbench_bandwidth_local_die_32_core:
-    category: 'Performance memory lb_bw_local_32_core'
-    scores_way: 'compute_speed_score 3'
-    parser: 'lmbench_bandwidth_parser_new'
-  lmbench_bandwidth_local_die_4_core:
-    category: 'Performance memory lb_bw_local_04_core'
-    scores_way: 'compute_speed_score 3'
-    parser: 'lmbench_bandwidth_parser_new'
-  lmbench_bandwidth_local_die_64_core:
-    category: 'Performance memory lb_bw_local_64_core'
-    scores_way: 'compute_speed_score 3'
-    parser: 'lmbench_bandwidth_parser_new'
-  lmbench_bandwidth_stream_v1:
-    category: 'Performance memory lb_bw_stream_v1'
-    scores_way: 'compute_speed_score 3'
-    parser: 'lmbench_bandwidth_stream_v1'
-  lmbench_bandwidth_stream_v2:
-    category: 'Performance memory lb_bw_stream_v2'
-    scores_way: 'compute_speed_score 3'
-    parser: 'lmbench_bandwidth_stream_v2'
+    parser: 'lmbench_parser'
   lmbench_lat:
     category: 'Performance'
     scores_way: 'exp_score_compute 1 -0.5'
-    parser: 'lmbench_lat_parser'
-  lmbench_latency_cross_die_16_core:
-    category: 'Performance memory lb_lat_cross_16_core'
-    scores_way: 'exp_score_compute 1 -0.5'
-    parser: 'lmbench_latency_local_mem'
-  lmbench_latency_cross_die_1_core':
-    category: 'Performance memory lb_lat_cross_01_core'
-    scores_way: 'exp_score_compute 1 -0.5'
-    parser: 'lmbench_latency_local_mem'
-  lmbench_latency_cross_die_4_core:
-    category: 'Performance memory lb_lat_cross_04_core'
-    scores_way: 'exp_score_compute 1 -0.5'
-    parser: 'lmbench_latency_local_mem'
-  lmbench_latency_local_die_16_core:
-    category: 'Performance memory lb_lat_local_16_core'
-    scores_way: 'exp_score_compute 1 -0.5'
-    parser: 'lmbench_latency_local_mem'
-  lmbench_latency_local_die_1_core:
-    category: 'Performance memory lb_lat_local_01_core'
-    scores_way: 'exp_score_compute 1 -0.5'
-    parser: 'lmbench_latency_local_mem'
-  lmbench_latency_local_die_32_core:
-    category: 'Performance memory lb_lat_local_32_core'
-    scores_way: 'exp_score_compute 1 -0.5'
-    parser: 'lmbench_latency_local_mem'
-  lmbench_latency_local_die_4_core:
-    category: 'Performance memory lb_lat_local_04_core'
-    scores_way: 'exp_score_compute 1 -0.5'
-    parser: 'lmbench_latency_local_mem'
+    parser: 'lmbench_parser'
+

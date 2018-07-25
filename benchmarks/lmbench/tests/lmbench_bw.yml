@@ -23,14 +23,14 @@
         state: absent
 
     - name: execute lmbench test according to server type 2650
-      shell: ./lmbench-lat-test-2650v4.sh
+      shell: ./lmbench-bw-test-2650v4.sh
       args:
         chdir: /usr/local/benchmark/lmbench-3.0-a9/scripts
       register: logdata
       when: x86_2650.stdout.find('E5-2650') != -1
 
     - name: execute lmbench test according to server type 2640
-      shell: ./lmbench-lat-test-2640v4.sh
+      shell: ./lmbench-bw-test-2640v4.sh
       args:
         chdir: /usr/local/benchmark/lmbench-3.0-a9/scripts
       register: logdata
@@ -45,7 +45,7 @@
       when: x86_2640.stdout.find('E5-2640') != -1
 
     - name: execute lmbench test according to server type 1616
-      shell: ./lmbench-lat-test.sh
+      shell: ./lmbench-bw-test.sh
       args:
         chdir: /usr/local/benchmark/lmbench-3.0-a9/scripts
       register: logdata
@@ -54,10 +54,9 @@
     - name: get arm data
       lineinfile: create=yes  dest=/tmp/lmbench_output.log line={{ logdata.stdout+'\n'+logdata.stderr }} state=present mode=0755
       when: arch64_1616.stdout.find('Hi1616') != -1
- 
 
     - name: execute lmbench test according to server type 1620
-      shell: ./lmbench-lat-test-1620.sh
+      shell: ./lmbench-bw-test-1620.sh
       args:
         chdir: /usr/local/benchmark/lmbench-3.0-a9/scripts
       register: logdata

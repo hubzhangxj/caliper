@@ -23,11 +23,25 @@
   when: ansible_distribution == 'SLES'
   ignore_errors: yes
 
+- name: create speccpu2006 directory
+  file: path={{ lmbench_locate }} state=directory mode=0755
+
 - name: copy file
-  copy: src=lmbench.build.tar.gz dest=/tmp/lmbench.build.tar.gz mode=0777
+  copy: src=lmbench-3.0-a9.tgz dest=/usr/local/benchmark mode=0777
 
-- name: tar file
-  shell: cd /tmp && tar -xvf lmbench.build.tar.gz && rm -rf lmbench.build.tar.gz
+- name: Decompress lmbench tarball
+  unarchive:
+    src={{ lmbench_locate }}/lmbench-3.0-a9.tgz
+    dest={{ lmbench_locate }}/
+    copy=yes
+    list_files=yes
 
-- name: run install
-  shell: "cd /tmp/lmbench.build && ./install.sh"
+- name: copy scripts to targetpath
+  copy: src=scripts dest={{ lmbench_home }}/ mode=0755 
+  tags: cc
+
+- name: build lmbench
+  shell: ./lmbench-build.sh
+  args:
+    chdir: /usr/local/benchmark/lmbench-3.0-a9/scripts
+  

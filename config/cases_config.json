@@ -24,23 +24,7 @@
     {
       "lmbench":
         {
-          "lmbench_bandwidth_stream_v1": ["enable", "1"],
-          "lmbench_bandwidth_stream_v2": ["enable", "1"],
-          "lmbench_bandwidth_local_die_1_core":["enable" ,"1" ],
-          "lmbench_bandwidth_local_die_4_core":["enable" ,"1" ],
-          "lmbench_bandwidth_local_die_16_core":["enable" ,"1" ],
-          "lmbench_bandwidth_local_die_32_core":["enable" ,"1" ],
-          "lmbench_bandwidth_local_die_64_core":["enable" ,"1" ],
-          "lmbench_bandwidth_cross_die_1_core":["enable" ,"1" ],
-          "lmbench_bandwidth_cross_die_4_core":["enable" ,"1" ],
-          "lmbench_bandwidth_cross_die_16_core":["enable" ,"1" ],
-          "lmbench_latency_local_die_1_core":["enable" ,"1" ],
-          "lmbench_latency_local_die_4_core":["enable" ,"1" ],
-          "lmbench_latency_local_die_16_core":["enable" ,"1" ],
-          "lmbench_latency_local_die_32_core":["enable" ,"1" ],
-          "lmbench_latency_cross_die_1_core":["enable" ,"1" ],
-          "lmbench_latency_cross_die_4_core":["enable" ,"1" ],
-          "lmbench_latency_cross_die_16_core":["enable" ,"1" ]
+          "lmbench_bw":["enable" ,"1" ],
         }
     }
   ],
@@ -49,43 +33,43 @@
     {
       "netperf":
         {
-          "netperf_TCP_STREAM":["enable" ,"1" ],
-          "netperf_TCP_STREAM_R":["enable" ,"1" ],
-          "netperf_TCP_RR":["enable" ,"1" ],
-          "netperf_TCP_CRR":["enable" ,"1" ],
-          "netperf_UDP_RR":["enable" ,"1" ]
+          "netperf_TCP_STREAM":["disable" ,"1" ],
+          "netperf_TCP_STREAM_R":["disable" ,"1" ],
+          "netperf_TCP_RR":["disable" ,"1" ],
+          "netperf_TCP_CRR":["disable" ,"1" ],
+          "netperf_UDP_RR":["disable" ,"1" ]
         }
     },
 
     {
       "iperf":
         {
-          "iperf_TCP_sin_1_tx":["enable" ,"1" ],
-          "iperf_TCP_sin_3_tx":["enable" ,"1" ],
-          "iperf_TCP_sin_4_tx":["enable" ,"1" ],
-          "iperf_TCP_sin_5_tx":["enable" ,"1" ],
-          "iperf_TCP_sin_10_tx":["enable" ,"1" ],
-          "iperf_TCP_sin_1_rx":["enable" ,"1" ],
-          "iperf_TCP_sin_3_rx":["enable" ,"1" ],
-          "iperf_TCP_sin_4_rx":["enable" ,"1" ],
-          "iperf_TCP_sin_5_rx":["enable" ,"1" ],
-          "iperf_TCP_sin_10_rx":["enable" ,"1" ],
-          "iperf_UDP_sin_1_tx":["enable" ,"1" ],
-          "iperf_UDP_sin_3_tx":["enable" ,"1" ],
-          "iperf_UDP_sin_5_tx":["enable" ,"1" ],
-          "iperf_UDP_sin_10_tx":["enable" ,"1" ],
-          "iperf_UDP_sin_1_rx":["enable" ,"1" ],
-          "iperf_UDP_sin_3_rx":["enable" ,"1" ],
-          "iperf_UDP_sin_5_rx":["enable" ,"1" ],
-          "iperf_UDP_sin_10_rx":["enable" ,"1" ]
+          "iperf_TCP_sin_1_tx":["disable" ,"1" ],
+          "iperf_TCP_sin_3_tx":["disable" ,"1" ],
+          "iperf_TCP_sin_4_tx":["disable" ,"1" ],
+          "iperf_TCP_sin_5_tx":["disable" ,"1" ],
+          "iperf_TCP_sin_10_tx":["disable" ,"1" ],
+          "iperf_TCP_sin_1_rx":["disable" ,"1" ],
+          "iperf_TCP_sin_3_rx":["disable" ,"1" ],
+          "iperf_TCP_sin_4_rx":["disable" ,"1" ],
+          "iperf_TCP_sin_5_rx":["disable" ,"1" ],
+          "iperf_TCP_sin_10_rx":["disable" ,"1" ],
+          "iperf_UDP_sin_1_tx":["disable" ,"1" ],
+          "iperf_UDP_sin_3_tx":["disable" ,"1" ],
+          "iperf_UDP_sin_5_tx":["disable" ,"1" ],
+          "iperf_UDP_sin_10_tx":["disable" ,"1" ],
+          "iperf_UDP_sin_1_rx":["disable" ,"1" ],
+          "iperf_UDP_sin_3_rx":["disable" ,"1" ],
+          "iperf_UDP_sin_5_rx":["disable" ,"1" ],
+          "iperf_UDP_sin_10_rx":["disable" ,"1" ]
         }
     },
 
     {
       "qperf":
         {
-          "qperf_tcp_bw":["enable" ,"1" ],
-          "qperf_tcp_lat":["enable" ,"1" ]
+          "qperf_tcp_bw":["disable" ,"1" ],
+          "qperf_tcp_lat":["disable" ,"1" ]
         }
     }
   ],
@@ -94,7 +78,7 @@
     {
       "lmbench":
         {
-          "lmbench_lat":["enable" ,"1" ]
+          "lmbench_lat":["disable" ,"1" ]
         }
     }
   ],
@@ -108,43 +92,43 @@
       {
         "linpack":
           {
-            "linpack_sp":["enable" ,"1" ],
-            "linpack_dp":["enable" ,"1" ]
+            "linpack_sp":["disable" ,"1" ],
+            "linpack_dp":["disable" ,"1" ]
           }
       },
 
       {
         "nbench":
           {
-            "nbench_nbench":["enable" ,"1" ]
+            "nbench_nbench":["disable" ,"1" ]
           }
       },
 
       {
         "dhrystone":
           {
-            "dhrystone_gcc_dhry2":["enable" ,"1" ]
+            "dhrystone_gcc_dhry2":["disable" ,"1" ]
           }
       },
 
       {
         "scimark":
-          {"scimark_scimark":["enable" ,"1" ]}
+          {"scimark_scimark":["disable" ,"1" ]}
       },
 
       {
         "unixbench":
-          {"unixbench_unixbench":["enable" ,"1" ]}
+          {"unixbench_unixbench":["disable" ,"1" ]}
       },
 
       {
         "openblas":
-          {"openblas_core_1":["enable" ,"1" ]}
+          {"openblas_core_1":["disable" ,"1" ]}
       },
 
       {
         "stressng":
-          {"stressng_single":["enable" ,"1" ]}
+          {"stressng_single":["disable" ,"1" ]}
       },
 
       {
@@ -157,15 +141,15 @@
       {
         "openblas":
           {
-            "openblas_core_10":["enable" ,"1" ],
-            "openblas_core_32":["enable" ,"1" ],
-            "openblas_core_64":["enable" ,"1" ]
+            "openblas_core_10":["disable" ,"1" ],
+            "openblas_core_32":["disable" ,"1" ],
+            "openblas_core_64":["disable" ,"1" ]
           }
       },
 
       {
         "stressng":
-          {"stressng_multi":["enable" ,"1" ]}
+          {"stressng_multi":["disable" ,"1" ]}
       }  
   ],
 
@@ -187,8 +171,8 @@
       {
           "iozone":
             {
-              "iozone_Cached":["enable" ,"1" ],
-              "iozone_directIO":["enable" ,"1" ]
+              "iozone_Cached":["disable" ,"1" ],
+              "iozone_directIO":["disable" ,"1" ]
             }
       }
   ],
@@ -196,12 +180,12 @@
   "algorithm": [
     {
       "openssl":
-        {"openssl_speed":["enable" ,"1" ]}
+        {"openssl_speed":["disable" ,"1" ]}
     },
 
     {
       "unzip":
-        {"unzip_compile_1":["enable" ,"1" ]}
+        {"unzip_compile_1":["disable" ,"1" ]}
     }
   ],
 
@@ -209,14 +193,14 @@
     {
       "compile":
         {
-          "compile_1":["enable" ,"1" ],
-          "compile_2":["enable" ,"1" ],
-          "compile_4":["enable" ,"1" ],
-          "compile_8":["enable" ,"1" ],
-          "compile_16":["enable" ,"1" ],
-          "compile_32":["enable" ,"1" ],
-          "compile_64":["enable" ,"1" ],
-          "compile_72":["enable" ,"1" ]
+          "compile_1":["disable" ,"1" ],
+          "compile_2":["disable" ,"1" ],
+          "compile_4":["disable" ,"1" ],
+          "compile_8":["disable" ,"1" ],
+          "compile_16":["disable" ,"1" ],
+          "compile_32":["disable" ,"1" ],
+          "compile_64":["disable" ,"1" ],
+          "compile_72":["disable" ,"1" ]
         }
     },
 

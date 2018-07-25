@@ -1,2 +1,6 @@
 ---
 # vars file for lmbench
+
+lmbench_locate: /usr/local/benchmark
+
+lmbench_home: /usr/local/benchmark/lmbench-3.0-a9
