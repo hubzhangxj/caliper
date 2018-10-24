@@ -20,43 +20,6 @@ def install_method(distro):
 
 project_config_path = os.path.join(os.getcwd(),'depend.json') 
 
-
-def project_depend_install():
-    f = open( project_config_path,'r')
-    project_depend = f.read()
-    f.close()
-    
-    #print json.loads(project_depend)
-    #print project_config_path
-    #platform.linux_distribution()
-    #('Ubuntu', '18.04', 'bionic')
-    distro = platform.linux_distribution()[0]
-    install_cmd=install_method(distro)
-    project_depend_install = json.loads(project_depend)
-    #print listunit['centos_dpk_package'][0].keys()
-    #listunit['centos_dpk_package'][0].values()
-    #if distro == 'ubuntu':
-    try:
-       print   project_depend_install[distro][0]
-       for i in range( len(project_depend_install[distro])):
-           install_pkg=(''.join(project_depend_install[distro][i].keys()))
-           install_judge = (''.join(project_depend_install[distro][i].values()))
-           #print '%s %s' % (install_method(distro), install_pkg)
-           print " %s %d" %(type(int(install_judge)), int(install_judge))
-           
-           if int(install_judge) == 1:
-               print "%s %s"% ( install_cmd, install_pkg)
-               retcode = subprocess.call("%s %s" % ( install_cmd, install_pkg), shell=True) 
-               print i
-               print i,retcode
-           #print value
-    
-    
-    except Exception as ie:
-        print 'it\'s not exit %s ' % distro
-        print ie
-
-
 if __name__ == '__main__':
     f = open( project_config_path,'r')
     project_depend = f.read()
@@ -85,7 +48,6 @@ if __name__ == '__main__':
            if i < distro_listlen :
                install_pkg = (''.join(project_depend_install[distro][i].keys()))
                install_judge = (''.join(project_depend_install[distro][i].values()))
-               #print '%s %s' % (install_method(distro), install_pkg)
            #print "=======Num %s install %s============" %(i, type(int(install_judge)))
            else :
                j = i -distro_listlen
@@ -98,10 +60,7 @@ if __name__ == '__main__':
            if int(install_judge) == 1:
                #retcode = subprocess.call("%s %s" % ( install_cmd, install_pkg), shell=True) 
                subprocess.call("%s %s" % ( install_cmd, install_pkg), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
-           #    print i
-           #    print i,retcode
-           #print value
-           pbar.update(10 * i + 1)
+           pbar.update(10 * i + 10)
     
     except Exception as ie:
         print 'it\'s not exit %s ' % distro
