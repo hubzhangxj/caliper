@@ -60,24 +60,8 @@
     {
       "iperf":
         {
-          "iperf_TCP_sin_1_tx":["enable" ,"1" ],
-          "iperf_TCP_sin_3_tx":["enable" ,"1" ],
-          "iperf_TCP_sin_4_tx":["enable" ,"1" ],
-          "iperf_TCP_sin_5_tx":["enable" ,"1" ],
-          "iperf_TCP_sin_10_tx":["enable" ,"1" ],
-          "iperf_TCP_sin_1_rx":["enable" ,"1" ],
-          "iperf_TCP_sin_3_rx":["enable" ,"1" ],
-          "iperf_TCP_sin_4_rx":["enable" ,"1" ],
-          "iperf_TCP_sin_5_rx":["enable" ,"1" ],
-          "iperf_TCP_sin_10_rx":["enable" ,"1" ],
-          "iperf_UDP_sin_1_tx":["enable" ,"1" ],
-          "iperf_UDP_sin_3_tx":["enable" ,"1" ],
-          "iperf_UDP_sin_5_tx":["enable" ,"1" ],
-          "iperf_UDP_sin_10_tx":["enable" ,"1" ],
-          "iperf_UDP_sin_1_rx":["enable" ,"1" ],
-          "iperf_UDP_sin_3_rx":["enable" ,"1" ],
-          "iperf_UDP_sin_5_rx":["enable" ,"1" ],
-          "iperf_UDP_sin_10_rx":["enable" ,"1" ]
+          "iperf_bw_sin_1":["enable" ,"1" ],
+          "iperf_bw_sin_4":["enable" ,"1" ]
         }
     },
 
