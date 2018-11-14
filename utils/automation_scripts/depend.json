@@ -25,7 +25,7 @@
     {"libffi-dev":"1"}
 ],
 
-"centos":[
+"CentOS":[
     {"sshpass":"1"},
     {"psmisc":"1"},
     {"ethtool":"1"},

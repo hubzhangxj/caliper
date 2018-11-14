@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-
+import pdb
 
 
 import os
-import  time
+import time
 import json
 import platform
 import subprocess
@@ -14,6 +14,7 @@ def install_method(distro):
     return {
             'Ubuntu': 'apt-get -y install ',
             'CentOS': 'yum -y install',
+            'CentOS Linux': 'yum -y install',
             'Redhat': 'yum -y install',
             'slse': 'zyyper',
     }.get(distro,'error')
@@ -24,12 +25,11 @@ if __name__ == '__main__':
     f = open( project_config_path,'r')
     project_depend = f.read()
     f.close()
-    
     #print json.loads(project_depend)
     #print project_config_path
     #platform.linux_distribution()
     #('Ubuntu', '18.04', 'bionic')
-    distro = platform.linux_distribution()[0]
+    distro = platform.linux_distribution()[0].split()[0]
     install_cmd=install_method(distro)
     project_depend_install = json.loads(project_depend)
     #print listunit['centos_dpk_package'][0].keys()
