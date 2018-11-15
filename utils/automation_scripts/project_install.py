@@ -37,29 +37,37 @@ if __name__ == '__main__':
     #if distro == 'ubuntu':
     distro_listlen = len(project_depend_install[distro])
     install_listlen = len(project_depend_install[distro]) + len(project_depend_install['pip'])
-    print "install len %d " % install_listlen
+    total_len = install_listlen + 1
+    #print "install len %d " % total_len
     widgets = ['Progress: ',Percentage(), ' ', Bar('#'),' ', Timer(),' ', ETA(), ' ', FileTransferSpeed()]
     #pbar = ProgressBar(widgets=widgets, maxval=10*total).start()
-    pbar = ProgressBar(widgets=widgets, maxval=10*install_listlen).start()
+    pbar = ProgressBar(widgets=widgets, maxval=10*total_len).start()
 
     try:
        #print   project_depend_install[distro][0]
-       for i in range( install_listlen):
+       for i in range( total_len):
+           # print "Num i:%d is install_listlen:%d " % (i, install_listlen) 
            if i < distro_listlen :
                install_pkg = (''.join(project_depend_install[distro][i].keys()))
                install_judge = (''.join(project_depend_install[distro][i].values()))
            #print "=======Num %s install %s============" %(i, type(int(install_judge)))
-           else :
+           elif i < install_listlen :
                j = i -distro_listlen
                install_cmd='pip install'
                install_pkg = (''.join(project_depend_install['pip'][j].keys()))
                install_judge = (''.join(project_depend_install['pip'][j].values()))
-           
+           else:
+              pdb.set_trace()
+              abs_path = os.path.abspath('..')
+              base_path = os.path.split(abs_path)[0]
+              install_cmd = 'python'
+              install_pkg = 'setup.py install'
+              os.chdir(base_path)
            #print "=======Num %d install %s============" %(i, install_pkg)
                
-           if int(install_judge) == 1:
                #retcode = subprocess.call("%s %s" % ( install_cmd, install_pkg), shell=True) 
-               subprocess.call("%s %s" % ( install_cmd, install_pkg), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
+           subprocess.call("%s %s" % ( install_cmd, install_pkg), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
+
            pbar.update(10 * i + 10)
     
     except Exception as ie:
