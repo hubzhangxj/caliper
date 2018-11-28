@@ -57,7 +57,7 @@ if __name__ == '__main__':
                install_pkg = (''.join(project_depend_install['pip'][j].keys()))
                install_judge = (''.join(project_depend_install['pip'][j].values()))
            else:
-              pdb.set_trace()
+              #pdb.set_trace()
               abs_path = os.path.abspath('..')
               base_path = os.path.split(abs_path)[0]
               install_cmd = 'python'
