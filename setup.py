@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import pdb
 import os
+import re
 import stat
 import shutil
 import glob
@@ -68,6 +69,7 @@ def run():
     caliper_tmp_dir = os.path.join(caliper_data_dir, 'benchmarks')
     caliper_configuration = os.path.join(caliper_output,'configuration')
     caliper_config_file = os.path.join(caliper_configuration,'config')
+    project_config_path = os.path.join(re.split('caliper',os.getcwd())[0],'caliper')
     if os.path.exists(caliper_tmp_dir):
         shutil.rmtree(caliper_tmp_dir)
 
@@ -75,18 +77,18 @@ def run():
         shutil.rmtree(caliper_config_file)
 
     shutil.copytree(
-            os.path.join(os.getcwd(), 'config'), caliper_config_file
+            os.path.join(project_config_path, 'config'), caliper_config_file
             )
     shutil.copystat(
-        os.path.join(os.getcwd(), 'config'), caliper_config_file
+            os.path.join(project_config_path, 'config'), caliper_config_file
     )
 
     shutil.copytree(
-        os.path.join(os.getcwd(), 'benchmarks'),
+        os.path.join(project_config_path, 'benchmarks'),
         caliper_tmp_dir
     )
     shutil.copystat(
-        os.path.join(os.getcwd(), 'benchmarks'),
+        os.path.join(project_config_path, 'benchmarks'),
         caliper_tmp_dir
     )
     os.chmod(caliper_data_dir, stat.S_IRWXO + stat.S_IRWXU)
@@ -103,7 +105,14 @@ def run():
             scripts=server.setup.get_scripts(),
             url='http://github.com/open-estuary/caliper',
             maintainer="open-estuary",
-            install_requires=['pyYAML' ]
+            install_requires=['pyYAML',
+                       #'poster==0.8.1',
+                     #'openpyxl==2.4.9',
+                 #'cryptography==2.1.4',
+                  #'setuptools==38.4.0',
+                     #'paramiko==2.4.0',
+                    #'ansible==2.4.2.0'
+                 ]
             )
     try:
         os.chown(caliper_output, getpwnam(os.environ['SUDO_USER']).pw_uid,-1)
@@ -115,8 +124,8 @@ def run():
 
     if os.path.exists('caliper.egg-info'):
         shutil.rmtree('caliper.egg-info')
-    if os.path.exists('dist'):
-        shutil.rmtree('dist')
+    #if os.path.exists('dist'):
+    #    shutil.rmtree('dist')
     if os.path.exists('build'):
         shutil.rmtree('build')
 

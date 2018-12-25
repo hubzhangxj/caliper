@@ -59,7 +59,7 @@ def get_packages():
 
 
 def get_package_dirs():
-    return {'caliper.server': server_dir, 'caliper': caliper_dir}
+    return {'caliper.server': server_dir, 'caliper': caliper_dir, 'config': 'config'}
 
 
 def get_filelist():
